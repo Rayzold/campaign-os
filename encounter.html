@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔ Encounter Builder — Scarred Lands</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --yellow:#eab308; --red:#ef4444; --green:#22c55e; --bg:#08080f; --surface:#0f0f1a; --surface2:#13131f; --border:#1e1e2e; --muted:#4a4a6a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; background:var(--bg); color:#e2e8f0; font-family:'Courier New',monospace; overflow:hidden; }
+  body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:200;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px); }
+
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:#e2e8f0; font-family:inherit; font-size:.75rem; letter-spacing:.06em; cursor:pointer; transition:all .15s; white-space:nowrap; }
+  .btn:hover { border-color:var(--accent,var(--border)); color:var(--accent,#e2e8f0); background:rgba(255,255,255,.04); }
+  .btn-primary { background:var(--accent,var(--orange)); border-color:var(--accent,var(--orange)); color:#000; font-weight:bold; }
+  .btn-primary:hover { opacity:.85; color:#000; }
+  .btn-sm { padding:4px 10px; font-size:.68rem; }
+  .btn-danger { --accent:var(--red); }
+
+  .inp { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:7px 10px; color:#e2e8f0; font-family:inherit; font-size:.78rem; outline:none; transition:border-color .15s; width:100%; }
+  .inp:focus { border-color:var(--red); }
+  .inp-sm { padding:4px 8px; font-size:.72rem; }
+
+  .tag { display:inline-block; padding:1px 7px; border-radius:10px; font-size:.6rem; font-weight:bold; letter-spacing:.08em; text-transform:uppercase; }
+
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; }
+
+  .diff-trivial  { color:#22c55e; }
+  .diff-easy     { color:#86efac; }
+  .diff-medium   { color:#eab308; }
+  .diff-hard     { color:#f97316; }
+  .diff-deadly   { color:#ef4444; }
+  .diff-beyond   { color:#a855f7; }
+
+  @keyframes pop-in { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)} }
+  .pop-in { animation:pop-in .15s ease both; }
+
+  @keyframes slide-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  .slide-in { animation:slide-in .2s ease both; }
+
+  .creature-card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 12px; cursor:pointer; transition:all .15s; }
+  .creature-card:hover { border-color:var(--red); background:rgba(239,68,68,.05); }
+
+  .enc-slot { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 12px; transition:border-color .15s; }
+  .enc-slot:hover { border-color:var(--muted); }
+
+  .hazard-chip { background:rgba(168,85,247,.1); border:1px solid rgba(168,85,247,.3); color:var(--purple); border-radius:6px; padding:4px 10px; font-size:.68rem; letter-spacing:.06em; display:flex; align-items:center; gap:6px; }
+
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:300; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:28px; max-width:520px; width:100%; max-height:80vh; overflow-y:auto; }
+
+  .cr-badge { display:inline-block; padding:1px 6px; border-radius:4px; font-size:.58rem; font-weight:bold; letter-spacing:.08em; background:rgba(239,68,68,.15); color:var(--red); border:1px solid rgba(239,68,68,.3); }
+  .type-badge { display:inline-block; padding:1px 6px; border-radius:4px; font-size:.58rem; font-weight:bold; letter-spacing:.08em; }
+
+  .section-hdr { font-size:.6rem; font-weight:bold; letter-spacing:.15em; color:var(--muted); text-transform:uppercase; padding:0 0 8px; border-bottom:1px solid var(--border); margin-bottom:10px; }
+
+  .tab-btn { padding:6px 14px; font-size:.7rem; letter-spacing:.08em; cursor:pointer; border-bottom:2px solid transparent; color:var(--muted); transition:all .15s; white-space:nowrap; }
+  .tab-btn.active { color:var(--red); border-color:var(--red); }
+</style>
+</head>
+<body>
+<div style="height:100vh;display:flex;flex-direction:column;position:relative;z-index:10;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;">
+    <a href="index.html" class="btn btn-sm" style="--accent:var(--muted);">← Hub</a>
+    <div style="font-size:1rem;font-weight:bold;letter-spacing:.12em;color:var(--red);">💀 ENCOUNTER BUILDER</div>
+    <div style="font-size:.65rem;color:var(--muted);letter-spacing:.08em;">SCARRED LANDS · BUILD · SAVE · DEPLOY</div>
+    <div style="flex:1;"></div>
+    <button class="btn btn-sm" onclick="randomEncounter()" style="--accent:var(--purple);">🎲 Random Encounter</button>
+    <button class="btn btn-sm btn-primary" style="--accent:var(--red);" onclick="newEncounter()">+ New Encounter</button>
+  </div>
+
+  <!-- Main Layout -->
+  <div style="flex:1;display:grid;grid-template-columns:240px 1fr 300px;overflow:hidden;">
+
+    <!-- Left: Saved Encounters -->
+    <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;">
+      <div style="padding:12px;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <div class="section-hdr" style="margin:0 0 8px;">SAVED ENCOUNTERS</div>
+        <input class="inp inp-sm" id="encSearch" placeholder="Search encounters…" oninput="renderEncList()">
+      </div>
+      <div id="encList" style="flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- Center: Active Encounter Editor -->
+    <div style="display:flex;flex-direction:column;overflow:hidden;">
+      <div id="editorEmpty" style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:var(--muted);">
+        <div style="font-size:3rem;">💀</div>
+        <div style="font-size:.8rem;letter-spacing:.1em;">SELECT OR CREATE AN ENCOUNTER</div>
+        <button class="btn btn-primary" style="--accent:var(--red);" onclick="newEncounter()">+ New Encounter</button>
+      </div>
+      <div id="editor" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+        <!-- Editor Header -->
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:12px;">
+          <input class="inp" id="encName" placeholder="Encounter name…" style="max-width:300px;" oninput="autoSave()">
+          <select class="inp" id="encBiome" style="max-width:160px;" onchange="autoSave()">
+            <option value="">— Biome —</option>
+            <option>Nanite Wastes</option>
+            <option>Glass Desert</option>
+            <option>Ruined City</option>
+            <option>Undercroft</option>
+            <option>Reclaimer Territory</option>
+            <option>Faction Outpost</option>
+            <option>Reality Rift Zone</option>
+            <option>Underground Bunker</option>
+            <option>Flooded District</option>
+          </select>
+          <div style="flex:1;"></div>
+          <div id="diffDisplay" style="font-size:.85rem;font-weight:bold;letter-spacing:.08em;"></div>
+          <button class="btn btn-sm btn-primary" style="--accent:var(--red);" onclick="sendToInitiative()">⚔ Send to Initiative</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteEncounter()">🗑</button>
+        </div>
+
+        <!-- Combatant List -->
+        <div style="flex:1;overflow-y:auto;padding:16px 20px;">
+          <!-- Hazards row -->
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <div class="section-hdr" style="margin:0;flex:1;">HAZARDS & TERRAIN</div>
+              <button class="btn btn-sm" style="--accent:var(--purple);" onclick="openHazardPicker()">+ Add Hazard</button>
+            </div>
+            <div id="hazardList" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;"></div>
+          </div>
+
+          <!-- Combatants -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="section-hdr" style="margin:0;flex:1;">COMBATANTS</div>
+            <div style="font-size:.65rem;color:var(--muted);">XP Total: <span id="xpTotal" style="color:#e2e8f0;">0</span></div>
+          </div>
+          <div id="combatantSlots" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <button class="btn" style="margin-top:12px;width:100%;justify-content:center;--accent:var(--muted);" onclick="openCreaturePicker()">+ Add Creature from Library</button>
+
+          <!-- Notes -->
+          <div style="margin-top:20px;">
+            <div class="section-hdr">ENCOUNTER NOTES</div>
+            <textarea class="inp" id="encNotes" rows="3" placeholder="Setup, tactics, environment description…" oninput="autoSave()" style="resize:vertical;line-height:1.5;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Creature Library -->
+    <div style="border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;">
+      <div style="padding:12px;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <div class="section-hdr" style="margin:0 0 8px;">CREATURE LIBRARY</div>
+        <input class="inp inp-sm" id="libSearch" placeholder="Search creatures…" oninput="renderLibrary()">
+        <div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;" id="typeTabs">
+          <button class="tab-btn active" data-type="all" onclick="filterType(this)">All</button>
+          <button class="tab-btn" data-type="beast" onclick="filterType(this)">Beast</button>
+          <button class="tab-btn" data-type="construct" onclick="filterType(this)">Construct</button>
+          <button class="tab-btn" data-type="humanoid" onclick="filterType(this)">Humanoid</button>
+          <button class="tab-btn" data-type="aberration" onclick="filterType(this)">Aberrant</button>
+        </div>
+      </div>
+      <div id="libraryList" style="flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
+      <div style="padding:10px 12px;border-top:1px solid var(--border);">
+        <button class="btn" style="width:100%;justify-content:center;--accent:var(--muted);" onclick="openCustomCreature()">+ Custom Creature</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Overlays -->
+<div id="creaturePickerOverlay" class="overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="max-width:640px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;flex:1;">ADD CREATURE</div>
+      <button class="btn btn-sm" onclick="document.getElementById('creaturePickerOverlay').style.display='none'">✕ Close</button>
+    </div>
+    <input class="inp" id="pickSearch" placeholder="Search library…" oninput="renderPickList()" style="margin-bottom:12px;">
+    <div id="pickList" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<div id="hazardPickerOverlay" class="overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;flex:1;">ADD HAZARD</div>
+      <button class="btn btn-sm" onclick="document.getElementById('hazardPickerOverlay').style.display='none'">✕ Close</button>
+    </div>
+    <div id="hazardPickList" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+</div>
+
+<div id="customCreatureOverlay" class="overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;margin-bottom:16px;">CUSTOM CREATURE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">NAME</div><input class="inp" id="cc_name" placeholder="Creature name"></div>
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">TYPE</div>
+        <select class="inp" id="cc_type">
+          <option value="beast">Beast</option><option value="construct">Construct</option>
+          <option value="humanoid">Humanoid</option><option value="aberration">Aberration</option>
+        </select>
+      </div>
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">CR</div><input class="inp" id="cc_cr" placeholder="e.g. 2 or 1/2"></div>
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">XP</div><input class="inp inp-sm" id="cc_xp" type="number" min="0" placeholder="450"></div>
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">HP</div><input class="inp" id="cc_hp" type="number" min="1" placeholder="52"></div>
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">AC</div><input class="inp" id="cc_ac" type="number" min="1" placeholder="14"></div>
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">INIT MOD</div><input class="inp" id="cc_mod" type="number" placeholder="+2"></div>
+      <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">SPEED</div><input class="inp" id="cc_speed" placeholder="30 ft"></div>
+    </div>
+    <div style="margin-bottom:10px;"><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">DESCRIPTION / TRAITS</div><textarea class="inp" id="cc_desc" rows="3" placeholder="Special abilities, lore, tactics…" style="resize:vertical;line-height:1.5;"></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn" onclick="document.getElementById('customCreatureOverlay').style.display='none'">Cancel</button>
+      <button class="btn btn-primary" style="--accent:var(--red);" onclick="saveCustomCreature()">Save to Library</button>
+    </div>
+  </div>
+</div>
+
+<div id="randomOverlay" class="overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="max-width:480px;">
+    <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;margin-bottom:16px;">🎲 RANDOM ENCOUNTER</div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;">PARTY SIZE</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-sm" id="ps1" onclick="setPartySize(1)" style="--accent:var(--red);">1</button>
+        <button class="btn btn-sm" id="ps2" onclick="setPartySize(2)">2</button>
+        <button class="btn btn-sm" id="ps3" onclick="setPartySize(3)">3</button>
+        <button class="btn btn-sm" id="ps4" onclick="setPartySize(4)">4</button>
+        <button class="btn btn-sm" id="ps5" onclick="setPartySize(5)">5</button>
+        <button class="btn btn-sm" id="ps6" onclick="setPartySize(6)">6</button>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;">PARTY LEVEL</div>
+      <input class="inp" id="partyLevel" type="number" min="1" max="20" value="3" oninput="genRandom()">
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;">DIFFICULTY TARGET</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-sm" id="dtEasy" onclick="setDiffTarget('easy')">Easy</button>
+        <button class="btn btn-sm" id="dtMedium" onclick="setDiffTarget('medium')" style="--accent:var(--red);">Medium</button>
+        <button class="btn btn-sm" id="dtHard" onclick="setDiffTarget('hard')">Hard</button>
+        <button class="btn btn-sm" id="dtDeadly" onclick="setDiffTarget('deadly')">Deadly</button>
+      </div>
+    </div>
+    <div id="randomResult" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;min-height:80px;font-size:.75rem;line-height:1.7;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+      <button class="btn" onclick="genRandom()">🎲 Reroll</button>
+      <button class="btn btn-primary" style="--accent:var(--red);" onclick="useRandomEncounter()">Use This Encounter</button>
+      <button class="btn" onclick="document.getElementById('randomOverlay').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────
+const TYPE_COLORS = { beast:'#f97316', construct:'#14b8a6', humanoid:'#3b82f6', aberration:'#a855f7' }
+
+const CREATURE_LIBRARY = [
+  // Beasts
+  { id:'nanite-stalker', name:'Nanite Stalker', type:'beast', cr:'3', xp:700, hp:52, ac:14, mod:3, speed:'40 ft', desc:'Nanite-infused predator. Leaves glowing tracks. Can phase through soft materials.' },
+  { id:'glass-crawler', name:'Glass Crawler', type:'beast', cr:'1', xp:200, hp:22, ac:13, mod:1, speed:'30 ft, burrow 20 ft', desc:'Chitinous beast that burrows through glass deserts. Shard spray on death.' },
+  { id:'void-hound', name:'Void Hound', type:'beast', cr:'2', xp:450, hp:37, ac:13, mod:4, speed:'50 ft', desc:'Emaciated predator from Reality Rift zones. Can step briefly out of phase.' },
+  { id:'nanite-swarm', name:'Nanite Swarm', type:'beast', cr:'2', xp:450, hp:44, ac:13, mod:2, speed:'0 ft, fly 30 ft', desc:'Dense cloud of active nanites. Immune to physical damage. Corrodes metal.' },
+  { id:'glass-serpent', name:'Glass Serpent', type:'beast', cr:'4', xp:1100, hp:66, ac:15, mod:2, speed:'40 ft, swim 40 ft', desc:'Massive crystalline serpent. Constricts and injects crystallizing venom.' },
+
+  // Constructs
+  { id:'guardian-soldier', name:'Guardian Soldier', type:'construct', cr:'3', xp:700, hp:58, ac:17, mod:0, speed:'30 ft', desc:'Pre-Shattering military automaton. Still follows old protocols. Laser rifle, shock fist.' },
+  { id:'awakened-construct', name:'Awakened Construct', type:'construct', cr:'5', xp:1800, hp:82, ac:16, mod:1, speed:'30 ft', desc:'Construct that gained rudimentary sentience post-Shattering. Unpredictable behavior.' },
+  { id:'assembly-drone', name:'Assembly Drone', type:'construct', cr:'1/2', xp:100, hp:15, ac:12, mod:2, speed:'0 ft, fly 40 ft', desc:'Repurposed factory drone. Attacks with welding torch. Calls reinforcements if damaged.' },
+  { id:'tank-chassis', name:'Tank Chassis', type:'construct', cr:'8', xp:3900, hp:142, ac:18, mod:-1, speed:'30 ft', desc:'Repaired pre-Shattering combat vehicle. Cannon, treads, near-indestructible armor.' },
+
+  // Humanoids
+  { id:'reclaimer-scout', name:'Reclaimer Scout', type:'humanoid', cr:'1', xp:200, hp:18, ac:14, mod:3, speed:'30 ft', desc:'Lightly armed scavenger guild scout. Wary but not aggressive unless threatened.' },
+  { id:'savage-raider', name:'Savage Raider', type:'humanoid', cr:'1/2', xp:100, hp:14, ac:13, mod:1, speed:'30 ft', desc:'Tribal wasteland fighter. Improvised weapons, coordinated pack tactics.' },
+  { id:'faction-enforcer', name:'Faction Enforcer', type:'humanoid', cr:'3', xp:700, hp:45, ac:15, mod:2, speed:'30 ft', desc:'Elite soldier of one of the city-state factions. Carries an energy weapon and armor.' },
+  { id:'nanite-cultist', name:'Nanite Cultist', type:'humanoid', cr:'2', xp:450, hp:32, ac:12, mod:1, speed:'30 ft', desc:'Willingly corrupted human who worships nanite evolution. Some minor nanite abilities.' },
+  { id:'corrupted-hunter', name:'Corrupted Hunter', type:'humanoid', cr:'4', xp:1100, hp:65, ac:15, mod:3, speed:'35 ft', desc:'Heavily mutated tracker. Nanite tendrils, enhanced senses, hunts by electromagnetic signature.' },
+
+  // Aberrations
+  { id:'shadowform', name:'Shadowform', type:'aberration', cr:'5', xp:1800, hp:70, ac:14, mod:4, speed:'0 ft, fly 50 ft', desc:'Reality-warped entity. Partially intangible. Drains warmth and light from vicinity.' },
+  { id:'reality-shard', name:'Reality Shard', type:'aberration', cr:'6', xp:2300, hp:90, ac:16, mod:2, speed:'30 ft (erratic)', desc:'Crystallized fragment of broken spacetime. Causes temporal stuttering near it.' },
+  { id:'nanite-titan', name:'Nanite Titan', type:'aberration', cr:'10', xp:5900, hp:178, ac:17, mod:0, speed:'40 ft', desc:'Colossal mass of nanites in vaguely humanoid form. Storm aura, reality distortion.' },
+  { id:'void-tendril', name:'Void Tendril', type:'aberration', cr:'3', xp:700, hp:48, ac:12, mod:3, speed:'0 ft, fly 30 ft (hover)', desc:'Extradimensional appendage reaching through a Reality Rift. Cannot be killed, only severed.' },
+]
+
+const HAZARDS = [
+  { id:'nanite-storm', name:'Nanite Storm', color:'var(--teal)', desc:'3d6 rounds. DC 14 CON each round or take 1d6 corrode dmg. Metal equipment degrades.' },
+  { id:'reality-glitch', name:'Reality Glitch', color:'var(--purple)', desc:'Area warps space. Random teleport (1d6×5 ft) when entering. Spells have 20% misfire chance.' },
+  { id:'glass-rain', name:'Glass Rain', color:'var(--blue)', desc:'Difficult terrain. 1d4 piercing dmg per round of movement. Stealth checks at disadvantage.' },
+  { id:'nanite-fog', name:'Nanite Fog', color:'var(--teal)', desc:'Heavy obscurement. Objects corrode over time. Electronics malfunction on failed DC 12 save.' },
+  { id:'void-rift', name:'Void Rift', color:'var(--purple)', desc:'20-ft radius. Gravity warps — pulled 10 ft toward rift each turn (STR DC 13 resists).' },
+  { id:'corrupting-aura', name:'Corrupting Aura', color:'var(--orange)', desc:'Corruption zone emanating from a creature/object. DC 15 WIS each round or gain 1 corruption.' },
+  { id:'unstable-ground', name:'Unstable Ground', color:'var(--yellow)', desc:'Sinkhole zones. DC 12 DEX or fall through (2d6 bludgeoning + prone + restrained).' },
+  { id:'emp-pulse', name:'EMP Pulse', color:'var(--blue)', desc:'All electronic/construct items disabled for 1d4 rounds. Constructs stunned on failed save.' },
+  { id:'temporal-echo', name:'Temporal Echo', color:'var(--purple)', desc:'Creatures act twice on first turn but skip their next turn (time hiccup).' },
+  { id:'toxic-spore', name:'Toxic Spore Cloud', color:'var(--green)', desc:'DC 13 CON or poisoned for 1 hour. On fail by 5+, also blinded for 1d4 rounds.' },
+]
+
+// ── XP thresholds per level ──
+const XP_THRESHOLDS = {
+  1:  [25,50,75,100],
+  2:  [50,100,150,200],
+  3:  [75,150,225,400],
+  4:  [125,250,375,500],
+  5:  [250,500,750,1100],
+  6:  [300,600,900,1400],
+  7:  [350,750,1100,1700],
+  8:  [450,900,1400,2100],
+  9:  [550,1100,1600,2400],
+  10: [600,1200,1900,2800],
+  11: [800,1600,2400,3600],
+  12: [1000,2000,3000,4500],
+  13: [1100,2200,3400,5100],
+  14: [1250,2500,3800,5700],
+  15: [1400,2800,4300,6400],
+  16: [1600,3200,4800,7200],
+  17: [2000,3900,5900,8800],
+  18: [2100,4200,6300,9500],
+  19: [2400,4900,7300,10900],
+  20: [2800,5700,8500,12700],
+}
+
+// ── State ────────────────────────────────────────────────────────────────
+let encounters = JSON.parse(localStorage.getItem('sl_encounters') || '[]')
+let customCreatures = JSON.parse(localStorage.getItem('sl_custom_creatures') || '[]')
+let activeEncId = null
+let libFilter = 'all'
+let randomPartySize = 4
+let randomDiffTarget = 'medium'
+let pendingRandom = null
+
+function getEnc() { return encounters.find(e => e.id === activeEncId) }
+function allCreatures() { return [...CREATURE_LIBRARY, ...customCreatures] }
+
+function save() {
+  localStorage.setItem('sl_encounters', JSON.stringify(encounters))
+  localStorage.setItem('sl_custom_creatures', JSON.stringify(customCreatures))
+}
+
+// ── Encounter CRUD ────────────────────────────────────────────────────────
+function newEncounter() {
+  const enc = {
+    id: Date.now().toString(),
+    name: 'New Encounter',
+    biome: '',
+    combatants: [],
+    hazards: [],
+    notes: '',
+  }
+  encounters.unshift(enc)
+  save()
+  openEncounter(enc.id)
+  renderEncList()
+}
+
+function openEncounter(id) {
+  activeEncId = id
+  const enc = getEnc()
+  if (!enc) return
+  document.getElementById('editorEmpty').style.display = 'none'
+  const ed = document.getElementById('editor')
+  ed.style.display = 'flex'
+  ed.classList.add('pop-in')
+  setTimeout(() => ed.classList.remove('pop-in'), 200)
+  document.getElementById('encName').value = enc.name
+  document.getElementById('encBiome').value = enc.biome || ''
+  document.getElementById('encNotes').value = enc.notes || ''
+  renderCombatants()
+  renderHazards()
+  updateDiff()
+  renderEncList()
+}
+
+function deleteEncounter() {
+  if (!activeEncId) return
+  const enc = getEnc()
+  if (!enc) return
+  if (!confirm(`Delete "${enc.name}"?`)) return
+  encounters = encounters.filter(e => e.id !== activeEncId)
+  activeEncId = null
+  save()
+  document.getElementById('editor').style.display = 'none'
+  document.getElementById('editorEmpty').style.display = 'flex'
+  renderEncList()
+}
+
+function autoSave() {
+  const enc = getEnc()
+  if (!enc) return
+  enc.name = document.getElementById('encName').value || 'Unnamed Encounter'
+  enc.biome = document.getElementById('encBiome').value
+  enc.notes = document.getElementById('encNotes').value
+  save()
+  renderEncList()
+}
+
+// ── Combatants ────────────────────────────────────────────────────────────
+function addCombatant(creatureId, count = 1) {
+  const enc = getEnc()
+  if (!enc) return
+  const creature = allCreatures().find(c => c.id === creatureId)
+  if (!creature) return
+  const existing = enc.combatants.find(c => c.creatureId === creatureId)
+  if (existing) {
+    existing.count += count
+  } else {
+    enc.combatants.push({ creatureId, count, hpOverride: null, acOverride: null })
+  }
+  save()
+  renderCombatants()
+  updateDiff()
+  document.getElementById('creaturePickerOverlay').style.display = 'none'
+}
+
+function removeCombatant(creatureId) {
+  const enc = getEnc()
+  if (!enc) return
+  enc.combatants = enc.combatants.filter(c => c.creatureId !== creatureId)
+  save()
+  renderCombatants()
+  updateDiff()
+}
+
+function updateCount(creatureId, delta) {
+  const enc = getEnc()
+  if (!enc) return
+  const slot = enc.combatants.find(c => c.creatureId === creatureId)
+  if (!slot) return
+  slot.count = Math.max(1, (slot.count || 1) + delta)
+  save()
+  renderCombatants()
+  updateDiff()
+}
+
+function renderCombatants() {
+  const enc = getEnc()
+  const container = document.getElementById('combatantSlots')
+  if (!enc || !enc.combatants.length) {
+    container.innerHTML = `<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:20px;">No combatants yet — add from the library →</div>`
+    document.getElementById('xpTotal').textContent = '0'
+    return
+  }
+  let totalXP = 0
+  container.innerHTML = enc.combatants.map(slot => {
+    const c = allCreatures().find(x => x.id === slot.creatureId)
+    if (!c) return ''
+    const xp = (c.xp || 0) * slot.count
+    totalXP += xp
+    const col = TYPE_COLORS[c.type] || '#e2e8f0'
+    return `<div class="enc-slot slide-in">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span style="font-size:.82rem;font-weight:bold;color:${col};">${c.name}</span>
+            <span class="cr-badge">CR ${c.cr}</span>
+            <span class="type-badge" style="background:${col}22;color:${col};border:1px solid ${col}44;">${c.type}</span>
+          </div>
+          <div style="font-size:.65rem;color:var(--muted);">HP ${c.hp} · AC ${c.ac} · Speed ${c.speed || '30 ft'} · Init +${c.mod || 0} · ${c.xp} XP each</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="btn btn-sm" onclick="updateCount('${c.id}',-1)" style="padding:2px 8px;">−</button>
+          <span style="font-size:.85rem;font-weight:bold;min-width:20px;text-align:center;">${slot.count}</span>
+          <button class="btn btn-sm" onclick="updateCount('${c.id}',1)" style="padding:2px 8px;">+</button>
+        </div>
+        <div style="font-size:.72rem;color:var(--yellow);min-width:60px;text-align:right;">${xp.toLocaleString()} XP</div>
+        <button class="btn btn-sm btn-danger" onclick="removeCombatant('${c.id}')" style="padding:2px 8px;">✕</button>
+      </div>
+      ${c.desc ? `<div style="font-size:.65rem;color:#64748b;margin-top:6px;line-height:1.5;">${c.desc}</div>` : ''}
+    </div>`
+  }).join('')
+  document.getElementById('xpTotal').textContent = totalXP.toLocaleString()
+}
+
+// ── Hazards ───────────────────────────────────────────────────────────────
+function addHazard(hazardId) {
+  const enc = getEnc()
+  if (!enc) return
+  if (!enc.hazards.includes(hazardId)) enc.hazards.push(hazardId)
+  save()
+  renderHazards()
+  document.getElementById('hazardPickerOverlay').style.display = 'none'
+}
+
+function removeHazard(hazardId) {
+  const enc = getEnc()
+  if (!enc) return
+  enc.hazards = enc.hazards.filter(h => h !== hazardId)
+  save()
+  renderHazards()
+}
+
+function renderHazards() {
+  const enc = getEnc()
+  const container = document.getElementById('hazardList')
+  if (!enc || !enc.hazards.length) {
+    container.innerHTML = `<span style="font-size:.65rem;color:var(--muted);">No hazards</span>`
+    return
+  }
+  container.innerHTML = enc.hazards.map(hid => {
+    const h = HAZARDS.find(x => x.id === hid)
+    if (!h) return ''
+    return `<div class="hazard-chip" style="border-color:${h.color}44;background:${h.color}11;color:${h.color};" title="${h.desc}">
+      ${h.name}
+      <button onclick="removeHazard('${h.id}')" style="background:none;border:none;cursor:pointer;color:inherit;font-size:.7rem;padding:0;opacity:.6;">✕</button>
+    </div>`
+  }).join('')
+}
+
+// ── Difficulty ────────────────────────────────────────────────────────────
+function updateDiff() {
+  const enc = getEnc()
+  const display = document.getElementById('diffDisplay')
+  if (!enc || !enc.combatants.length) { display.textContent = ''; return }
+
+  let totalXP = 0
+  enc.combatants.forEach(slot => {
+    const c = allCreatures().find(x => x.id === slot.creatureId)
+    if (c) totalXP += (c.xp || 0) * slot.count
+  })
+
+  // Apply multiplier based on number of monsters
+  const totalMonsters = enc.combatants.reduce((s, c) => s + c.count, 0)
+  let mult = 1
+  if (totalMonsters === 1) mult = 1
+  else if (totalMonsters === 2) mult = 1.5
+  else if (totalMonsters <= 6) mult = 2
+  else if (totalMonsters <= 10) mult = 2.5
+  else if (totalMonsters <= 14) mult = 3
+  else mult = 4
+  const adjXP = Math.round(totalXP * mult)
+
+  // Compare against party thresholds (default party 4 × level 3)
+  const partyLevel = parseInt(localStorage.getItem('sl_party_level') || '3')
+  const partySize = parseInt(localStorage.getItem('sl_party_size') || '4')
+  const thresh = XP_THRESHOLDS[Math.min(20, Math.max(1, partyLevel))] || XP_THRESHOLDS[3]
+  const [easy, med, hard, deadly] = thresh.map(t => t * partySize)
+
+  let label, cls
+  if (adjXP < easy) { label = 'TRIVIAL'; cls = 'diff-trivial' }
+  else if (adjXP < med) { label = 'EASY'; cls = 'diff-easy' }
+  else if (adjXP < hard) { label = 'MEDIUM'; cls = 'diff-medium' }
+  else if (adjXP < deadly) { label = 'HARD'; cls = 'diff-hard' }
+  else if (adjXP < deadly * 1.5) { label = 'DEADLY'; cls = 'diff-deadly' }
+  else { label = 'BEYOND DEADLY'; cls = 'diff-beyond' }
+
+  display.innerHTML = `<span class="${cls}">${label}</span> <span style="font-size:.65rem;color:var(--muted);">(${adjXP.toLocaleString()} adj. XP)</span>`
+}
+
+// ── Library ───────────────────────────────────────────────────────────────
+function filterType(btn) {
+  document.querySelectorAll('#typeTabs .tab-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  libFilter = btn.dataset.type
+  renderLibrary()
+}
+
+function renderLibrary() {
+  const q = document.getElementById('libSearch').value.toLowerCase()
+  const list = document.getElementById('libraryList')
+  const creatures = allCreatures().filter(c => {
+    const matchType = libFilter === 'all' || c.type === libFilter
+    const matchQ = !q || c.name.toLowerCase().includes(q) || c.type.toLowerCase().includes(q)
+    return matchType && matchQ
+  })
+  list.innerHTML = creatures.map(c => {
+    const col = TYPE_COLORS[c.type] || '#e2e8f0'
+    return `<div class="creature-card" onclick="addCombatantFromLib('${c.id}')">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <span style="font-size:.78rem;font-weight:bold;color:${col};flex:1;">${c.name}</span>
+        <span class="cr-badge">CR ${c.cr}</span>
+      </div>
+      <div style="font-size:.62rem;color:var(--muted);">HP ${c.hp} · AC ${c.ac} · ${c.xp} XP</div>
+      ${c.isCustom ? `<span style="font-size:.55rem;color:var(--yellow);">CUSTOM</span>` : ''}
+    </div>`
+  }).join('') || `<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:20px;">No creatures found</div>`
+}
+
+function addCombatantFromLib(id) {
+  if (!activeEncId) { alert('Open or create an encounter first!'); return }
+  addCombatant(id)
+}
+
+// ── Pickers ───────────────────────────────────────────────────────────────
+function openCreaturePicker() {
+  renderPickList()
+  document.getElementById('creaturePickerOverlay').style.display = 'flex'
+}
+
+function renderPickList() {
+  const q = document.getElementById('pickSearch').value.toLowerCase()
+  const list = document.getElementById('pickList')
+  const creatures = allCreatures().filter(c => !q || c.name.toLowerCase().includes(q) || c.type.includes(q))
+  list.innerHTML = creatures.map(c => {
+    const col = TYPE_COLORS[c.type] || '#e2e8f0'
+    return `<div class="creature-card" onclick="addCombatant('${c.id}')">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-size:.78rem;font-weight:bold;color:${col};">${c.name} <span class="cr-badge" style="margin-left:6px;">CR ${c.cr}</span></div>
+          <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">HP ${c.hp} · AC ${c.ac} · ${c.xp} XP · ${c.type}</div>
+        </div>
+        <button class="btn btn-sm btn-primary" style="--accent:var(--red);">Add</button>
+      </div>
+    </div>`
+  }).join('') || `<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:20px;">No creatures found</div>`
+}
+
+function openHazardPicker() {
+  const enc = getEnc()
+  const list = document.getElementById('hazardPickList')
+  list.innerHTML = HAZARDS.map(h => `
+    <div class="hazard-chip" style="cursor:pointer;border-color:${h.color}44;background:${h.color}11;color:${h.color};" onclick="addHazard('${h.id}')">
+      <div style="flex:1;">
+        <div style="font-weight:bold;">${h.name}</div>
+        <div style="font-size:.6rem;opacity:.8;margin-top:2px;">${h.desc}</div>
+      </div>
+    </div>`).join('')
+  document.getElementById('hazardPickerOverlay').style.display = 'flex'
+}
+
+// ── Custom Creature ───────────────────────────────────────────────────────
+function openCustomCreature() {
+  ['cc_name','cc_cr','cc_hp','cc_ac','cc_mod','cc_speed','cc_desc','cc_xp'].forEach(id => {
+    document.getElementById(id).value = ''
+  })
+  document.getElementById('customCreatureOverlay').style.display = 'flex'
+}
+
+function saveCustomCreature() {
+  const name = document.getElementById('cc_name').value.trim()
+  if (!name) { alert('Name is required'); return }
+  const creature = {
+    id: 'custom-' + Date.now(),
+    name,
+    type: document.getElementById('cc_type').value,
+    cr: document.getElementById('cc_cr').value || '1',
+    xp: parseInt(document.getElementById('cc_xp').value) || 0,
+    hp: parseInt(document.getElementById('cc_hp').value) || 10,
+    ac: parseInt(document.getElementById('cc_ac').value) || 12,
+    mod: parseInt(document.getElementById('cc_mod').value) || 0,
+    speed: document.getElementById('cc_speed').value || '30 ft',
+    desc: document.getElementById('cc_desc').value,
+    isCustom: true,
+  }
+  customCreatures.unshift(creature)
+  save()
+  renderLibrary()
+  document.getElementById('customCreatureOverlay').style.display = 'none'
+}
+
+// ── Send to Initiative ────────────────────────────────────────────────────
+function sendToInitiative() {
+  const enc = getEnc()
+  if (!enc || !enc.combatants.length) { alert('No combatants to send!'); return }
+
+  const toSend = []
+  enc.combatants.forEach(slot => {
+    const c = allCreatures().find(x => x.id === slot.creatureId)
+    if (!c) return
+    for (let i = 0; i < slot.count; i++) {
+      const suffix = slot.count > 1 ? ` ${i + 1}` : ''
+      toSend.push({
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        name: c.name + suffix,
+        initiative: 0,
+        hp: c.hp,
+        maxHp: c.hp,
+        ac: c.ac,
+        mod: c.mod || 0,
+        type: 'npc',
+        conditions: [],
+        notes: c.desc ? c.desc.slice(0, 80) : '',
+        isDead: false,
+        isDelaying: false,
+      })
+    }
+  })
+
+  localStorage.setItem('sl_initiative_import', JSON.stringify({ encounter: enc.name, combatants: toSend }))
+  if (confirm(`Send ${toSend.length} combatants to Initiative Tracker?\n\nThey will be waiting as an import when you open initiative.html.`)) {
+    window.open('initiative.html', '_blank')
+  }
+}
+
+// ── Random Encounter ──────────────────────────────────────────────────────
+function randomEncounter() {
+  document.getElementById('randomOverlay').style.display = 'flex'
+  genRandom()
+}
+
+function setPartySize(n) {
+  randomPartySize = n
+  document.querySelectorAll('[id^="ps"]').forEach(b => { b.style.setProperty('--accent',''); })
+  document.getElementById('ps' + n).style.setProperty('--accent', 'var(--red)')
+  genRandom()
+}
+
+function setDiffTarget(d) {
+  randomDiffTarget = d
+  document.querySelectorAll('[id^="dt"]').forEach(b => { b.style.setProperty('--accent',''); })
+  document.getElementById('dt' + d).style.setProperty('--accent', 'var(--red)')
+  genRandom()
+}
+
+function genRandom() {
+  const level = parseInt(document.getElementById('partyLevel').value) || 3
+  const thresh = XP_THRESHOLDS[Math.min(20, Math.max(1, level))] || XP_THRESHOLDS[3]
+  const [easy, med, hard, deadly] = thresh.map(t => t * randomPartySize)
+  const targetMap = { easy: [easy, med], medium: [med, hard], hard: [hard, deadly], deadly: [deadly, deadly * 1.8] }
+  const [minXP, maxXP] = targetMap[randomDiffTarget] || targetMap.medium
+
+  // Pick a random pool of creatures
+  const pool = allCreatures()
+  let chosen = []
+  let totalXP = 0
+  const maxAttempts = 200
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    chosen = []
+    totalXP = 0
+    const numTypes = Math.floor(Math.random() * 3) + 1
+    for (let t = 0; t < numTypes; t++) {
+      const c = pool[Math.floor(Math.random() * pool.length)]
+      const count = Math.floor(Math.random() * 4) + 1
+      const existing = chosen.find(x => x.id === c.id)
+      if (existing) { existing.count += count }
+      else { chosen.push({ ...c, count }) }
+    }
+    const totalMonsters = chosen.reduce((s, c) => s + c.count, 0)
+    let mult = 1
+    if (totalMonsters === 2) mult = 1.5
+    else if (totalMonsters <= 6) mult = 2
+    else if (totalMonsters <= 10) mult = 2.5
+    else mult = 3
+    totalXP = chosen.reduce((s, c) => s + c.xp * c.count, 0)
+    const adjXP = Math.round(totalXP * mult)
+    if (adjXP >= minXP && adjXP <= maxXP) break
+  }
+
+  // Pick random hazard
+  const hazard = Math.random() > 0.4 ? HAZARDS[Math.floor(Math.random() * HAZARDS.length)] : null
+  pendingRandom = { chosen, hazard, totalXP }
+
+  const result = document.getElementById('randomResult')
+  result.innerHTML = `
+    <div style="color:var(--muted);font-size:.6rem;letter-spacing:.1em;margin-bottom:8px;">GENERATED ENCOUNTER</div>
+    ${chosen.map(c => {
+      const col = TYPE_COLORS[c.type] || '#e2e8f0'
+      return `<div style="display:flex;gap:8px;margin-bottom:4px;">
+        <span style="color:${col};font-weight:bold;">${c.count}×</span>
+        <span style="color:${col};">${c.name}</span>
+        <span class="cr-badge" style="margin:auto 0;">CR ${c.cr}</span>
+        <span style="color:var(--muted);font-size:.65rem;margin:auto 0;">${c.xp * c.count} XP</span>
+      </div>`
+    }).join('')}
+    ${hazard ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+      <span class="tag" style="background:${hazard.color}22;color:${hazard.color};border:1px solid ${hazard.color}44;">⚠ ${hazard.name}</span>
+      <span style="font-size:.62rem;color:var(--muted);margin-left:8px;">${hazard.desc.slice(0,60)}…</span>
+    </div>` : ''}
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);">
+      Raw XP: ${totalXP.toLocaleString()} · Adjusted: ~${Math.round(totalXP * 2).toLocaleString()} XP
+    </div>`
+}
+
+function useRandomEncounter() {
+  if (!pendingRandom) return
+  newEncounter()
+  const enc = getEnc()
+  enc.name = `Random – ${new Date().toLocaleDateString()}`
+  if (pendingRandom.hazard) enc.hazards = [pendingRandom.hazard.id]
+  pendingRandom.chosen.forEach(c => {
+    enc.combatants.push({ creatureId: c.id, count: c.count })
+  })
+  save()
+  document.getElementById('encName').value = enc.name
+  renderCombatants()
+  renderHazards()
+  updateDiff()
+  document.getElementById('randomOverlay').style.display = 'none'
+}
+
+// ── Encounter List ────────────────────────────────────────────────────────
+function renderEncList() {
+  const q = document.getElementById('encSearch').value.toLowerCase()
+  const list = document.getElementById('encList')
+  const filtered = encounters.filter(e => !q || e.name.toLowerCase().includes(q))
+  list.innerHTML = filtered.map(enc => {
+    const active = enc.id === activeEncId
+    const count = enc.combatants.reduce((s, c) => s + c.count, 0)
+    return `<div onclick="openEncounter('${enc.id}')" style="cursor:pointer;border-radius:8px;padding:10px 12px;border:1px solid ${active ? 'var(--red)' : 'var(--border)'};background:${active ? 'rgba(239,68,68,.07)' : 'var(--surface2)'};transition:all .15s;" class="${active ? '' : 'creature-card'}">
+      <div style="font-size:.75rem;font-weight:bold;color:${active ? 'var(--red)' : '#e2e8f0'};">${enc.name}</div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:3px;">${enc.biome || 'No biome'} · ${count} combatant${count !== 1 ? 's' : ''}</div>
+    </div>`
+  }).join('') || `<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:20px;">No encounters yet</div>`
+}
+
+// ── Party Settings (persisted) ─────────────────────────────────────────────
+// Updated via random encounter panel
+document.getElementById('partyLevel')?.addEventListener('change', function() {
+  localStorage.setItem('sl_party_level', this.value)
+  updateDiff()
+})
+
+// ── Init ───────────────────────────────────────────────────────────────────
+renderEncList()
+renderLibrary()
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input,textarea,select')) return
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none')
+  }
+  if (e.key === 'n' || e.key === 'N') newEncounter()
+  if (e.key === 'r' || e.key === 'R') randomEncounter()
+})
+</script>
+</body>
+</html>

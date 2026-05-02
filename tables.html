@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎲 Random Tables</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{--orange:#f97316;--purple:#a855f7;--teal:#14b8a6;--blue:#3b82f6;--bg:#08080f;--surface:#0f0f1a;--surface2:#161625;--border:#1e1e2e;--muted:#4a4a6a;--text:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Courier New',monospace;overflow:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);}
+  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--purple);}
+  input,textarea,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 8px;font-family:inherit;font-size:.8rem;outline:none;transition:border-color .15s;}
+  input:focus,textarea:focus,select:focus{border-color:var(--purple);}
+  .btn-roll{background:var(--purple);color:#fff;font-weight:bold;border:none;border-radius:8px;padding:12px 28px;font-family:inherit;font-size:.9rem;cursor:pointer;transition:all .15s;letter-spacing:.06em;}
+  .btn-roll:hover{background:#b97ffe;box-shadow:0 0 20px rgba(168,85,247,.5);}
+  .btn-roll:active{transform:scale(.97);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:.7rem;cursor:pointer;transition:all .15s;}
+  .btn-ghost:hover{border-color:var(--purple);color:var(--purple);}
+  .btn-sm{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:2px 8px;font-family:inherit;font-size:.65rem;cursor:pointer;transition:all .15s;}
+  .btn-sm:hover{border-color:var(--purple);color:var(--purple);}
+  .table-btn{width:100%;text-align:left;background:none;border:none;border-radius:5px;padding:6px 10px;font-family:inherit;font-size:.72rem;cursor:pointer;color:var(--muted);transition:all .12s;display:flex;align-items:center;gap:6px;}
+  .table-btn:hover{background:var(--surface2);color:var(--text);}
+  .table-btn.active{background:rgba(168,85,247,.1);color:var(--purple);}
+  .cat-label{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:10px 10px 4px;}
+  .section-label{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+  @keyframes pop-in{from{opacity:0;transform:scale(.97) translateY(4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .result-pop{animation:pop-in .2s ease both;}
+  #toast{position:fixed;bottom:1rem;right:1rem;z-index:999;padding:.45rem 1rem;background:var(--surface2);border:1px solid var(--purple);border-radius:6px;color:var(--purple);font-size:.75rem;transform:translateY(60px);transition:transform .3s;pointer-events:none;}
+  #toast.show{transform:translateY(0);}
+  #modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;align-items:center;justify-content:center;}
+  #modal-overlay.open{display:flex;}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- NEW TABLE MODAL -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:460px;max-width:95vw;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+      <span style="font-size:.9rem;color:var(--purple);font-weight:bold;">+ NEW TABLE</span>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div><div class="section-label" style="margin-bottom:4px;">TABLE NAME</div>
+        <input id="m-name" placeholder="e.g. Tavern Events" style="width:100%;"></div>
+      <div><div class="section-label" style="margin-bottom:4px;">ICON (emoji)</div>
+        <input id="m-icon" placeholder="🎲" style="width:80px;"></div>
+      <div><div class="section-label" style="margin-bottom:4px;">CATEGORY</div>
+        <input id="m-cat" placeholder="e.g. Scarred Lands, Combat..." style="width:100%;"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+        <button onclick="closeModal()" class="btn-ghost" style="padding:6px 16px;">Cancel</button>
+        <button onclick="createTable()" style="background:var(--purple);color:#fff;border:none;border-radius:5px;padding:6px 16px;font-family:inherit;font-size:.8rem;cursor:pointer;">Create Table</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;">
+
+  <!-- TOP BAR -->
+  <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:14px;">
+    <a href="index.html" style="color:var(--muted);font-size:.75rem;text-decoration:none;letter-spacing:.05em;transition:color .15s;"
+      onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--muted)'">← SUITE</a>
+    <div style="width:1px;height:24px;background:var(--border);"></div>
+    <span style="color:var(--purple);font-size:1rem;">🎲</span>
+    <span style="font-weight:bold;font-size:.82rem;letter-spacing:.08em;">RANDOM TABLES</span>
+    <div style="margin-left:auto;display:flex;gap:6px;">
+      <button onclick="rollAll()" class="btn-ghost" style="border-color:rgba(168,85,247,.4);color:var(--purple);">⚡ Roll All Tables</button>
+      <button onclick="clearHistory()" class="btn-ghost">Clear History</button>
+      <button onclick="openModal()" style="background:var(--purple);color:#fff;border:none;border-radius:5px;padding:5px 12px;font-family:inherit;font-size:.7rem;cursor:pointer;">+ New Table</button>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;overflow:hidden;">
+
+    <!-- LEFT: TABLE LIST -->
+    <div style="width:190px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;background:var(--surface);">
+      <div id="table-list"></div>
+    </div>
+
+    <!-- CENTER: ROLL AREA -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+      <!-- Roll zone -->
+      <div style="flex-shrink:0;padding:20px 24px;border-bottom:1px solid var(--border);background:var(--surface);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;">
+          <div>
+            <div id="active-table-name" style="font-size:1.1rem;font-weight:bold;letter-spacing:.06em;"></div>
+            <div id="active-table-desc" style="font-size:.7rem;color:var(--muted);margin-top:2px;"></div>
+          </div>
+          <button class="btn-roll" onclick="roll()" id="roll-btn">🎲 ROLL</button>
+        </div>
+
+        <!-- Result display -->
+        <div id="result-box" style="min-height:80px;padding:14px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;">
+          <span id="result-text" style="font-size:.92rem;line-height:1.6;color:#94a3b8;">Select a table and roll...</span>
+        </div>
+      </div>
+
+      <!-- Session History -->
+      <div style="flex:1;overflow-y:auto;padding:14px 24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div class="section-label">Session Roll History</div>
+          <span id="history-count" style="font-size:.6rem;color:var(--muted);"></span>
+        </div>
+        <div id="history-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: TABLE ENTRIES -->
+    <div style="width:270px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--surface);">
+      <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div class="section-label">Table Entries</div>
+        <div style="display:flex;gap:5px;">
+          <span id="entry-count" style="font-size:.6rem;color:var(--muted);"></span>
+          <button onclick="deleteActiveTable()" class="btn-sm" id="del-table-btn" style="display:none;color:rgba(239,68,68,.6);border-color:rgba(239,68,68,.3);">✕ Delete Table</button>
+        </div>
+      </div>
+      <div id="entry-list" style="flex:1;overflow-y:auto;padding:8px;"></div>
+      <div style="padding:8px;border-top:1px solid var(--border);flex-shrink:0;" id="add-entry-area">
+        <textarea id="new-entry" rows="2" placeholder="Add new entry..." style="width:100%;resize:none;margin-bottom:5px;font-size:.75rem;"></textarea>
+        <button onclick="addEntry()" style="width:100%;padding:5px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;font-family:inherit;font-size:.7rem;cursor:pointer;transition:all .15s;"
+          onmouseover="this.style.borderColor='var(--purple)';this.style.color='var(--purple)'"
+          onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">+ Add Entry</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// BUILT-IN TABLES
+// ═══════════════════════════════════════════════════
+const BUILTIN = [
+  {
+    id:'world-events', name:'World Events', icon:'🌍', category:'Scarred Lands', builtin:true,
+    entries:[
+      'A nanite storm sweeps through {region} — everything metal corrodes, living tissue mutates within hours',
+      'Faction war erupts between two groups over control of a newly discovered Old World ruin',
+      'One of the 108 Wonders activates without warning — reality warps in a 2km radius',
+      'A shadowstorm descends for 3 days, blocking all travel and extinguishing light sources',
+      'Mass mutation outbreak in the refugee camps outside the Walled City',
+      'An ancient Guardian construct awakens and begins hunting — it does not distinguish between factions',
+      'Reality glitches spread outward from the Black Zone — physics fails in patches',
+      'A Drifter band returns claiming they found something beyond the storms. Half of them are missing',
+      'The Reclaimers announce a major expedition into the Glass Desert — hiring escorts at high rates',
+      'Anti-gravity rain destroys a key bridge between settlements — supply lines collapse',
+      'A faction publicly withdraws from all politics — no explanation is given',
+      'A new strain of nanite infection is reported. This one has an incubation period of 10 days',
+      'Whispers of a 109th Wonder circulate among the Archivists — the established factions are nervous',
+      'Two factions reach the breaking point — open war within days if nothing changes',
+      'A child born with no nanite corruption is discovered — every faction mobilizes',
+      'A massive Old World structure surfaces from beneath the Glass Desert after a storm',
+      'Something is jamming all communication devices in a 50km radius — cause unknown',
+    ]
+  },
+  {
+    id:'npc-quirks', name:'NPC Quirks', icon:'👤', category:'Scarred Lands', builtin:true,
+    entries:[
+      'Has a nanite-suppression tattoo that constantly itches and bleeds when near Old World tech',
+      'Speaks only in Old World phrases. Communicates perfectly somehow',
+      'Carries a sealed jar of clean soil from before The Scarring. Will not explain why. Will die for it',
+      'Missing a hand; replaced with a glass prosthetic that channels storm energy unpredictably',
+      'Has prophetic dreams about the Black Zone. Always wakes up screaming. Has not slept in days',
+      'Refuses to enter any enclosed space. The reason is not claustrophobia',
+      'Collects teeth from every creature they kill. Keeps an accurate count',
+      'Claims to be the last person to have spoken to the Archivist before she vanished',
+      'Has a map tattooed across their entire back. Has never seen it. Does not know what it leads to',
+      'Hums constantly — the exact frequency nanite storms broadcast on',
+      'Their shadow moves 2 seconds behind them. They seem unaware of this',
+      'Carries a dead Old World communicator. Claims it turns on sometimes. At 3am exactly',
+      'Knows the name of every person who has ever died in the region. All of them',
+      'Has two sets of memories — their own, and someone else\'s entirely',
+      'Blinks at precisely 12-second intervals. Has done so since the last nanite storm they survived',
+      'Always knows which direction is north. In the Black Zone. Where compasses fail',
+    ]
+  },
+  {
+    id:'old-world-loot', name:'Old World Loot', icon:'📦', category:'Scarred Lands', builtin:true,
+    entries:[
+      'A sealed canister labeled "Pre-Scarring Atmosphere." Breathable. Incredibly valuable. Probably a fake',
+      'A child\'s toy that hums with low-level nanite energy — harmless, somehow also comforting',
+      'An Old World data chip. Readable only by an Awakened with the correct mutation',
+      'Medical nanites in a cracked injector — 60% healing, 40% unexpected mutation',
+      'A book in Old World script titled "Containment Protocol 7." 400 pages. Last entry mid-sentence',
+      'A working light source powered by technology no living person recognizes',
+      'A sealed food ration that smells completely fresh. The expiry date is 90 years ago',
+      'ID card: "Director Maren Voss, Level 5 Clearance, Nanite Research Division"',
+      'A small drone that activates on approach. Has no apparent function. Seems to be watching',
+      'A crystallized nanite storm. Contained in glass. Still swirling. Contact would be catastrophic',
+      'A music device with 12,000 songs from before The Scarring. Still playing. Battery should be dead',
+      'Blueprints for a structure of impossible scale. The annotations call it "The Last City"',
+      'A photograph of a city that no longer exists. One face has been circled in red ink. One of the NPCs matches',
+      'A handwritten journal. The last 40 pages describe events that haven\'t happened yet',
+      'A weapon with no moving parts. No one knows how it works. It hums when pointed north',
+      'A glass sphere containing a miniature storm — thumbnail-sized lightning, actual thunder at low volume',
+    ]
+  },
+  {
+    id:'weather', name:'Storm & Weather', icon:'🌪', category:'Scarred Lands', builtin:true,
+    entries:[
+      'NANITE STORM: Fine blue particles strip metal and corrupt living tissue. Lasts 4–12 hours',
+      'SHADOWSTORM: Darkness so complete that all light sources extinguish. Things move in it',
+      'GLASS RAIN: Shards of fused silica fall at lethal velocity. Cover or die',
+      'ANTI-GRAVITY RAIN: Water falls upward. Structural damage to anything above ground level',
+      'REALITY GLITCH: A 50m radius exists slightly out of phase with normal space. Don\'t linger',
+      'ELEMENTAL CHAOS: Temperature swings 80 degrees in minutes. Ice then fire then ice',
+      'TEMPORAL FOG: Time moves at different rates in different pockets of the fog',
+      'NANITE FOG: Low visibility, nanites in the air — corruption accumulates over hours',
+      'STATIC STORM: Electrical discharge from the sky, drawn to metal and emotion',
+      'BLOOD PRESSURE EVENT: Reality "bleeds." Wounds refuse to close for 24 hours',
+      'VOID POCKET: A 10m sphere where the laws of physics follow different rules',
+      'CALM: Unnatural. Perfect. Not a sound. Something large is approaching',
+      'ECHO STORM: Sounds from the past play clearly. Some are screaming',
+      'NANITE BLOOM: Nanites spontaneously crystallize mid-air, forming temporary structures',
+    ]
+  },
+  {
+    id:'rumors', name:'Faction Rumors', icon:'👁', category:'Scarred Lands', builtin:true,
+    entries:[
+      'The Guardians have a secret that would collapse their legitimacy overnight — someone is about to expose it',
+      'The Reclaimers have already activated one of the 108 Wonders — secretly, six months ago',
+      'The Drifters have found a route through the Black Zone. They\'re not sharing it with anyone',
+      'An Awakened faction leader has crossed the threshold — they are no longer human in any meaningful way',
+      'The Savages are not what they appear. Their "savagery" is deliberate camouflage',
+      'Someone is assassinating Neutral scholars. Three archivists dead this month. No witnesses',
+      'A new faction is forming in the Glass Desert. Origin unknown. Motives entirely unclear',
+      'The Walled City\'s food supply is compromised. Leadership knows. They are hiding it',
+      'The 7th Wonder is not where anyone thinks it is. It never was',
+      'Someone is purchasing nanite-suppression technology at extraordinary prices. All of it',
+      'A Guardian commander has been meeting secretly with Savage leaders — for two years',
+      'The Reclaimers\'s expedition into the Glass Desert did not go missing. They found something and stayed',
+      'There are survivors living inside the Black Zone. Have been for years. They\'re changed',
+      'The corruption spreading through the refugee camps is not natural. Someone is accelerating it',
+    ]
+  },
+  {
+    id:'encounter-hooks', name:'Encounter Hooks', icon:'⚔️', category:'Scarred Lands', builtin:true,
+    entries:[
+      'The party finds a body. Cause of death was not any weapon, storm, or known creature',
+      'A child approaches the party with a message addressed to one of them by full name',
+      'An NPC the party believed dead appears — slightly different from how they remember',
+      'A Guardian patrol asks the party to help track a "missing" Reclaimer expedition',
+      'Something has been following the party for 3 days. Today it finally makes itself known',
+      'A Drifter offers a map to the next Wonder — the price is information, not currency',
+      'The party discovers a sealed survivor cache from before The Scarring. Intact. Occupied',
+      'A faction war is about to break out and the party is directly between the two sides',
+      'An Awakened individual collapses near the party — their mutations are catastrophically unstable',
+      'Something from the Black Zone has crossed into the Outer Lands. It is not aggressive. Yet',
+      'A building that was empty yesterday is now full of Old World furniture. Occupied, apparently',
+      'Every NPC in a settlement has the same dream last night. The party was in it',
+      'A faction representative offers triple rate — but refuses to say what the job actually is',
+      'A storm is coming. Not on the schedule. Not any known type. No one has a word for it',
+    ]
+  },
+  {
+    id:'locations', name:'Location Details', icon:'🏚', category:'Scarred Lands', builtin:true,
+    entries:[
+      'The ruins smell of ozone and old blood. Walls are fused glass and melted metal, still warm',
+      'A perfect circle of dead vegetation surrounds the structure. Nothing grows within 20 meters',
+      'The floor is covered in blue dust that floats at knee height. It has not settled in decades',
+      'Every reflective surface shows a different image — not the room you are standing in',
+      'Sound stops completely 10 meters from the entrance. You can hear your own heartbeat',
+      'Temperature drops 20 degrees suddenly. The nanite detector screams, then goes silent',
+      'The same phrase written in Old World script covers every wall. 400 repetitions',
+      'The structure is intact but tilted 15 degrees. The ground beneath it is entirely hollow',
+      'Light bends in this room. Straight lines look curved. This is not an optical illusion',
+      'The air tastes of copper. This space has been sealed since The Scarring. Breathe carefully',
+      'Three sets of footprints lead in. None lead out. They stop in the middle of a room',
+      'The walls are covered in photographs of the same person at different ages. Always afraid',
+      'A table is set for a meal that is still warm. No one is here. There are six chairs',
+      'The nanite concentration here is extraordinarily high — and arranged in a deliberate pattern',
+    ]
+  },
+  {
+    id:'mutations', name:'Mutation Effects', icon:'💉', category:'Scarred Lands', builtin:true,
+    entries:[
+      'MINOR — Eyes shift color to match the character\'s current emotional state involuntarily',
+      'MINOR — Hair grows and falls out in cycles of hours instead of months',
+      'MINOR — Skin becomes partially translucent around wounds as they heal',
+      'MODERATE — Nanite veins appear: visible blue lines under skin that pulse with heartbeat',
+      'MODERATE — Voice gains a second, lower harmonic that does not match their voice',
+      'MODERATE — Character occasionally and involuntarily reads surface emotions of anyone they touch',
+      'SEVERE — One hand begins to phase through solid objects involuntarily when emotional',
+      'SEVERE — Character occasionally exists 3 seconds in the future — disorienting for all involved',
+      'SEVERE — A nanite swarm has taken residence — extends from body under extreme stress',
+      'SEVERE — Character\'s shadow moves independently, 4 seconds behind',
+      'CRITICAL — Time around the character moves at 0.9x speed. Everyone else seems slightly faster',
+      'CRITICAL — Character\'s emotions now physically manifest as local weather within 10 meters',
+      'CRITICAL — Character loses the ability to feel pain. Gains the ability to feel everything else twice as strongly',
+      'TERMINAL — The nanites have begun rewriting. Character is becoming something that used to be human',
+    ]
+  },
+  {
+    id:'names', name:'Scarred Lands Names', icon:'📛', category:'Generators', builtin:true,
+    entries:[
+      'Vara Ashborn', 'Kael Stormwalker', 'Sorra the Broken', 'Drix Ironveil', 'Maren Voss',
+      'Thorn Nanite-Kissed', 'Nyx of the Ruins', 'Vess Glassborn', 'Ruin-that-Walks',
+      'Skar the Reclaimer', 'Cael Voidtouched', 'Zora the Wanderer', 'Ash the Mutated',
+      'Vael the Last', 'Kessa Twice-Dead', 'Torn of No City', 'Mael the Hollow',
+      'Siv Driftsoul', 'Quell Shadowborn', 'Brace the Scarred', 'Shard the Incomplete',
+      'Vex the Observed', 'Oryn Blackzone-Born', 'Leth the Awakened', 'Crux the Uncorrupted',
+      'Wren of the Glass Desert', 'Daen the Archivist', 'Pyre the Forgotten', 'Null',
+    ]
+  },
+]
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const KEY = 'sl-tables'
+let S = {
+  tables: [],        // all tables (builtin + custom)
+  activeId: 'world-events',
+  history: [],       // [{tableName, result, time}]
+}
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify({customTables: S.tables.filter(t=>!t.builtin), history: S.history, customEntries: getCustomEntries()})) } catch(e){} }
+
+function getCustomEntries() {
+  const out = {}
+  S.tables.forEach(t => { if (t._customEntries) out[t.id] = t._customEntries })
+  return out
+}
+
+function load() {
+  S.tables = BUILTIN.map(t => ({...t, entries:[...t.entries], _customEntries:[]}))
+  try {
+    const raw = localStorage.getItem(KEY)
+    if (!raw) return
+    const data = JSON.parse(raw)
+    // Merge custom entries into builtin tables
+    if (data.customEntries) {
+      for (const [id, entries] of Object.entries(data.customEntries)) {
+        const t = S.tables.find(x => x.id === id)
+        if (t) { t._customEntries = entries; t.entries = [...BUILTIN.find(b=>b.id===id)?.entries||[], ...entries] }
+      }
+    }
+    // Add custom tables
+    if (data.customTables) S.tables.push(...data.customTables)
+    // Restore history
+    if (data.history) S.history = data.history
+  } catch(e) {}
+}
+
+function activeTable() { return S.tables.find(t => t.id === S.activeId) }
+
+// ═══════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════
+function roll(tableId) {
+  const t = tableId ? S.tables.find(x=>x.id===tableId) : activeTable()
+  if (!t || !t.entries.length) return null
+
+  const result = t.entries[Math.floor(Math.random() * t.entries.length)]
+
+  if (!tableId) {
+    // Main roll - update result display
+    const box = document.getElementById('result-box')
+    box.innerHTML = `<span id="result-text" class="result-pop" style="font-size:.92rem;line-height:1.6;color:${t.color||'var(--text)'};">${result}</span>`
+
+    // Add to history
+    S.history.unshift({ tableId: t.id, tableName: t.name, tableIcon: t.icon, result, time: new Date().toLocaleTimeString() })
+    if (S.history.length > 40) S.history = S.history.slice(0, 40)
+    save()
+    renderHistory()
+  }
+  return result
+}
+
+function rollAll() {
+  const results = S.tables.map(t => ({ table: t, result: roll(t.id) })).filter(x => x.result)
+
+  // Show in result box
+  const box = document.getElementById('result-box')
+  box.innerHTML = `<div class="result-pop" style="display:flex;flex-direction:column;gap:8px;width:100%;">
+    ${results.map(({table, result}) => `
+      <div style="padding:6px 10px;background:var(--surface);border-left:3px solid ${table.color||'var(--muted)'};border-radius:0 4px 4px 0;">
+        <div style="font-size:.6rem;color:${table.color||'var(--muted)'};margin-bottom:2px;">${table.icon} ${table.name}</div>
+        <div style="font-size:.78rem;line-height:1.4;">${result}</div>
+      </div>`).join('')}
+  </div>`
+
+  // Add each to history
+  results.forEach(({table, result}) => {
+    S.history.unshift({ tableId: table.id, tableName: table.name, tableIcon: table.icon, result, time: new Date().toLocaleTimeString() })
+  })
+  if (S.history.length > 60) S.history = S.history.slice(0, 60)
+  save(); renderHistory()
+}
+
+function clearHistory() { S.history = []; save(); renderHistory() }
+
+function selectTable(id) {
+  S.activeId = id
+  renderTableList()
+  renderEntries()
+  // Clear result
+  document.getElementById('result-box').innerHTML = `<span style="font-size:.92rem;color:#94a3b8;">Click Roll to draw from this table...</span>`
+  const t = activeTable()
+  document.getElementById('active-table-name').innerHTML = `${t?.icon||'🎲'} ${t?.name||''}`
+  document.getElementById('active-table-desc').textContent = `${t?.entries?.length||0} entries · ${t?.category||''}`
+}
+
+function addEntry() {
+  const val = document.getElementById('new-entry').value.trim()
+  if (!val) return
+  const t = activeTable()
+  if (!t) return
+  t.entries.push(val)
+  t._customEntries = t._customEntries || []
+  t._customEntries.push(val)
+  document.getElementById('new-entry').value = ''
+  save(); renderEntries()
+  document.getElementById('active-table-desc').textContent = `${t.entries.length} entries · ${t.category||''}`
+  toast('Entry added')
+}
+
+function removeEntry(idx) {
+  const t = activeTable()
+  if (!t) return
+  const removed = t.entries.splice(idx, 1)[0]
+  if (t._customEntries) t._customEntries = t._customEntries.filter(e => e !== removed)
+  save(); renderEntries()
+}
+
+function createTable() {
+  const name = document.getElementById('m-name').value.trim()
+  if (!name) { toast('Name required'); return }
+  const icon = document.getElementById('m-icon').value.trim() || '🎲'
+  const cat  = document.getElementById('m-cat').value.trim() || 'Custom'
+  const id   = 'custom-' + Date.now()
+  S.tables.push({ id, name, icon, category: cat, builtin: false, entries: [], _customEntries: [] })
+  save(); closeModal(); renderTableList()
+  selectTable(id); toast(`Table "${name}" created`)
+}
+
+function deleteActiveTable() {
+  const t = activeTable()
+  if (!t || t.builtin) return
+  if (!confirm(`Delete table "${t.name}"?`)) return
+  S.tables = S.tables.filter(x => x.id !== t.id)
+  S.activeId = S.tables[0]?.id || null
+  save(); render()
+}
+
+function openModal()  { document.getElementById('m-name').value='';document.getElementById('m-icon').value='';document.getElementById('m-cat').value=''; document.getElementById('modal-overlay').classList.add('open') }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open') }
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function renderTableList() {
+  const categories = [...new Set(S.tables.map(t => t.category))]
+  document.getElementById('table-list').innerHTML = categories.map(cat => `
+    <div class="cat-label">${cat}</div>
+    ${S.tables.filter(t=>t.category===cat).map(t => `
+      <button class="table-btn ${t.id===S.activeId?'active':''}" onclick="selectTable('${t.id}')">
+        <span>${t.icon}</span>
+        <span style="flex:1;text-align:left;">${t.name}</span>
+        <span style="font-size:.58rem;color:var(--muted);">${t.entries.length}</span>
+      </button>`).join('')}
+  `).join('')
+}
+
+function renderEntries() {
+  const t = activeTable()
+  const del = document.getElementById('del-table-btn')
+  if (!t) { document.getElementById('entry-list').innerHTML=''; return }
+  del.style.display = t.builtin ? 'none' : ''
+  document.getElementById('entry-count').textContent = `${t.entries.length} entries`
+  document.getElementById('entry-list').innerHTML = t.entries.map((e,i) => `
+    <div style="display:flex;align-items:flex-start;gap:6px;padding:6px 6px;border-radius:4px;transition:background .1s;"
+      onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+      <div style="flex:1;font-size:.72rem;color:${t.color||'var(--text)'};line-height:1.4;cursor:pointer;"
+        onclick="document.getElementById('result-box').innerHTML='<span class=result-pop style=font-size:.92rem;line-height:1.6;color:${t.color||'var(--text)'};>${e.replace(/'/g,'&#39;').replace(/</g,'&lt;')}</span>'">${e}</div>
+      <button onclick="removeEntry(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;flex-shrink:0;opacity:.4;transition:opacity .1s;"
+        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.4'">✕</button>
+    </div>`).join('')
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list')
+  document.getElementById('history-count').textContent = S.history.length ? `${S.history.length} rolls` : ''
+  if (!S.history.length) { el.innerHTML = `<div style="font-size:.72rem;color:#2a2a3a;padding:8px 0;">No rolls yet this session</div>`; return }
+  el.innerHTML = S.history.map((h,i) => {
+    const t = S.tables.find(x => x.id === h.tableId)
+    const color = t?.color || 'var(--muted)'
+    return `<div style="display:flex;gap:8px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;margin-bottom:3px;">
+      <div style="flex-shrink:0;min-width:60px;">
+        <div style="font-size:.58rem;color:${color};font-weight:bold;">${h.tableIcon} ${h.tableName}</div>
+        <div style="font-size:.55rem;color:var(--muted);">${h.time}</div>
+      </div>
+      <div style="flex:1;font-size:.75rem;line-height:1.4;color:var(--text);">${h.result}</div>
+      <button onclick="S.history.splice(${i},1);save();renderHistory()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.7rem;flex-shrink:0;opacity:.3;transition:opacity .1s;"
+        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.3'">✕</button>
+    </div>`
+  }).join('')
+}
+
+function render() { renderTableList(); renderEntries(); renderHistory() }
+
+// ═══════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return
+  if (e.key === 'r' || e.key === 'R' || e.key === ' ') { e.preventDefault(); roll() }
+  if (e.key === 'Escape') closeModal()
+})
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+load()
+render()
+selectTable(S.activeId)
+
+let toastT
+function toast(msg) {
+  const el = document.querySelector('#toast')||document.body
+  const t = document.getElementById('toast')
+  t.textContent = msg; t.classList.add('show')
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 2600)
+}
+</script>
+</body>
+</html>

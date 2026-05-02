@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Scarred Lands Campaign OS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --orange: #f97316; --purple: #a855f7; --teal: #14b8a6;
+    --bg: #08080f; --surface: #0f0f1a; --surface2: #161625;
+    --border: #1e1e2e; --text: #e2e8f0; --muted: #4a4a6a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 17px; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; overflow: hidden; }
+
+  /* Scanlines */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+  }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+  @keyframes flicker { 0%,94%,100%{opacity:1} 95%{opacity:.7} 97%{opacity:.9} 99%{opacity:.6} }
+  @keyframes storm-pulse { 0%,100%{opacity:.3} 50%{opacity:.7} }
+  @keyframes glow-pulse { 0%,100%{box-shadow:0 0 6px rgba(249,115,22,.3)} 50%{box-shadow:0 0 20px rgba(249,115,22,.7),0 0 40px rgba(249,115,22,.2)} }
+
+  .flicker { animation: flicker 10s infinite; }
+  .glow { animation: glow-pulse 3s ease-in-out infinite; }
+
+  #storm-overlay { position:fixed; inset:0; pointer-events:none; z-index:5; opacity:0; transition:opacity 2s;
+    background: radial-gradient(ellipse at 50% -10%, rgba(168,85,247,.2) 0%, transparent 60%); }
+  #storm-overlay.active { animation: storm-pulse 4s ease-in-out infinite; }
+
+  .npc-card { transition: all .15s ease; cursor: pointer; }
+  .npc-card:hover { border-color: var(--orange) !important; transform: translateX(2px); }
+  .npc-card.selected { border-color: var(--orange) !important; background: rgba(249,115,22,.07) !important; }
+
+  .region-btn { transition: all .15s ease; cursor: pointer; }
+  .region-btn:hover { border-color: var(--teal) !important; background: rgba(20,184,166,.1) !important; }
+  .region-btn.active { border-color: var(--teal) !important; background: rgba(20,184,166,.12) !important; }
+
+  .tab-btn { cursor:pointer; background:none; border:none; border-bottom: 2px solid transparent; padding:8px 12px; font-size:.7rem; letter-spacing:.08em; font-family:inherit; transition: all .15s; }
+  .tab-btn.active { border-bottom-color: var(--orange); color: var(--orange) !important; }
+
+  .editable { background:transparent; border:none; border-bottom:1px solid transparent; color:var(--text); font-family:inherit; width:100%; outline:none; transition:border-color .15s; }
+  .editable:focus { border-bottom-color: var(--orange); }
+  .editable:hover { border-bottom-color: var(--border); }
+
+  input, textarea, select { background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:4px; padding:4px 8px; font-family:inherit; font-size:.82rem; outline:none; transition:border-color .15s; }
+  input:focus, textarea:focus, select:focus { border-color: var(--orange); }
+
+  .btn-primary { background:var(--orange); color:#000; font-weight:bold; border:none; cursor:pointer; transition:all .15s; font-family:inherit; }
+  .btn-primary:hover { background:#fb923c; box-shadow:0 0 15px rgba(249,115,22,.5); }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--muted); cursor:pointer; transition:all .15s; font-family:inherit; }
+  .btn-ghost:hover { border-color:var(--orange); color:var(--orange); }
+  .btn-danger { background:transparent; border:1px solid rgba(239,68,68,.3); color:rgba(239,68,68,.6); cursor:pointer; transition:all .15s; font-family:inherit; }
+  .btn-danger:hover { border-color:#ef4444; color:#ef4444; }
+
+  #modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:500; align-items:center; justify-content:center; }
+  #modal-overlay.open { display:flex; }
+
+  #toast { position:fixed; bottom:1rem; right:1rem; z-index:999; padding:.5rem 1rem;
+    background:var(--surface2); border:1px solid var(--orange); border-radius:6px;
+    color:var(--orange); font-size:.78rem; transform:translateY(80px); transition:transform .3s; pointer-events:none; }
+  #toast.show { transform:translateY(0); }
+
+  .badge { font-size:.6rem; padding:1px 6px; border-radius:10px; font-weight:bold; letter-spacing:.05em; text-transform:uppercase; }
+  .s-alive { background:rgba(34,197,94,.15); color:#22c55e; border:1px solid rgba(34,197,94,.3); }
+  .s-dead { background:rgba(239,68,68,.15); color:#ef4444; border:1px solid rgba(239,68,68,.3); }
+  .s-missing { background:rgba(234,179,8,.15); color:#eab308; border:1px solid rgba(234,179,8,.3); }
+  .rel-ally { background:rgba(34,197,94,.12); color:#22c55e; border:1px solid rgba(34,197,94,.3); }
+  .rel-enemy { background:rgba(239,68,68,.12); color:#ef4444; border:1px solid rgba(239,68,68,.3); }
+  .rel-debt { background:rgba(234,179,8,.12); color:#eab308; border:1px solid rgba(234,179,8,.3); }
+  .rel-fear { background:rgba(168,85,247,.12); color:#a855f7; border:1px solid rgba(168,85,247,.3); }
+
+  #particles { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.35; }
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:8px; }
+  .section-label { font-size:.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px; }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div id="storm-overlay"></div>
+<div id="toast"></div>
+
+<div style="position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;overflow:hidden;">
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- TOP BAR: WORLD ENGINE                          -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:7px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+
+    <a href="index.html" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;text-decoration:none;color:var(--muted);font-size:.68rem;letter-spacing:.06em;transition:all .15s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">← Hub</a>
+
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <span class="flicker" style="color:var(--orange);font-size:1.1rem;">⚡</span>
+      <span style="font-weight:bold;font-size:.82rem;letter-spacing:.1em;">SCARRED LANDS</span>
+      <span style="color:var(--muted);font-size:.62rem;">GM OS</span>
+    </div>
+
+    <div style="width:1px;height:28px;background:var(--border);flex-shrink:0;"></div>
+
+    <div style="flex-shrink:0;">
+      <div class="section-label" style="margin-bottom:2px;">Event</div>
+      <input id="bar-event" oninput="setWorldField('event',this.value)"
+        style="font-size:.82rem;color:var(--purple);font-weight:bold;width:170px;background:transparent;border:none;border-bottom:1px solid var(--border);padding:1px 2px;outline:none;font-family:inherit;">
+    </div>
+
+    <div style="flex-shrink:0;">
+      <div class="section-label" style="margin-bottom:2px;">Region</div>
+      <div id="bar-region" style="font-size:.82rem;color:var(--teal);"></div>
+    </div>
+
+    <div style="flex-shrink:0;">
+      <div class="section-label" style="margin-bottom:2px;">Danger</div>
+      <select id="bar-danger" onchange="setWorldField('danger',this.value)" style="font-size:.85rem;font-weight:bold;background:transparent;border:none;border-bottom:1px solid var(--border);padding:1px 2px;outline:none;font-family:inherit;color:#e2e8f0;cursor:pointer;">
+        <option value="D" style="background:#0f0f1a;">D — Low</option>
+        <option value="C" style="background:#0f0f1a;">C — Moderate</option>
+        <option value="B" style="background:#0f0f1a;">B — High</option>
+        <option value="A" style="background:#0f0f1a;">A — Critical</option>
+      </select>
+    </div>
+
+    <div style="flex-shrink:0;min-width:130px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+        <span class="section-label" style="margin-bottom:0;">Pressure</span>
+        <input id="bar-pct" type="number" min="0" max="100" oninput="setWorldField('pressure',+this.value)"
+          style="font-size:.65rem;color:var(--orange);font-weight:bold;width:46px;background:transparent;border:none;border-bottom:1px solid var(--border);text-align:right;outline:none;font-family:inherit;padding:0 2px;">
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div id="bar-fill" style="height:100%;border-radius:3px;transition:width .4s,background .4s;"></div>
+      </div>
+    </div>
+
+    <div id="bar-threats" style="flex:1;min-width:0;display:flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
+
+    <div style="margin-left:auto;display:flex;align-items:center;gap:5px;flex-shrink:0;">
+      <button id="gm-btn" onclick="toggleGMMode()" class="btn-ghost" style="padding:4px 8px;font-size:.65rem;border-radius:4px;">👁 GM MODE</button>
+      <button onclick="exportData()" class="btn-ghost" style="padding:4px 8px;font-size:.65rem;border-radius:4px;">↑ EXPORT</button>
+      <label class="btn-ghost" style="padding:4px 8px;font-size:.65rem;border-radius:4px;cursor:pointer;">
+        ↓ IMPORT <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
+      </label>
+      <button onclick="advanceWorld()" class="btn-primary glow" style="padding:6px 14px;font-size:.72rem;border-radius:6px;letter-spacing:.05em;">
+        ⚡ ADVANCE WORLD
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- MAIN CONTENT                                   -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div style="flex:1;display:flex;overflow:hidden;padding:8px;gap:8px;">
+
+    <!-- LEFT: MAP -->
+    <div style="width:162px;flex-shrink:0;display:flex;flex-direction:column;gap:0;overflow-y:auto;">
+      <div class="section-label" style="padding:2px 0 6px;">🗺 Regions</div>
+      <div id="map-panel"></div>
+    </div>
+
+    <!-- CENTER: NPC LIST -->
+    <div style="width:255px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;">
+      <input type="text" id="search-input" placeholder="/ search npcs..."
+        oninput="onSearch(this.value)"
+        style="width:100%;margin-bottom:5px;font-size:.78rem;">
+      <div style="display:flex;gap:4px;margin-bottom:5px;">
+        <select onchange="onFilterFaction(this.value)" style="flex:1;font-size:.68rem;padding:3px 4px;">
+          <option value="">All Factions</option>
+          <option>Drifters</option><option>Guardians</option><option>Reclaimers</option>
+          <option>Savages</option><option>Awakened</option><option>Othersiders</option><option>Neutral</option>
+        </select>
+        <select onchange="onFilterStatus(this.value)" style="flex:1;font-size:.68rem;padding:3px 4px;">
+          <option value="">All Status</option>
+          <option>alive</option><option>dead</option><option>missing</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:6px;">
+        <button onclick="openNewNPCModal()" class="btn-primary" style="flex:1;padding:5px;font-size:.7rem;border-radius:5px;">+ NPC</button>
+        <button onclick="inspireNPC()" class="btn-ghost" style="flex:1;padding:5px;font-size:.7rem;border-radius:5px;">🎲 Inspire</button>
+      </div>
+      <div id="npc-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+    </div>
+
+    <!-- RIGHT: NPC DETAIL -->
+    <div style="flex:1;overflow:hidden;min-width:0;">
+      <div id="npc-detail" style="height:100%;overflow-y:auto;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- MODAL                                          -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="modal-overlay" onclick="handleModalBg(event)">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 id="modal-title" style="font-size:.95rem;color:var(--orange);font-weight:bold;letter-spacing:.05em;"></h2>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════
+const KEY = 'sl-campaign-os'
+
+const REGIONS = [
+  { label:'Outer Lands',  icon:'🌪', desc:'Nanite-swept wastes' },
+  { label:'Memento',      icon:'🏚', desc:'City of survivors' },
+  { label:'Wyldermoore',  icon:'🌿', desc:'Mutant wildlands' },
+  { label:'New Grandia',  icon:'🏛', desc:'Rebuilt trade hub' },
+  { label:'Thundermount', icon:'⚡', desc:'Perpetual storm peak' },
+  { label:'Fur Wehn',     icon:'🔮', desc:'Ancient glasslands' },
+  { label:'Frozen Edge',  icon:'❄',  desc:'The northern ice shelf' },
+  { label:'The Scar',     icon:'☠',  desc:'Ground zero of the Shattering' },
+  { label:'Savage Lands', icon:'🐗',  desc:'Untamed tribal territories' },
+]
+
+const WORLD_EVENTS = [
+  'Nanite Storm','Shadowstorm','Glass Rain','Anti-gravity Rain','Reality Glitch',
+  'Mutation Outbreak','Faction Skirmish','Wonder Activation','Calm Before the Storm',
+  'Elemental Chaos','Nanite Fog','Temporal Anomaly','Mass Hallucination',
+  'Structural Collapse','Void Rift','Blood Pressure Event',
+]
+
+const THREATS = [
+  'Nanite cloud drifting toward settlement','Savage raiding party spotted',
+  'Guardian patrol gone silent','Reality glitch expanding',
+  'Mutation outbreak in refugee camp','Ancient Wonder destabilizing',
+  'Faction assassin active','Shadowstorm approaching',
+  'Reclaimer expedition overdue','Drifter emergency signal intercepted',
+]
+
+const MUTATIONS = [
+  { type:'Nanite Veins',       effect:'Blue veins glow under skin; enhanced cognition and nanite interface' },
+  { type:'Glass Bones',        effect:'Bones partially crystallized; fragile but translucent under light' },
+  { type:'Storm Eyes',         effect:'Eyes replaced by swirling storm energy; can see through walls' },
+  { type:'Void Touch',         effect:'Right hand phases through matter at will; painful to control' },
+  { type:'Echo Memory',        effect:'Absorbs emotional memories from objects and corpses on touch' },
+  { type:'Gravity Defiance',   effect:'Randomly floats during extreme emotional states' },
+  { type:'Shadow Merge',       effect:'Can step into and travel through shadows; loses time while inside' },
+  { type:'Iron Skin',          effect:'Skin partially metallic; immune to piercing, heavy and cold' },
+  { type:'Nanite Hive',        effect:'Controls a swarm of nanites that extend up to 10m from body' },
+  { type:'Time Slip',          effect:'Occasionally phased 3 seconds into the future; disorienting' },
+  { type:'Void Whisper',       effect:'Hears voices from dead nanite-killed victims near ruins' },
+  { type:'Glass Heart',        effect:'Heartbeat visible through chest as crystalline pulse; immune to emotion manipulation' },
+]
+
+const FACTIONS = ['Drifters','Guardians','Reclaimers','Savages','Awakened','Othersiders','Neutral']
+
+const INSPIRE_DATA = {
+  first: ['Vara','Kael','Sorra','Drix','Maren','Thorn','Nyx','Vess','Ruin','Skar','Cael','Zora','Ash','Vael','Kessa','Torn','Mael','Siv','Quell','Brace','Shard','Vex','Oryn','Leth','Crux','Wren','Daen','Pyre','Null','Rael'],
+  epithet: ['Ashborn','Nanite-Kissed','the Broken','Ironveil','Stormwalker','of the Ruins','the Reclaimer','Glassborn','the Wanderer','Voidtouched','the Scarred','Shadowborn','the Last','of No City','the Mutated','Driftsoul','Twice-Dead','the Hollow'],
+  roles: ['Scout','Warlord','Archivist','Healer','Smuggler','Spy','Zealot','Exile','Mercenary','Prophet','Engineer','Nomad','Collector','Enforcer','Outcast','Commander','Scavenger','Oracle'],
+  goals: [
+    'Find a cure before the corruption takes hold completely',
+    'Recover the lost artifact buried in the Black Zone',
+    'Unite the Drifter clans before the next storm season',
+    'Expose the Guardian conspiracy hiding the 12th Wonder',
+    'Escape the Scarred Lands — find what lies beyond the storms',
+    'Document every mutation before losing the ability to write',
+    'Protect the child who may be immune to nanite corruption',
+    'Discover who triggered The Scarring and why',
+    'Activate the ancient weapon before the Reclaimers do',
+    'Find her brother, last seen entering the Glass Desert alone',
+    'Survive one more season without losing herself',
+    'Tear down the Walled City walls and free the people inside',
+    'Steal the Reclaimer ledger containing all faction secrets',
+    'Make peace between the Savages and Guardians before it\'s too late',
+    'Find the 108th Wonder — the one that started The Scarring',
+  ],
+}
+
+const BEHAVIORS = {
+  low:     ['Cautiously cooperative','Watchful but accessible','Maintaining their routines','Open to negotiation','Reliable in their stated role'],
+  mid:     ['Erratic and suspicious','Testing allies for loyalty','Pursuing goal aggressively','Hiding something significant','Unreliable — agenda shifting'],
+  high:    ['Consumed by obsession','Barely controlling corrupted urges','Judgment severely impaired','Dangerous if cornered','Mutation affecting behavior'],
+  extreme: ['Lost to the nanites — barely coherent','Acting on pure instinct','A threat to everyone near them','No longer fully human','Cannot be reasoned with'],
+}
+
+const SAMPLE_NPCS = [
+  {
+    id:'npc-1', name:'Vara Ashborn', role:'Scout & Drifter Captain', faction:'Drifters', status:'alive', corruption:25,
+    goal:'Find the 7th Wonder before the Reclaimers weaponize it',
+    mutations:[{ type:'Storm Eyes', effect:'Eyes replaced by swirling storm energy; can see through walls' }],
+    secrets:'She survived the Black Zone by making a deal with something ancient that lives beneath the Glass Desert. She does not know what it was or what it cost her yet.',
+    revealedSecrets:false,
+    relationships:[
+      { targetId:'npc-2', type:'ally',  strength:3, description:'Uneasy truce with the Guardians — Vael needs her maps' },
+      { targetId:'npc-3', type:'enemy', strength:5, description:'Skar stole the compass that was leading her to the 7th Wonder. She wants blood.' },
+      { targetId:'npc-4', type:'ally',  strength:4, description:'Treats Kessa as human when no one else does' },
+    ],
+    history:[
+      { session:'2', note:'Revealed the map fragment tattooed under her left forearm — coordinates in Old World script.' },
+      { session:'1', note:'Party found her half-buried in glass sand near the Outer Lands border, barely alive.' },
+    ],
+    lastInteraction:'Session 2', portrait:'',
+  },
+  {
+    id:'npc-2', name:'Commander Vael', role:'Guardian High Commander', faction:'Guardians', status:'alive', corruption:10,
+    goal:'Seal the breach in the Black Zone wall before migration season brings the horrors through',
+    mutations:[],
+    secrets:'The breach was caused by Guardian experiments, not the Savages. He has been covering it up for two seasons. If exposed, the city falls to civil war.',
+    revealedSecrets:false,
+    relationships:[
+      { targetId:'npc-1', type:'ally',  strength:3, description:'Reluctant alliance — needs her expertise in the Outer Lands' },
+      { targetId:'npc-5', type:'enemy', strength:5, description:'Brother Torn has sworn a blood oath to kill Vael for the massacre at Wyldermoore Ford' },
+    ],
+    history:[
+      { session:'1', note:'Met the party at the Walled City gate. Suspicious of their motives. Offered payment for silence about the breach.' },
+    ],
+    lastInteraction:'Session 1', portrait:'',
+  },
+  {
+    id:'npc-3', name:'Skar the Reclaimer', role:'Reclaimer Expedition Leader', faction:'Reclaimers', status:'alive', corruption:55,
+    goal:'Activate the Old World weapon buried beneath the Ruined City to "liberate" the people of the Walled City',
+    mutations:[
+      { type:'Nanite Hive',  effect:'Controls a swarm of nanites that extend up to 10m from body' },
+      { type:'Void Touch',   effect:'Right hand phases through matter at will; painful to control' },
+    ],
+    secrets:'He knows exactly what the weapon does — it does not liberate anyone. He plans to use it to collapse the Walled City walls and take control in the chaos that follows.',
+    revealedSecrets:false,
+    relationships:[
+      { targetId:'npc-1', type:'enemy', strength:5, description:'Stole her compass and left her to die in the Glass Desert' },
+      { targetId:'npc-4', type:'fear',  strength:3, description:'Kessa\'s power growth terrifies him — she may be stronger than him already' },
+    ],
+    history:[
+      { session:'2', note:'Seen entering the Ruined City with a full Reclaimer squad. None of them returned with him.' },
+    ],
+    lastInteraction:'Session 2', portrait:'',
+  },
+  {
+    id:'npc-4', name:'Kessa Nanite-Kissed', role:'Awakened Anomaly', faction:'Awakened', status:'alive', corruption:72,
+    goal:'Understand what she is becoming before she loses the ability to want anything at all',
+    mutations:[
+      { type:'Nanite Veins',      effect:'Blue veins glow under skin; enhanced cognition and nanite interface' },
+      { type:'Echo Memory',       effect:'Absorbs emotional memories from objects and corpses on touch' },
+      { type:'Time Slip',         effect:'Occasionally phased 3 seconds into the future; disorienting' },
+    ],
+    secrets:'She is not becoming something new. She is becoming an Old World construct that was once human. The process is reversing — she is being reconstructed from a template that predates The Scarring.',
+    revealedSecrets:false,
+    relationships:[
+      { targetId:'npc-1', type:'ally', strength:4, description:'Vara is the only one who treats her as human — Kessa would die for her without hesitation' },
+    ],
+    history:[
+      { session:'2', note:'Saved the party from a nanite cluster near the Ruined City gate. They never saw her.' },
+      { session:'1', note:'Observed from a distance, watching the party arrive. Did not engage.' },
+    ],
+    lastInteraction:'Session 2', portrait:'',
+  },
+  {
+    id:'npc-5', name:'Brother Torn', role:'Savage Warleader', faction:'Savages', status:'alive', corruption:30,
+    goal:'Unite the scattered savage clans under one banner before the factions exterminate them all',
+    mutations:[
+      { type:'Iron Skin', effect:'Skin partially metallic; immune to piercing, heavy and cold' },
+    ],
+    secrets:'He was a Guardian once — one of Vael\'s lieutenants. Vael ordered the massacre of his entire clan at Wyldermoore Ford to silence witnesses to the breach experiments.',
+    revealedSecrets:false,
+    relationships:[
+      { targetId:'npc-2', type:'enemy', strength:5, description:'Blood debt. He will not stop until Vael is dead — or he is.' },
+    ],
+    history:[
+      { session:'1', note:'Ambushed a Guardian patrol near the Wyldermoore border. Let the party pass without engaging — watching them.' },
+    ],
+    lastInteraction:'Session 1', portrait:'',
+  },
+  {
+    id:'npc-6', name:'The Archivist', role:'Independent Scholar of the 108 Wonders', faction:'Neutral', status:'missing', corruption:5,
+    goal:'Document all 108 Wonders before they are destroyed, weaponized, or lost to the storms',
+    mutations:[],
+    secrets:'She has already documented 94 of the 108 Wonders. She knows what the 108th Wonder is — and she has hidden that page from every copy of her journals. The knowledge would end the world.',
+    revealedSecrets:false,
+    relationships:[],
+    history:[
+      { session:'1', note:'Mentioned by a Drifter contact at the Outer Lands camp. Last seen entering the Glass Desert alone, carrying only a satchel of journals.' },
+    ],
+    lastInteraction:'Session 1', portrait:'',
+  },
+]
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let S = {
+  world: { event:'Nanite Storm', region:'Outer Lands', danger:'C', pressure:45, activeThreats:['Mutations spreading in refugee camp','Reality glitches near Ruined City'] },
+  npcs: [],
+  sel: null,        // selected NPC id
+  tab: 'info',      // active detail tab
+  search: '',
+  fFaction: '',
+  fStatus: '',
+  gmMode: false,
+}
+
+// ═══════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)) } catch(e) {} }
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY)
+    if (raw) S = Object.assign(S, JSON.parse(raw))
+  } catch(e) {}
+  if (!S.npcs || S.npcs.length === 0) { S.npcs = SAMPLE_NPCS; save() }
+}
+
+function exportData() {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], {type:'application/json'}))
+  a.download = 'scarred-lands-campaign.json'; a.click()
+  toast('Campaign exported')
+}
+
+function importData(e) {
+  const f = e.target.files[0]; if (!f) return
+  const r = new FileReader()
+  r.onload = ev => { try { S = Object.assign(S, JSON.parse(ev.target.result)); save(); render(); toast('Campaign imported') } catch(err) { toast('Import failed') } }
+  r.readAsText(f); e.target.value = ''
+}
+
+// ═══════════════════════════════════════════════════════
+// WORLD ENGINE
+// ═══════════════════════════════════════════════════════
+function advanceWorld() {
+  const inc = 5 + Math.floor(Math.random() * 12)
+  S.world.pressure = Math.min(100, S.world.pressure + inc)
+  const p = S.world.pressure
+  S.world.danger = p >= 85 ? 'A' : p >= 65 ? 'B' : p >= 40 ? 'C' : 'D'
+  S.world.event = WORLD_EVENTS[Math.floor(Math.random() * WORLD_EVENTS.length)]
+
+  if (p > 70) document.getElementById('storm-overlay').classList.add('active')
+  else document.getElementById('storm-overlay').classList.remove('active')
+
+  const t = THREATS[Math.floor(Math.random() * THREATS.length)]
+  if (!S.world.activeThreats.includes(t)) {
+    S.world.activeThreats.push(t)
+    if (S.world.activeThreats.length > 3) S.world.activeThreats.shift()
+  }
+
+  // Randomly corrupt a living NPC slightly
+  if (Math.random() < 0.45) {
+    const alive = S.npcs.filter(n => n.status === 'alive')
+    if (alive.length) {
+      const npc = alive[Math.floor(Math.random() * alive.length)]
+      npc.corruption = Math.min(100, npc.corruption + Math.floor(Math.random() * 6) + 1)
+    }
+  }
+
+  save(); render()
+  toast(`⚡ ${S.world.event} — Pressure ${S.world.pressure}%`)
+}
+
+// ═══════════════════════════════════════════════════════
+// NPC HELPERS
+// ═══════════════════════════════════════════════════════
+const npc = id => S.npcs.find(n => n.id === id)
+
+function updateNPC(id, patch) {
+  const n = npc(id); if (!n) return
+  Object.assign(n, patch); save(); render()
+}
+
+function deleteNPC(id) {
+  if (!confirm('Permanently delete this NPC?')) return
+  S.npcs = S.npcs.filter(n => n.id !== id)
+  if (S.sel === id) S.sel = null
+  save(); render(); toast('NPC deleted')
+}
+
+function evolveNPC(id) {
+  const n = npc(id); if (!n) return
+  const avail = MUTATIONS.filter(m => !(n.mutations||[]).find(e => e.type === m.type))
+  if (!avail.length) { toast('All mutations acquired'); return }
+  const m = avail[Math.floor(Math.random() * avail.length)]
+  n.mutations = n.mutations || []
+  n.mutations.push(m)
+  n.corruption = Math.min(100, n.corruption + 8)
+  save(); render(); toast(`💉 ${n.name}: ${m.type}`)
+}
+
+function inspireNPC() {
+  const d = INSPIRE_DATA
+  const pick = a => a[Math.floor(Math.random() * a.length)]
+  const corruption = Math.floor(Math.random() * 65)
+  const newNPC = {
+    id: 'npc-' + Date.now(),
+    name: `${pick(d.first)} ${pick(d.epithet)}`,
+    role: pick(d.roles), faction: FACTIONS[Math.floor(Math.random() * FACTIONS.length)],
+    goal: pick(d.goals), status: 'alive', corruption,
+    mutations: corruption > 45 ? [MUTATIONS[Math.floor(Math.random() * MUTATIONS.length)]] : [],
+    secrets:'', revealedSecrets:false, relationships:[], history:[],
+    lastInteraction:'Not yet', portrait:'',
+  }
+  S.npcs.push(newNPC); S.sel = newNPC.id; save(); render()
+  toast(`🎲 Inspired: ${newNPC.name}`)
+}
+
+function getBehavior(n) {
+  const c = n.corruption
+  const pool = c < 25 ? BEHAVIORS.low : c < 50 ? BEHAVIORS.mid : c < 75 ? BEHAVIORS.high : BEHAVIORS.extreme
+  const base = pool[Math.floor(Math.random() * pool.length)]
+  return `${base}. Given the ongoing ${S.world.event}, they are ${c > 60 ? 'increasingly erratic and unpredictable' : 'laser-focused on their goal'}.`
+}
+
+function addRelationship(npcId) {
+  const n = npc(npcId); if (!n) return
+  const targetId = document.getElementById('rel-t').value
+  const type = document.getElementById('rel-type').value
+  const strength = parseInt(document.getElementById('rel-str').value) || 3
+  const desc = document.getElementById('rel-desc').value
+  if (!targetId || !type) { toast('Select NPC and type'); return }
+  n.relationships = n.relationships || []
+  n.relationships.push({ targetId, type, strength, description: desc })
+  save(); renderDetail(); toast('Bond added')
+}
+
+function removeRel(npcId, i) {
+  const n = npc(npcId); if (!n) return
+  n.relationships.splice(i, 1); save(); renderDetail()
+}
+
+function addNote(npcId) {
+  const n = npc(npcId); if (!n) return
+  const sess = document.getElementById('note-s').value || '?'
+  const note = document.getElementById('note-t').value.trim()
+  if (!note) return
+  n.history = n.history || []
+  n.history.unshift({ session: sess, note })
+  n.lastInteraction = `Session ${sess}`
+  save(); renderDetail(); toast('Note logged')
+}
+
+function removeNote(npcId, i) {
+  const n = npc(npcId); if (!n) return
+  n.history.splice(i, 1); save(); renderDetail()
+}
+
+function addMutation(npcId) {
+  const n = npc(npcId); if (!n) return
+  const type = document.getElementById('mut-t').value.trim()
+  const effect = document.getElementById('mut-e').value.trim()
+  if (!type) return
+  n.mutations = n.mutations || []
+  n.mutations.push({ type, effect })
+  save(); renderDetail(); toast('Mutation added')
+}
+
+function removeMut(npcId, i) {
+  const n = npc(npcId); if (!n) return
+  n.mutations.splice(i, 1); save(); renderDetail()
+}
+
+function toggleSecrets(id) {
+  const n = npc(id); if (!n) return
+  n.revealedSecrets = !n.revealedSecrets; save(); renderDetail()
+}
+
+// ═══════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════
+function onSearch(v)       { S.search = v; renderList() }
+function onFilterFaction(v){ S.fFaction = v; renderList() }
+function onFilterStatus(v) { S.fStatus = v; renderList() }
+
+function filtered() {
+  const q = S.search.toLowerCase()
+  return S.npcs.filter(n => {
+    if (q && !n.name.toLowerCase().includes(q) && !n.goal.toLowerCase().includes(q) && !n.faction.toLowerCase().includes(q)) return false
+    if (S.fFaction && n.faction !== S.fFaction) return false
+    if (S.fStatus && n.status !== S.fStatus) return false
+    return true
+  })
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════
+function openNewNPCModal()  { setModal('+ NEW NPC', npcForm(null)) }
+function openEditModal(id)  { const n = npc(id); if (n) setModal(`✎ ${n.name}`, npcForm(n)) }
+
+function setModal(title, body) {
+  document.getElementById('modal-title').textContent = title
+  document.getElementById('modal-body').innerHTML = body
+  document.getElementById('modal-overlay').classList.add('open')
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open') }
+function handleModalBg(e) { if (e.target === document.getElementById('modal-overlay')) closeModal() }
+
+function npcForm(n) {
+  return `
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div class="section-label">NAME *</div>
+        <input id="f-name" value="${esc(n?.name||'')}" placeholder="NPC name..." style="width:100%;">
+      </div>
+      <div>
+        <div class="section-label">ROLE / TITLE</div>
+        <input id="f-role" value="${esc(n?.role||'')}" placeholder="Role..." style="width:100%;">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div class="section-label">FACTION</div>
+        <select id="f-faction" style="width:100%;">
+          ${FACTIONS.map(f => `<option ${n?.faction===f?'selected':''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <div class="section-label">STATUS</div>
+        <select id="f-status" style="width:100%;">
+          ${['alive','dead','missing'].map(s => `<option ${n?.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">CURRENT GOAL ★ (most important)</div>
+      <input id="f-goal" value="${esc(n?.goal||'')}" placeholder="What drives them right now?" style="width:100%;">
+    </div>
+    <div>
+      <div class="section-label">CORRUPTION % (0–100)</div>
+      <input id="f-corr" type="number" min="0" max="100" value="${n?.corruption||0}" style="width:100%;">
+    </div>
+    <div>
+      <div class="section-label">SECRETS (hidden by default)</div>
+      <textarea id="f-secrets" rows="3" placeholder="Hidden truths about this NPC..." style="width:100%;resize:vertical;">${esc(n?.secrets||'')}</textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+      <button onclick="closeModal()" class="btn-ghost" style="padding:6px 18px;font-size:.8rem;border-radius:5px;">Cancel</button>
+      <button onclick="submitForm(${n?`'${n.id}'`:null})" class="btn-primary" style="padding:6px 18px;font-size:.8rem;border-radius:5px;">
+        ${n ? 'Save Changes' : 'Create NPC'}
+      </button>
+    </div>
+  </div>`
+}
+
+function submitForm(editId = null) {
+  const name = document.getElementById('f-name').value.trim()
+  if (!name) { toast('Name required'); return }
+  const data = {
+    name, role: document.getElementById('f-role').value,
+    faction: document.getElementById('f-faction').value,
+    status: document.getElementById('f-status').value,
+    goal: document.getElementById('f-goal').value,
+    corruption: Math.min(100, Math.max(0, parseInt(document.getElementById('f-corr').value)||0)),
+    secrets: document.getElementById('f-secrets').value,
+  }
+  if (editId) {
+    updateNPC(editId, data); toast(`${name} updated`)
+  } else {
+    const n = { id:'npc-'+Date.now(), ...data, mutations:[], revealedSecrets:false, relationships:[], history:[], lastInteraction:'Not yet', portrait:'' }
+    S.npcs.push(n); S.sel = n.id; save(); render(); toast(`${name} created`)
+  }
+  closeModal()
+}
+
+// ═══════════════════════════════════════════════════════
+// GM MODE
+// ═══════════════════════════════════════════════════════
+function toggleGMMode() {
+  S.gmMode = !S.gmMode
+  const b = document.getElementById('gm-btn')
+  b.style.color = S.gmMode ? 'var(--orange)' : ''
+  b.style.borderColor = S.gmMode ? 'var(--orange)' : ''
+  renderList()
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER: WORLD BAR
+// ═══════════════════════════════════════════════════════
+function renderBar() {
+  const w = S.world
+  const evtEl = document.getElementById('bar-event')
+  if (document.activeElement !== evtEl) evtEl.value = w.event
+  document.getElementById('bar-region').textContent = w.region
+  const dc = {A:'#ef4444',B:'#f97316',C:'#eab308',D:'#22c55e'}
+  const dEl = document.getElementById('bar-danger')
+  dEl.value = w.danger; dEl.style.color = dc[w.danger]||'#22c55e'
+  const pEl = document.getElementById('bar-pct')
+  if (document.activeElement !== pEl) pEl.value = w.pressure
+  const p = w.pressure
+  const f = document.getElementById('bar-fill')
+  f.style.width = Math.min(100,Math.max(0,p))+'%'
+  f.style.background = p < 40 ? '#22c55e' : p < 65 ? '#eab308' : p < 85 ? '#f97316' : '#ef4444'
+  document.getElementById('bar-threats').innerHTML = (w.activeThreats||[]).map(t =>
+    `<span style="font-size:.58rem;padding:2px 6px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#ef4444;white-space:nowrap;">⚠ ${t}</span>`
+  ).join('')
+}
+
+function setWorldField(field, value) {
+  if (field === 'pressure') {
+    value = Math.min(100, Math.max(0, isNaN(value) ? 0 : value))
+    const p = value
+    S.world.danger = p >= 85 ? 'A' : p >= 65 ? 'B' : p >= 40 ? 'C' : 'D'
+    if (p > 70) document.getElementById('storm-overlay').classList.add('active')
+    else document.getElementById('storm-overlay').classList.remove('active')
+  }
+  S.world[field] = value
+  save(); renderBar()
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER: MAP
+// ═══════════════════════════════════════════════════════
+function renderMap() {
+  document.getElementById('map-panel').innerHTML = REGIONS.map(r => {
+    const active = S.world.region === r.label
+    return `<div class="region-btn ${active?'active':''}" onclick="selectRegion('${r.label}')"
+      style="border:1px solid ${active?'var(--teal)':'var(--border)'};
+             background:${active?'rgba(20,184,166,.1)':'var(--surface)'};
+             color:${active?'var(--teal)':'#94a3b8'};
+             border-radius:6px;padding:6px 8px;margin-bottom:4px;">
+      <div style="font-size:.75rem;font-weight:${active?'bold':'normal'};">${r.icon} ${r.label}</div>
+      <div style="font-size:.58rem;color:var(--muted);margin-top:1px;">${r.desc}</div>
+    </div>`
+  }).join('')
+}
+
+function selectRegion(label) { S.world.region = label; save(); renderBar(); renderMap() }
+
+// ═══════════════════════════════════════════════════════
+// RENDER: NPC LIST
+// ═══════════════════════════════════════════════════════
+function cc(c) { return c < 25 ? '#22c55e' : c < 50 ? '#eab308' : c < 75 ? '#f97316' : '#ef4444' }
+function fc(f) { return {Drifters:'#14b8a6',Guardians:'#3b82f6',Reclaimers:'#a855f7',Savages:'#ef4444',Awakened:'#f97316',Othersiders:'#e879f9',Neutral:'#64748b'}[f]||'#64748b' }
+
+function renderList() {
+  const el = document.getElementById('npc-list')
+  const npcs = filtered()
+  if (!npcs.length) { el.innerHTML = `<div style="color:var(--muted);font-size:.78rem;text-align:center;padding:20px;">No NPCs found</div>`; return }
+
+  el.innerHTML = npcs.map(n => {
+    const sel = n.id === S.sel
+    if (S.gmMode) {
+      return `<div class="npc-card ${sel?'selected':''}" onclick="selectNPC('${n.id}')"
+        style="border:1px solid ${sel?'var(--orange)':'var(--border)'};background:${sel?'rgba(249,115,22,.07)':'var(--surface)'};border-radius:6px;padding:7px 10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
+          <span style="font-weight:bold;font-size:.8rem;">${n.name}</span>
+          <span class="badge s-${n.status}">${n.status}</span>
+        </div>
+        <div style="font-size:.7rem;color:var(--orange);margin-top:2px;line-height:1.3;">▶ ${n.goal}</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">Last: ${n.lastInteraction}</div>
+      </div>`
+    }
+    return `<div class="npc-card ${sel?'selected':''}" onclick="selectNPC('${n.id}')"
+      style="border:1px solid ${sel?'var(--orange)':'var(--border)'};background:${sel?'rgba(249,115,22,.07)':'var(--surface)'};border-radius:8px;padding:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div>
+          <div style="font-weight:bold;font-size:.83rem;">${n.name}</div>
+          <div style="font-size:.62rem;color:var(--muted);">${n.role}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
+          <span class="badge s-${n.status}">${n.status}</span>
+          <span style="font-size:.6rem;font-weight:bold;color:${fc(n.faction)};">${n.faction}</span>
+        </div>
+      </div>
+      <div style="font-size:.7rem;color:#cbd5e1;line-height:1.35;margin-bottom:7px;">▶ ${n.goal}</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;">
+          <div style="width:${n.corruption}%;height:100%;background:${cc(n.corruption)};border-radius:2px;transition:width .5s;"></div>
+        </div>
+        <span style="font-size:.6rem;color:${cc(n.corruption)};min-width:26px;">${n.corruption}%</span>
+        ${n.mutations?.length ? `<span style="font-size:.62rem;color:var(--purple);">💉${n.mutations.length}</span>` : ''}
+      </div>
+    </div>`
+  }).join('')
+}
+
+function selectNPC(id) { S.sel = id; S.tab = 'info'; renderList(); renderDetail() }
+
+// ═══════════════════════════════════════════════════════
+// RENDER: NPC DETAIL
+// ═══════════════════════════════════════════════════════
+function renderDetail() {
+  const el = document.getElementById('npc-detail')
+  if (!S.sel) {
+    el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--border);text-align:center;padding:40px;">
+      <div style="font-size:3rem;margin-bottom:12px;opacity:.3;">⚡</div>
+      <div style="font-size:.8rem;color:#1e1e2e;letter-spacing:.12em;">SELECT AN NPC</div>
+      <div style="font-size:.65rem;color:#161625;margin-top:4px;">N = new · / = search</div>
+    </div>`
+    return
+  }
+  const n = npc(S.sel)
+  if (!n) { S.sel = null; renderDetail(); return }
+
+  const tabs = [['info','INFO'],['story','STORY'],['bonds','BONDS'],['log','LOG']]
+
+  el.innerHTML = `
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+
+    <!-- Header -->
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#0c0c18;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+            <input class="editable" value="${esc(n.name)}" onchange="updateNPC('${n.id}',{name:this.value})"
+              style="font-size:1rem;font-weight:bold;max-width:220px;">
+            <span class="badge s-${n.status}">${n.status}</span>
+            <span style="font-size:.65rem;font-weight:bold;color:${fc(n.faction)};">${n.faction}</span>
+          </div>
+          <input class="editable" value="${esc(n.role)}" onchange="updateNPC('${n.id}',{role:this.value})"
+            style="font-size:.75rem;color:var(--muted);max-width:280px;">
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0;align-items:center;">
+          <select onchange="updateNPC('${n.id}',{status:this.value})" style="font-size:.68rem;padding:3px;">
+            ${['alive','dead','missing'].map(s=>`<option ${n.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+          <select onchange="updateNPC('${n.id}',{faction:this.value})" style="font-size:.68rem;padding:3px;">
+            ${FACTIONS.map(f=>`<option ${n.faction===f?'selected':''}>${f}</option>`).join('')}
+          </select>
+          <button onclick="openEditModal('${n.id}')" class="btn-ghost" style="padding:3px 7px;font-size:.68rem;border-radius:4px;">✎</button>
+          <button onclick="deleteNPC('${n.id}')" class="btn-danger" style="padding:3px 7px;font-size:.68rem;border-radius:4px;">✕</button>
+        </div>
+      </div>
+
+      <!-- Goal -->
+      <div style="padding:8px 10px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.2);border-radius:6px;margin-bottom:10px;">
+        <div class="section-label" style="color:var(--orange);margin-bottom:2px;">★ CURRENT GOAL</div>
+        <input class="editable" value="${esc(n.goal)}" onchange="updateNPC('${n.id}',{goal:this.value})"
+          style="font-size:.82rem;font-weight:500;width:100%;">
+      </div>
+
+      <!-- Corruption -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span class="section-label">CORRUPTION</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" min="0" max="100" value="${n.corruption}"
+              onchange="updateNPC('${n.id}',{corruption:Math.min(100,Math.max(0,parseInt(this.value)||0))})"
+              style="width:50px;text-align:center;font-size:.75rem;color:${cc(n.corruption)};">
+            <button onclick="evolveNPC('${n.id}')" class="btn-ghost" style="padding:2px 8px;font-size:.62rem;border-radius:4px;color:var(--purple);border-color:rgba(168,85,247,.3);">
+              💉 Evolve
+            </button>
+          </div>
+        </div>
+        <div style="height:7px;background:var(--border);border-radius:4px;overflow:hidden;">
+          <div style="width:${n.corruption}%;height:100%;background:${cc(n.corruption)};border-radius:4px;transition:width .5s;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 12px;background:#0c0c18;">
+      ${tabs.map(([t,l])=>`
+        <button class="tab-btn ${S.tab===t?'active':''}" onclick="setTab('${t}')"
+          style="color:${S.tab===t?'var(--orange)':'var(--muted)'};">${l}</button>`).join('')}
+    </div>
+
+    <!-- Tab content -->
+    <div style="padding:14px 16px;">
+      ${S.tab==='info'  ? tabInfo(n)  :
+        S.tab==='story' ? tabStory(n) :
+        S.tab==='bonds' ? tabBonds(n) :
+        tabLog(n)}
+    </div>
+  </div>`
+}
+
+function setTab(t) { S.tab = t; renderDetail() }
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+function tabInfo(n) {
+  const bh = getBehavior(n)
+  return `
+  <div style="display:flex;flex-direction:column;gap:14px;">
+
+    <!-- Behavior -->
+    <div style="padding:10px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.2);border-radius:7px;">
+      <div class="section-label" style="color:var(--purple);margin-bottom:4px;">⚡ CURRENT BEHAVIOR (world-reactive)</div>
+      <div style="font-size:.78rem;color:#c4b5fd;line-height:1.5;">${bh}</div>
+      <button onclick="renderDetail()" style="margin-top:5px;font-size:.62rem;color:var(--muted);background:none;border:none;cursor:pointer;">↺ Regenerate</button>
+    </div>
+
+    <!-- Mutations -->
+    <div>
+      <div class="section-label">💉 MUTATIONS (${n.mutations?.length||0})</div>
+      ${(n.mutations||[]).map((m,i)=>`
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;margin-bottom:5px;">
+          <div>
+            <div style="font-size:.75rem;font-weight:bold;color:var(--purple);">${m.type}</div>
+            <div style="font-size:.7rem;color:#64748b;margin-top:2px;line-height:1.3;">${m.effect}</div>
+          </div>
+          <button onclick="removeMut('${n.id}',${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;flex-shrink:0;font-size:.8rem;">✕</button>
+        </div>`).join('') || `<div style="font-size:.73rem;color:#2a2a3a;padding:4px 0;">No mutations yet</div>`}
+      <div style="display:flex;gap:5px;margin-top:6px;">
+        <input id="mut-t" placeholder="Mutation name..." style="flex:1;font-size:.73rem;">
+        <input id="mut-e" placeholder="Effect description..." style="flex:1;font-size:.73rem;">
+        <button onclick="addMutation('${n.id}')" class="btn-ghost" style="padding:3px 8px;font-size:.68rem;border-radius:4px;white-space:nowrap;">+ Add</button>
+      </div>
+      <button onclick="evolveNPC('${n.id}')" style="margin-top:5px;width:100%;padding:5px;font-size:.7rem;color:var(--purple);background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:4px;cursor:pointer;font-family:inherit;">
+        🎲 Random Mutation
+      </button>
+    </div>
+
+    <!-- Last interaction -->
+    <div>
+      <div class="section-label">LAST INTERACTION</div>
+      <input class="editable" value="${esc(n.lastInteraction)}" onchange="updateNPC('${n.id}',{lastInteraction:this.value})"
+        style="font-size:.8rem;border-bottom:1px solid var(--border);padding:2px 0;width:100%;">
+    </div>
+  </div>`
+}
+
+function tabStory(n) {
+  return `
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div class="section-label">🔒 SECRETS</div>
+        <button onclick="toggleSecrets('${n.id}')" class="btn-ghost" style="padding:2px 8px;font-size:.65rem;border-radius:4px;">
+          ${n.revealedSecrets ? '🔓 Hide' : '👁 Reveal'}
+        </button>
+      </div>
+      ${n.revealedSecrets
+        ? `<textarea style="width:100%;min-height:90px;font-size:.78rem;line-height:1.5;resize:vertical;"
+              onchange="updateNPC('${n.id}',{secrets:this.value})">${esc(n.secrets||'')}</textarea>`
+        : `<div style="padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:.72rem;color:#1e1e2e;letter-spacing:.08em;">
+            ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ CLASSIFIED ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+          </div>`}
+    </div>
+
+    <div>
+      <div class="section-label">PORTRAIT (image URL)</div>
+      <input value="${esc(n.portrait||'')}" placeholder="https://..." onchange="updateNPC('${n.id}',{portrait:this.value})" style="width:100%;font-size:.73rem;">
+      ${n.portrait ? `<img src="${n.portrait}" style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-top:6px;border:1px solid var(--border);" onerror="this.style.display='none'">` : ''}
+    </div>
+  </div>`
+}
+
+function tabBonds(n) {
+  const others = S.npcs.filter(x => x.id !== n.id)
+  const rels = n.relationships || []
+  return `
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    ${rels.length
+      ? rels.map((r,i) => {
+          const target = npc(r.targetId)
+          const tname = target ? target.name : 'Unknown NPC'
+          const dots = '●'.repeat(r.strength||1) + '○'.repeat(5-(r.strength||1))
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                <span class="badge rel-${r.type}">${r.type}</span>
+                <span style="font-size:.8rem;font-weight:bold;">${tname}</span>
+                <span style="font-size:.62rem;color:var(--muted);">${dots}</span>
+              </div>
+              <div style="font-size:.7rem;color:#64748b;">${r.description||''}</div>
+            </div>
+            <button onclick="removeRel('${n.id}',${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;flex-shrink:0;margin-left:8px;">✕</button>
+          </div>`}).join('')
+      : `<div style="font-size:.73rem;color:#2a2a3a;">No bonds defined yet</div>`}
+
+    <div style="padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+      <div class="section-label" style="margin-bottom:8px;">+ ADD BOND</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px;">
+        <select id="rel-t" style="font-size:.73rem;">
+          <option value="">Select NPC...</option>
+          ${others.map(o=>`<option value="${o.id}">${o.name}</option>`).join('')}
+        </select>
+        <select id="rel-type" style="font-size:.73rem;">
+          <option value="">Bond type...</option>
+          <option>ally</option><option>enemy</option><option>debt</option><option>fear</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:5px;margin-bottom:5px;">
+        <input id="rel-desc" placeholder="Describe the bond..." style="flex:1;font-size:.73rem;">
+        <select id="rel-str" style="width:55px;font-size:.73rem;">
+          ${[1,2,3,4,5].map(v=>`<option value="${v}">${v}</option>`).join('')}
+        </select>
+      </div>
+      <button onclick="addRelationship('${n.id}')" class="btn-ghost" style="width:100%;padding:5px;font-size:.72rem;border-radius:4px;">+ Add Bond</button>
+    </div>
+  </div>`
+}
+
+function tabLog(n) {
+  const hist = n.history || []
+  return `
+  <div style="display:flex;flex-direction:column;gap:10px;">
+
+    <div style="padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;">
+      <div class="section-label" style="margin-bottom:8px;">+ LOG SESSION NOTE</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+        <span style="font-size:.7rem;color:var(--muted);white-space:nowrap;">Session #</span>
+        <input id="note-s" type="text" placeholder="3" style="width:55px;font-size:.75rem;">
+      </div>
+      <textarea id="note-t" rows="2" placeholder="What happened with this NPC this session?" style="width:100%;font-size:.75rem;resize:vertical;margin-bottom:5px;"></textarea>
+      <button onclick="addNote('${n.id}')" class="btn-ghost" style="width:100%;padding:5px;font-size:.72rem;border-radius:4px;">+ Log Note</button>
+    </div>
+
+    ${hist.length
+      ? hist.map((h,i)=>`
+        <div style="display:flex;gap:10px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:flex-start;">
+          <div style="flex-shrink:0;font-size:.62rem;color:var(--orange);font-weight:bold;padding:2px 6px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);border-radius:4px;white-space:nowrap;">
+            S${h.session}
+          </div>
+          <div style="flex:1;font-size:.77rem;color:#cbd5e1;line-height:1.4;">${h.note}</div>
+          <button onclick="removeNote('${n.id}',${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;flex-shrink:0;font-size:.75rem;">✕</button>
+        </div>`).join('')
+      : `<div style="font-size:.73rem;color:#2a2a3a;">No session history yet</div>`}
+  </div>`
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+
+let toastT
+function toast(msg) {
+  const el = document.getElementById('toast')
+  el.textContent = msg; el.classList.add('show')
+  clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove('show'), 2600)
+}
+
+// ═══════════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════════
+function initParticles() {
+  const c = document.getElementById('particles')
+  const ctx = c.getContext('2d')
+  const COLS = ['#f97316','#a855f7','#14b8a6','#f97316']
+  let W, H, pts = []
+
+  function resize() { W = c.width = innerWidth; H = c.height = innerHeight }
+  addEventListener('resize', resize); resize()
+
+  for (let i = 0; i < 55; i++) pts.push({
+    x: Math.random()*W, y: Math.random()*H,
+    vx: (Math.random()-.5)*.3, vy: -.15-Math.random()*.4,
+    r: Math.random()*1.4+.4, a: Math.random()*.45+.1,
+    col: COLS[Math.floor(Math.random()*COLS.length)]
+  })
+
+  ;(function frame() {
+    ctx.clearRect(0,0,W,H)
+    for (const p of pts) {
+      p.x += p.vx; p.y += p.vy
+      if (p.y < 0) { p.y = H; p.x = Math.random()*W }
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
+      ctx.fillStyle = p.col; ctx.globalAlpha = p.a; ctx.fill()
+    }
+    ctx.globalAlpha = 1; requestAnimationFrame(frame)
+  })()
+}
+
+// ═══════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  const t = document.activeElement.tagName.toLowerCase()
+  const typing = ['input','textarea','select'].includes(t)
+  if (e.key === 'Escape') { closeModal(); return }
+  if (typing) return
+  if (e.key === 'n' || e.key === 'N') openNewNPCModal()
+  if (e.key === '/') { e.preventDefault(); document.getElementById('search-input').focus() }
+})
+
+// ═══════════════════════════════════════════════════════
+// FULL RENDER
+// ═══════════════════════════════════════════════════════
+function render() { renderBar(); renderMap(); renderList(); renderDetail() }
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+load()
+initParticles()
+render()
+</script>
+</body>
+</html>

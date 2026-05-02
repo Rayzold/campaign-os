@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📖 Session Notes</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{--orange:#f97316;--yellow:#eab308;--purple:#a855f7;--teal:#14b8a6;--bg:#08080f;--surface:#0f0f1a;--surface2:#161625;--border:#1e1e2e;--muted:#4a4a6a;--text:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Courier New',monospace;overflow:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);}
+  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--yellow);}
+  input,textarea,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:.82rem;outline:none;transition:border-color .15s;resize:vertical;}
+  input:focus,textarea:focus,select:focus{border-color:var(--yellow);}
+  .btn-primary{background:var(--yellow);color:#000;font-weight:bold;border:none;border-radius:5px;padding:6px 14px;font-family:inherit;font-size:.75rem;cursor:pointer;transition:all .15s;}
+  .btn-primary:hover{background:#fde047;box-shadow:0 0 14px rgba(234,179,8,.4);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 10px;font-family:inherit;font-size:.72rem;cursor:pointer;transition:all .15s;}
+  .btn-ghost:hover{border-color:var(--yellow);color:var(--yellow);}
+  .btn-danger{background:transparent;border:1px solid rgba(239,68,68,.3);color:rgba(239,68,68,.6);border-radius:5px;padding:4px 10px;font-family:inherit;font-size:.68rem;cursor:pointer;transition:all .15s;}
+  .btn-danger:hover{border-color:#ef4444;color:#ef4444;}
+  .session-btn{width:100%;text-align:left;background:none;border:none;border-radius:6px;padding:8px 10px;font-family:inherit;cursor:pointer;color:var(--muted);transition:all .12s;border:1px solid transparent;}
+  .session-btn:hover{background:var(--surface2);color:var(--text);}
+  .session-btn.active{background:rgba(234,179,8,.08);border-color:rgba(234,179,8,.3);color:var(--text);}
+  .section-label{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+  .field-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+  .editable-area{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;min-height:60px;transition:border-color .15s;}
+  .editable-area:focus-within{border-color:var(--yellow);}
+  .bullet-input{display:flex;gap:6px;align-items:flex-start;margin-bottom:4px;}
+  .bullet-item{display:flex;gap:6px;align-items:flex-start;padding:4px 0;border-bottom:1px solid var(--border);}
+  .bullet-item:last-child{border-bottom:none;}
+  .pressure-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .pressure-fill{height:100%;border-radius:3px;transition:width .5s,background .5s;}
+  .status-badge{font-size:.6rem;padding:1px 6px;border-radius:10px;font-weight:bold;letter-spacing:.04em;text-transform:uppercase;}
+  .s-complete{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.3);}
+  .s-inprogress{background:rgba(234,179,8,.12);color:var(--yellow);border:1px solid rgba(234,179,8,.3);}
+  .s-draft{background:rgba(100,116,139,.12);color:#64748b;border:1px solid rgba(100,116,139,.3);}
+  #toast{position:fixed;bottom:1rem;right:1rem;z-index:999;padding:.45rem 1rem;background:var(--surface2);border:1px solid var(--yellow);border-radius:6px;color:var(--yellow);font-size:.75rem;transform:translateY(60px);transition:transform .3s;pointer-events:none;}
+  #toast.show{transform:translateY(0);}
+  .tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:7px 12px;font-family:inherit;font-size:.68rem;letter-spacing:.08em;cursor:pointer;color:var(--muted);transition:all .15s;}
+  .tab-btn.active{border-bottom-color:var(--yellow);color:var(--yellow);}
+  #export-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;align-items:center;justify-content:center;}
+  #export-modal.open{display:flex;}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- EXPORT MODAL -->
+<div id="export-modal" onclick="if(event.target===this)closeExport()">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:640px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column;gap:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:.9rem;color:var(--yellow);font-weight:bold;">EXPORT SESSION</span>
+      <button onclick="closeExport()" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;">✕</button>
+    </div>
+    <textarea id="export-text" readonly style="flex:1;min-height:400px;font-size:.75rem;line-height:1.6;background:var(--surface2);border-color:var(--border);resize:none;"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="copyExport()" class="btn-ghost">📋 Copy</button>
+      <button onclick="downloadExport()" class="btn-primary">↓ Download .txt</button>
+    </div>
+  </div>
+</div>
+
+<div style="position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;">
+
+  <!-- TOP BAR -->
+  <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:14px;">
+    <a href="index.html" style="color:var(--muted);font-size:.75rem;text-decoration:none;letter-spacing:.05em;transition:color .15s;"
+      onmouseover="this.style.color='var(--yellow)'" onmouseout="this.style.color='var(--muted)'">← SUITE</a>
+    <div style="width:1px;height:24px;background:var(--border);"></div>
+    <span style="color:var(--yellow);font-size:1rem;">📖</span>
+    <span style="font-weight:bold;font-size:.82rem;letter-spacing:.08em;">SESSION NOTES</span>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+      <span id="session-count" style="font-size:.65rem;color:var(--muted);"></span>
+      <button onclick="exportAll()" class="btn-ghost">↑ Export All</button>
+      <button onclick="newSession()" class="btn-primary">+ New Session</button>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;overflow:hidden;">
+
+    <!-- LEFT: SESSION LIST -->
+    <div style="width:200px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--surface);">
+      <div style="padding:8px;flex-shrink:0;border-bottom:1px solid var(--border);">
+        <input type="text" id="session-search" placeholder="search sessions..." oninput="renderSessionList()" style="width:100%;font-size:.72rem;">
+      </div>
+      <div id="session-list" style="flex:1;overflow-y:auto;padding:6px;"></div>
+    </div>
+
+    <!-- RIGHT: SESSION EDITOR -->
+    <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      <div id="editor-area" style="flex:1;overflow-y:auto;padding:18px 22px;"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE & PERSISTENCE
+// ═══════════════════════════════════════════════════
+const KEY = 'sl-sessions'
+let S = { sessions: [], activeId: null, activeTab: 'overview' }
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)) } catch(e){} }
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY)
+    if (raw) Object.assign(S, JSON.parse(raw))
+  } catch(e) {}
+}
+
+function getSession(id) { return S.sessions.find(s => s.id === id) }
+
+function activeSession() { return getSession(S.activeId) }
+
+// ═══════════════════════════════════════════════════
+// SESSION ACTIONS
+// ═══════════════════════════════════════════════════
+function newSession() {
+  const num = S.sessions.length ? Math.max(...S.sessions.map(s=>s.number||0)) + 1 : 1
+  const session = {
+    id: 'session-' + Date.now(),
+    number: num,
+    date: new Date().toISOString().split('T')[0],
+    title: `Session ${num}`,
+    status: 'draft',
+    recap: '',
+    keyMoments: [],
+    npcsEncountered: [],
+    unresolvedThreads: [],
+    factionMoves: [],
+    playerDecisions: [],
+    cliffhanger: '',
+    pressureStart: 0,
+    pressureEnd: 0,
+    gmNotes: '',
+  }
+  S.sessions.unshift(session)
+  S.activeId = session.id
+  S.activeTab = 'overview'
+  save(); render(); toast(`Session ${num} created`)
+}
+
+function deleteSession(id) {
+  if (!confirm('Delete this session permanently?')) return
+  S.sessions = S.sessions.filter(s => s.id !== id)
+  if (S.activeId === id) S.activeId = S.sessions[0]?.id || null
+  save(); render(); toast('Session deleted')
+}
+
+function updateField(id, field, value) {
+  const s = getSession(id)
+  if (!s) return
+  s[field] = value
+  save()
+  // Update session list title if title/number changed
+  if (field === 'title' || field === 'number' || field === 'status' || field === 'date') renderSessionList()
+}
+
+function addBullet(id, field, value) {
+  const s = getSession(id); if (!s || !value.trim()) return
+  s[field] = s[field] || []
+  s[field].push(value.trim())
+  save(); renderEditor()
+}
+
+function removeBullet(id, field, idx) {
+  const s = getSession(id); if (!s) return
+  s[field].splice(idx, 1)
+  save(); renderEditor()
+}
+
+function editBullet(id, field, idx, val) {
+  const s = getSession(id); if (!s) return
+  s[field][idx] = val; save()
+}
+
+function setTab(tab) { S.activeTab = tab; renderEditor() }
+
+// ═══════════════════════════════════════════════════
+// PRESSURE COLOR
+// ═══════════════════════════════════════════════════
+function pColor(p) { return p<40?'#22c55e':p<65?'#eab308':p<85?'#f97316':'#ef4444' }
+
+// ═══════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════
+function sessionToText(s) {
+  const lines = []
+  lines.push(`${'═'.repeat(60)}`)
+  lines.push(`SESSION ${s.number}: ${s.title}`)
+  lines.push(`Date: ${s.date}  |  Status: ${s.status.toUpperCase()}`)
+  lines.push(`Pressure: ${s.pressureStart}% → ${s.pressureEnd}%`)
+  lines.push(`${'─'.repeat(60)}`)
+  if (s.recap) { lines.push('RECAP'); lines.push(s.recap); lines.push('') }
+  if (s.keyMoments?.length)     { lines.push('KEY MOMENTS'); s.keyMoments.forEach(m=>lines.push(`  • ${m}`)); lines.push('') }
+  if (s.npcsEncountered?.length){ lines.push('NPCS ENCOUNTERED'); s.npcsEncountered.forEach(n=>lines.push(`  • ${n}`)); lines.push('') }
+  if (s.unresolvedThreads?.length){ lines.push('UNRESOLVED THREADS'); s.unresolvedThreads.forEach(t=>lines.push(`  • ${t}`)); lines.push('') }
+  if (s.factionMoves?.length)   { lines.push('FACTION MOVES'); s.factionMoves.forEach(f=>lines.push(`  • ${f}`)); lines.push('') }
+  if (s.playerDecisions?.length){ lines.push('PLAYER DECISIONS'); s.playerDecisions.forEach(d=>lines.push(`  • ${d}`)); lines.push('') }
+  if (s.cliffhanger)            { lines.push('CLIFFHANGER / END'); lines.push(s.cliffhanger); lines.push('') }
+  if (s.gmNotes)                { lines.push('GM NOTES'); lines.push(s.gmNotes); lines.push('') }
+  return lines.join('\n')
+}
+
+function exportSession(id) {
+  const s = getSession(id); if (!s) return
+  document.getElementById('export-text').value = sessionToText(s)
+  document.getElementById('export-modal').classList.add('open')
+}
+
+function exportAll() {
+  const text = [...S.sessions].reverse().map(sessionToText).join('\n\n')
+  document.getElementById('export-text').value = text
+  document.getElementById('export-modal').classList.add('open')
+}
+
+function closeExport() { document.getElementById('export-modal').classList.remove('open') }
+
+function copyExport() {
+  navigator.clipboard.writeText(document.getElementById('export-text').value)
+  toast('Copied to clipboard')
+}
+
+function downloadExport() {
+  const text = document.getElementById('export-text').value
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([text], {type:'text/plain'}))
+  a.download = 'scarred-lands-sessions.txt'; a.click()
+  toast('Downloaded')
+}
+
+// ═══════════════════════════════════════════════════
+// BULLET LIST HELPER
+// ═══════════════════════════════════════════════════
+function bulletSection(s, field, label, placeholder, color='var(--yellow)') {
+  const items = s[field] || []
+  return `
+  <div class="field-group">
+    <div class="section-label" style="color:${color};">${label}</div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;">
+      ${items.map((item,i) => `
+        <div class="bullet-item">
+          <span style="color:${color};font-size:.8rem;margin-top:2px;flex-shrink:0;">▸</span>
+          <input value="${esc(item)}"
+            onchange="editBullet('${s.id}','${field}',${i},this.value)"
+            style="flex:1;background:transparent;border:none;border-bottom:1px solid transparent;border-radius:0;padding:1px 2px;font-size:.78rem;color:var(--text);"
+            onfocus="this.style.borderBottomColor='var(--yellow)'" onblur="this.style.borderBottomColor='transparent'">
+          <button onclick="removeBullet('${s.id}','${field}',${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;opacity:.4;transition:opacity .1s;flex-shrink:0;"
+            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.4'">✕</button>
+        </div>`).join('')}
+      <div style="display:flex;gap:6px;margin-top:${items.length?'8px':'0'};">
+        <span style="color:${color};font-size:.8rem;margin-top:6px;flex-shrink:0;">+</span>
+        <input id="bullet-${field}" placeholder="${placeholder}"
+          style="flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:3px 2px;font-size:.75rem;"
+          onfocus="this.style.borderBottomColor='var(--yellow)'" onblur="this.style.borderBottomColor='var(--border)'"
+          onkeydown="if(event.key==='Enter'){addBullet('${s.id}','${field}',this.value);this.value=''}">
+        <button onclick="addBullet('${s.id}','${field}',document.getElementById('bullet-${field}').value);document.getElementById('bullet-${field}').value=''"
+          style="background:none;border:none;color:${color};cursor:pointer;font-size:.75rem;opacity:.6;transition:opacity .1s;"
+          onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.6'">Add</button>
+      </div>
+    </div>
+  </div>`
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER: SESSION LIST
+// ═══════════════════════════════════════════════════
+function renderSessionList() {
+  const q = document.getElementById('session-search')?.value.toLowerCase() || ''
+  const filtered = S.sessions.filter(s =>
+    !q || s.title.toLowerCase().includes(q) || String(s.number).includes(q) ||
+    s.recap?.toLowerCase().includes(q) || s.cliffhanger?.toLowerCase().includes(q)
+  )
+  document.getElementById('session-count').textContent = `${S.sessions.length} sessions`
+  document.getElementById('session-list').innerHTML = filtered.length
+    ? filtered.map(s => `
+      <button class="session-btn ${s.id===S.activeId?'active':''}" onclick="selectSession('${s.id}')">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:.72rem;font-weight:bold;color:${s.id===S.activeId?'var(--yellow)':'var(--text)'};">
+            S${s.number} — ${s.title}
+          </span>
+          <span class="status-badge s-${s.status.replace(' ','')}">
+            ${s.status==='complete'?'✓':s.status==='inprogress'?'●':'○'}
+          </span>
+        </div>
+        <div style="font-size:.6rem;color:var(--muted);">${s.date}</div>
+        ${s.recap ? `<div style="font-size:.62rem;color:#4a4a6a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.recap.slice(0,55)}${s.recap.length>55?'…':''}</div>` : ''}
+      </button>`).join('')
+    : `<div style="font-size:.72rem;color:#2a2a3a;padding:10px;text-align:center;">No sessions found</div>`
+}
+
+function selectSession(id) {
+  S.activeId = id; S.activeTab = 'overview'
+  save(); renderSessionList(); renderEditor()
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER: EDITOR
+// ═══════════════════════════════════════════════════
+function renderEditor() {
+  const el = document.getElementById('editor-area')
+  const s = activeSession()
+
+  if (!s) {
+    el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--border);text-align:center;padding:40px;">
+      <div style="font-size:3rem;margin-bottom:12px;opacity:.3;">📖</div>
+      <div style="font-size:.82rem;color:#1e1e2e;letter-spacing:.1em;margin-bottom:6px;">NO SESSION SELECTED</div>
+      <div style="font-size:.7rem;color:#161625;">Click "+ New Session" to start logging</div>
+    </div>`
+    return
+  }
+
+  const tabs = [['overview','OVERVIEW'],['npcs','NPCS & FACTIONS'],['threads','THREADS'],['gm','GM NOTES']]
+  const pc = pColor(s.pressureEnd)
+
+  el.innerHTML = `
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+
+    <!-- Session Header -->
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#0c0c18;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+          <div style="flex-shrink:0;">
+            <div class="section-label" style="margin-bottom:2px;">SESSION</div>
+            <input type="number" value="${s.number}" min="1"
+              onchange="updateField('${s.id}','number',parseInt(this.value)||1)"
+              style="width:55px;text-align:center;font-size:1rem;font-weight:bold;color:var(--yellow);">
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="section-label" style="margin-bottom:2px;">TITLE</div>
+            <input value="${esc(s.title)}" onchange="updateField('${s.id}','title',this.value)"
+              style="width:100%;font-size:.9rem;font-weight:bold;background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:2px 0;color:var(--text);"
+              onfocus="this.style.borderBottomColor='var(--yellow)'" onblur="this.style.borderBottomColor='var(--border)'">
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0;align-items:flex-start;">
+          <select onchange="updateField('${s.id}','status',this.value)" style="font-size:.7rem;padding:3px 5px;">
+            <option value="draft" ${s.status==='draft'?'selected':''}>○ Draft</option>
+            <option value="inprogress" ${s.status==='inprogress'?'selected':''}>● In Progress</option>
+            <option value="complete" ${s.status==='complete'?'selected':''}>✓ Complete</option>
+          </select>
+          <input type="date" value="${s.date}" onchange="updateField('${s.id}','date',this.value)"
+            style="font-size:.7rem;padding:3px 5px;">
+          <button onclick="exportSession('${s.id}')" class="btn-ghost" style="font-size:.68rem;padding:3px 8px;">↑ Export</button>
+          <button onclick="deleteSession('${s.id}')" class="btn-danger" style="font-size:.68rem;padding:3px 8px;">✕</button>
+        </div>
+      </div>
+
+      <!-- Pressure -->
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex-shrink:0;">
+          <div class="section-label" style="margin-bottom:2px;">PRESSURE START</div>
+          <input type="number" min="0" max="100" value="${s.pressureStart}"
+            onchange="updateField('${s.id}','pressureStart',Math.min(100,Math.max(0,parseInt(this.value)||0)))"
+            style="width:60px;text-align:center;font-size:.82rem;color:${pColor(s.pressureStart)};">
+        </div>
+        <div style="flex:1;">
+          <div class="section-label" style="margin-bottom:4px;">WORLD PRESSURE ARC</div>
+          <div class="pressure-bar">
+            <div class="pressure-fill" style="width:${s.pressureEnd}%;background:${pc};"></div>
+          </div>
+        </div>
+        <div style="flex-shrink:0;">
+          <div class="section-label" style="margin-bottom:2px;">END</div>
+          <input type="number" min="0" max="100" value="${s.pressureEnd}"
+            onchange="updateField('${s.id}','pressureEnd',Math.min(100,Math.max(0,parseInt(this.value)||0)));this.style.color=pColor(parseInt(this.value)||0);document.querySelector('.pressure-fill').style.width=this.value+'%'"
+            style="width:60px;text-align:center;font-size:.82rem;color:${pc};">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 12px;background:#0c0c18;">
+      ${tabs.map(([t,l])=>`
+        <button class="tab-btn ${S.activeTab===t?'active':''}" onclick="setTab('${t}')"
+          style="color:${S.activeTab===t?'var(--yellow)':'var(--muted)'};">${l}</button>`).join('')}
+    </div>
+
+    <!-- Tab Content -->
+    <div style="padding:16px 18px;">
+      ${S.activeTab==='overview' ? renderOverview(s) :
+        S.activeTab==='npcs'     ? renderNPCsTab(s) :
+        S.activeTab==='threads'  ? renderThreadsTab(s) :
+        renderGMTab(s)}
+    </div>
+  </div>`
+}
+
+function renderOverview(s) {
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div style="grid-column:1/-1;" class="field-group">
+      <div class="section-label">📋 RECAP (1–2 sentences)</div>
+      <textarea rows="3" style="width:100%;font-size:.8rem;line-height:1.5;"
+        onchange="updateField('${s.id}','recap',this.value)"
+        placeholder="What happened this session in plain terms...">${esc(s.recap||'')}</textarea>
+    </div>
+
+    <div>
+      ${bulletSection(s,'keyMoments','⭐ KEY MOMENTS','Add a moment... (Enter to save)','var(--yellow)')}
+    </div>
+
+    <div>
+      ${bulletSection(s,'playerDecisions','🎯 PLAYER DECISIONS','Notable choice the players made...','var(--teal)')}
+    </div>
+
+    <div style="grid-column:1/-1;" class="field-group">
+      <div class="section-label">🔚 CLIFFHANGER / SESSION END</div>
+      <textarea rows="2" style="width:100%;font-size:.8rem;line-height:1.5;"
+        onchange="updateField('${s.id}','cliffhanger',this.value)"
+        placeholder="How did the session end? What's the hook for next time?">${esc(s.cliffhanger||'')}</textarea>
+    </div>
+  </div>`
+}
+
+function renderNPCsTab(s) {
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div>
+      ${bulletSection(s,'npcsEncountered','👤 NPCS ENCOUNTERED','NPC name + one line on what they did...','var(--orange)')}
+    </div>
+    <div>
+      ${bulletSection(s,'factionMoves','⚔️ FACTION MOVES','What did a faction do this session?','var(--purple)')}
+    </div>
+  </div>`
+}
+
+function renderThreadsTab(s) {
+  return `
+  <div>
+    ${bulletSection(s,'unresolvedThreads','🧵 UNRESOLVED THREADS','A thread left open, a mystery unsolved...','#ef4444')}
+    <div style="margin-top:6px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;">
+      <div class="section-label" style="margin-bottom:6px;">QUICK REFERENCE — ALL OPEN THREADS ACROSS ALL SESSIONS</div>
+      <div style="display:flex;flex-direction:column;gap:3px;max-height:220px;overflow-y:auto;">
+        ${S.sessions.flatMap(sess =>
+          (sess.unresolvedThreads||[]).map(t => `
+            <div style="display:flex;gap:8px;align-items:flex-start;padding:4px 6px;background:var(--surface);border-radius:4px;">
+              <span style="font-size:.6rem;color:var(--yellow);flex-shrink:0;margin-top:2px;font-weight:bold;">S${sess.number}</span>
+              <span style="font-size:.72rem;color:#94a3b8;line-height:1.4;">${esc(t)}</span>
+            </div>`)
+        ).join('') || '<div style="font-size:.72rem;color:#2a2a3a;">No open threads yet</div>'}
+      </div>
+    </div>
+  </div>`
+}
+
+function renderGMTab(s) {
+  return `
+  <div class="field-group">
+    <div class="section-label">🔒 GM PRIVATE NOTES</div>
+    <textarea rows="12" style="width:100%;font-size:.8rem;line-height:1.6;"
+      onchange="updateField('${s.id}','gmNotes',this.value)"
+      placeholder="Private notes, plans for next session, secrets to reveal, mistakes to not repeat...">${esc(s.gmNotes||'')}</textarea>
+  </div>
+  <div style="margin-top:4px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;">
+    <div class="section-label" style="margin-bottom:8px;">SESSION SUMMARY STATS</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      ${[
+        ['Key Moments', s.keyMoments?.length||0, 'var(--yellow)'],
+        ['NPCs Seen', s.npcsEncountered?.length||0, 'var(--orange)'],
+        ['Open Threads', s.unresolvedThreads?.length||0, '#ef4444'],
+        ['Player Choices', s.playerDecisions?.length||0, 'var(--teal)'],
+      ].map(([label,val,color])=>`
+        <div style="text-align:center;padding:8px;background:var(--surface);border-radius:5px;border:1px solid var(--border);">
+          <div style="font-size:1.3rem;font-weight:bold;color:${color};">${val}</div>
+          <div style="font-size:.6rem;color:var(--muted);">${label}</div>
+        </div>`).join('')}
+    </div>
+  </div>`
+}
+
+// ═══════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+
+let toastT
+function toast(msg) {
+  const t = document.getElementById('toast')
+  t.textContent=msg; t.classList.add('show')
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600)
+}
+
+function render() { renderSessionList(); renderEditor() }
+
+// ═══════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') closeExport()
+})
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+load()
+if (!S.activeId && S.sessions.length) S.activeId = S.sessions[0].id
+render()
+</script>
+</body>
+</html>

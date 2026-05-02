@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ Initiative Tracker</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{--orange:#f97316;--purple:#a855f7;--teal:#14b8a6;--red:#ef4444;--bg:#08080f;--surface:#0f0f1a;--surface2:#161625;--border:#1e1e2e;--muted:#4a4a6a;--text:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Courier New',monospace;overflow:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);}
+  ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px;}
+  input,textarea,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 8px;font-family:inherit;font-size:.8rem;outline:none;transition:border-color .15s;}
+  input:focus,textarea:focus,select:focus{border-color:var(--orange);}
+  .btn{border:none;border-radius:5px;padding:6px 14px;font-family:inherit;font-size:.75rem;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+  .btn-next{background:var(--orange);color:#000;font-weight:bold;}
+  .btn-next:hover{background:#fb923c;box-shadow:0 0 16px rgba(249,115,22,.5);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+  .btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
+  .btn-danger{background:transparent;border:1px solid rgba(239,68,68,.3);color:rgba(239,68,68,.6);}
+  .btn-danger:hover{border-color:var(--red);color:var(--red);}
+  .combatant{border:1px solid var(--border);border-radius:8px;background:var(--surface);transition:all .2s;margin-bottom:5px;}
+  .combatant.active{border-color:var(--orange);background:rgba(249,115,22,.05);box-shadow:0 0 20px rgba(249,115,22,.12);}
+  .combatant.dead{opacity:.35;filter:grayscale(.8);}
+  .combatant.delaying{border-style:dashed;border-color:var(--muted);}
+  .type-pc    {border-left:3px solid var(--teal) !important;}
+  .type-enemy {border-left:3px solid var(--red) !important;}
+  .type-neutral{border-left:3px solid var(--purple) !important;}
+  .cond-chip{font-size:.55rem;padding:1px 5px;border-radius:8px;font-weight:bold;letter-spacing:.04em;cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+  .cond-chip:hover{opacity:.7;}
+  .hp-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:3px;}
+  .hp-fill{height:100%;border-radius:3px;transition:width .4s,background .4s;}
+  .log-entry{font-size:.65rem;padding:3px 6px;border-radius:3px;background:var(--surface2);color:var(--muted);margin-bottom:2px;line-height:1.4;}
+  .log-entry.round-marker{color:var(--orange);font-weight:bold;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);}
+  .section-label{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+  @keyframes slide-in{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+  .slide-in{animation:slide-in .2s ease both;}
+  #toast{position:fixed;bottom:1rem;right:1rem;z-index:999;padding:.45rem 1rem;background:var(--surface2);border:1px solid var(--orange);border-radius:6px;color:var(--orange);font-size:.75rem;transform:translateY(60px);transition:transform .3s;pointer-events:none;}
+  #toast.show{transform:translateY(0);}
+  #add-panel{display:none;} #add-panel.open{display:block;}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<div style="position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;">
+
+  <!-- TOP BAR -->
+  <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:7px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <a href="index.html" style="color:var(--muted);font-size:.75rem;text-decoration:none;transition:color .15s;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">← SUITE</a>
+    <div style="width:1px;height:24px;background:var(--border);"></div>
+    <span style="color:var(--orange);font-size:1rem;">⚔️</span>
+    <span style="font-weight:bold;font-size:.82rem;letter-spacing:.08em;">INITIATIVE TRACKER</span>
+
+    <div style="width:1px;height:24px;background:var(--border);"></div>
+
+    <!-- Round + Turn -->
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="text-align:center;">
+        <div class="section-label">Round</div>
+        <div id="round-num" style="font-size:1.1rem;font-weight:bold;color:var(--orange);">1</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="section-label">Turn</div>
+        <div id="turn-num" style="font-size:1.1rem;font-weight:bold;color:var(--text);">—</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="section-label">Timer</div>
+        <div id="turn-timer" style="font-size:1rem;font-weight:bold;color:var(--muted);min-width:45px;">—</div>
+      </div>
+    </div>
+
+    <div style="margin-left:auto;display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="rollAllNPCs()" style="font-size:.68rem;padding:4px 10px;">🎲 Roll NPC Initiative</button>
+      <button class="btn btn-ghost" onclick="sortByInitiative()" style="font-size:.68rem;padding:4px 10px;">↕ Sort</button>
+      <button class="btn btn-ghost" id="add-btn" onclick="toggleAddPanel()" style="font-size:.68rem;padding:4px 10px;">+ Add</button>
+      <button class="btn btn-ghost" onclick="resetCombat()" style="font-size:.68rem;padding:4px 10px;color:rgba(239,68,68,.6);border-color:rgba(239,68,68,.3);">↺ Reset</button>
+      <button class="btn btn-next" id="next-btn" onclick="nextTurn()">⏭ NEXT TURN &nbsp;<span style="opacity:.6;font-size:.65rem;">SPACE</span></button>
+    </div>
+  </div>
+
+  <!-- ADD COMBATANT PANEL -->
+  <div id="add-panel" style="flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 14px;">
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+      <div>
+        <div class="section-label" style="margin-bottom:3px;">Name</div>
+        <input id="f-name" placeholder="Combatant name..." style="width:160px;" onkeydown="if(event.key==='Enter')addCombatant()">
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:3px;">Initiative</div>
+        <input id="f-init" type="number" placeholder="20" style="width:60px;" onkeydown="if(event.key==='Enter')addCombatant()">
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:3px;">HP</div>
+        <input id="f-hp" type="number" placeholder="30" style="width:60px;" onkeydown="if(event.key==='Enter')addCombatant()">
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:3px;">AC</div>
+        <input id="f-ac" type="number" placeholder="14" style="width:55px;" onkeydown="if(event.key==='Enter')addCombatant()">
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:3px;">Init Mod</div>
+        <input id="f-mod" type="number" placeholder="+2" style="width:55px;">
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:3px;">Type</div>
+        <select id="f-type" style="padding:5px 6px;">
+          <option value="enemy">Enemy</option>
+          <option value="pc">PC</option>
+          <option value="neutral">Neutral</option>
+        </select>
+      </div>
+      <button class="btn btn-next" onclick="addCombatant()" style="padding:5px 16px;">Add</button>
+      <button class="btn btn-ghost" onclick="addMultiple()" style="padding:5px 10px;font-size:.68rem;">+ Multiple</button>
+    </div>
+  </div>
+
+  <!-- MAIN: INITIATIVE LIST + LOG -->
+  <div style="flex:1;display:flex;overflow:hidden;">
+
+    <!-- COMBATANT LIST -->
+    <div style="flex:1;overflow-y:auto;padding:10px 12px;" id="combatant-list"></div>
+
+    <!-- SIDE LOG -->
+    <div style="width:210px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--surface);">
+      <div style="padding:8px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+        <div class="section-label">Combat Log</div>
+        <button onclick="S.log=[];renderLog()" style="background:none;border:none;color:var(--muted);font-size:.65rem;cursor:pointer;transition:color .15s;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">Clear</button>
+      </div>
+      <div id="log-list" style="flex:1;overflow-y:auto;padding:6px;"></div>
+
+      <!-- Condition quick reference -->
+      <div style="padding:8px;border-top:1px solid var(--border);flex-shrink:0;">
+        <div class="section-label" style="margin-bottom:5px;">Conditions</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;" id="cond-ref"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DAMAGE/HEAL MODAL (inline overlay) -->
+<div id="dmg-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);align-items:center;justify-content:center;" onclick="if(event.target===this)closeDmgModal()">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:280px;">
+    <div id="dmg-target-name" style="font-size:.85rem;font-weight:bold;color:var(--orange);margin-bottom:12px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <div style="flex:1;">
+        <div class="section-label" style="margin-bottom:3px;">Amount</div>
+        <input id="dmg-amount" type="number" placeholder="0" style="width:100%;font-size:1.1rem;text-align:center;" onkeydown="if(event.key==='Enter')applyDmg(false)">
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="applyDmg(true)" style="flex:1;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22c55e;border-radius:5px;padding:7px;font-family:inherit;font-size:.8rem;cursor:pointer;font-weight:bold;">+ HEAL</button>
+      <button onclick="applyDmg(false)" style="flex:1;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:var(--red);border-radius:5px;padding:7px;font-family:inherit;font-size:.8rem;cursor:pointer;font-weight:bold;">— DAMAGE</button>
+    </div>
+    <button onclick="closeDmgModal()" style="width:100%;margin-top:8px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px;font-family:inherit;font-size:.72rem;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONDITIONS
+// ═══════════════════════════════════════════════════
+const CONDITIONS = [
+  {id:'stunned',       label:'Stunned',        color:'#eab308', bg:'rgba(234,179,8,.15)'},
+  {id:'poisoned',      label:'Poisoned',        color:'#22c55e', bg:'rgba(34,197,94,.15)'},
+  {id:'blinded',       label:'Blinded',         color:'#94a3b8', bg:'rgba(148,163,184,.15)'},
+  {id:'frightened',    label:'Frightened',      color:'#a855f7', bg:'rgba(168,85,247,.15)'},
+  {id:'prone',         label:'Prone',           color:'#d97706', bg:'rgba(217,119,6,.15)'},
+  {id:'restrained',    label:'Restrained',      color:'#f97316', bg:'rgba(249,115,22,.15)'},
+  {id:'invisible',     label:'Invisible',       color:'#38bdf8', bg:'rgba(56,189,248,.15)'},
+  {id:'concentrating', label:'Concentrating',   color:'#14b8a6', bg:'rgba(20,184,166,.15)'},
+  {id:'bleeding',      label:'Bleeding',        color:'#ef4444', bg:'rgba(239,68,68,.15)'},
+  {id:'exhausted',     label:'Exhausted',       color:'#64748b', bg:'rgba(100,116,139,.15)'},
+  {id:'nanite-inf',    label:'Nanite-Infected', color:'#a855f7', bg:'rgba(168,85,247,.2)', scarred:true},
+  {id:'corrupted',     label:'Corrupted',       color:'#dc2626', bg:'rgba(220,38,38,.2)', scarred:true},
+  {id:'phasing',       label:'Phasing',         color:'#818cf8', bg:'rgba(129,140,248,.2)', scarred:true},
+  {id:'voidsick',      label:'Voidsick',        color:'#6d28d9', bg:'rgba(109,40,217,.2)', scarred:true},
+  {id:'storm-touched', label:'Storm-Touched',   color:'#0284c7', bg:'rgba(2,132,199,.2)', scarred:true},
+]
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const KEY = 'sl-initiative'
+let S = {
+  combatants: [],
+  activeId: null,
+  round: 1,
+  inCombat: false,
+  log: [],
+  turnStart: null,
+}
+
+let timerInterval = null
+let dmgTargetId = null
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)) } catch(e){} }
+function load() { try { const r = localStorage.getItem(KEY); if(r) Object.assign(S, JSON.parse(r)) } catch(e){} }
+
+// ═══════════════════════════════════════════════════
+// COMBATANT ACTIONS
+// ═══════════════════════════════════════════════════
+function addCombatant() {
+  const name = document.getElementById('f-name').value.trim()
+  if (!name) { toast('Name required'); return }
+  const init = parseInt(document.getElementById('f-init').value) || 0
+  const hp   = parseInt(document.getElementById('f-hp').value) || 10
+  const ac   = parseInt(document.getElementById('f-ac').value) || 10
+  const mod  = parseInt(document.getElementById('f-mod').value) || 0
+  const type = document.getElementById('f-type').value
+
+  S.combatants.push({ id:'c-'+Date.now(), name, initiative:init, hp, maxHp:hp, ac, mod, type, conditions:[], notes:'', isDead:false, isDelaying:false })
+  document.getElementById('f-name').value = ''
+  document.getElementById('f-init').value = ''
+  document.getElementById('f-hp').value = ''
+  document.getElementById('f-ac').value = ''
+  save(); renderCombatants()
+  document.getElementById('f-name').focus()
+  toast(`${name} added`)
+}
+
+function addMultiple() {
+  const name = document.getElementById('f-name').value.trim()
+  const count = parseInt(prompt('How many? (e.g. 3 for Savage 1, Savage 2, Savage 3)')) || 1
+  const hp = parseInt(document.getElementById('f-hp').value) || 10
+  const ac = parseInt(document.getElementById('f-ac').value) || 10
+  const mod = parseInt(document.getElementById('f-mod').value) || 0
+  for (let i = 1; i <= count; i++) {
+    const init = Math.floor(Math.random()*20) + 1 + mod
+    S.combatants.push({ id:'c-'+Date.now()+i, name:`${name||'Enemy'} ${i}`, initiative:init, hp, maxHp:hp, ac, mod, type:'enemy', conditions:[], notes:'', isDead:false, isDelaying:false })
+  }
+  save(); renderCombatants(); sortByInitiative()
+  toast(`Added ${count}× ${name||'Enemy'}`)
+}
+
+function selectActive(id) {
+  S.activeId = S.activeId === id ? null : id
+  S.turnStart = S.activeId ? Date.now() : null
+  save(); renderCombatants()
+  if (S.activeId) {
+    const el = document.getElementById('row-' + id)
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' })
+  }
+}
+
+function removeCombatant(id) {
+  S.combatants = S.combatants.filter(c => c.id !== id)
+  if (S.activeId === id) S.activeId = null
+  save(); renderCombatants()
+}
+
+function toggleDead(id) {
+  const c = S.combatants.find(x=>x.id===id); if(!c) return
+  c.isDead = !c.isDead
+  if (c.isDead) { addLog(`💀 ${c.name} is down!`); if (S.activeId === id) nextTurn() }
+  save(); renderCombatants()
+}
+
+function toggleDelay(id) {
+  const c = S.combatants.find(x=>x.id===id); if(!c) return
+  c.isDelaying = !c.isDelaying
+  addLog(`⏸ ${c.name} ${c.isDelaying?'is delaying':'resumes'}`)
+  save(); renderCombatants()
+}
+
+// ═══════════════════════════════════════════════════
+// INITIATIVE & SORTING
+// ═══════════════════════════════════════════════════
+function sortByInitiative() {
+  S.combatants.sort((a,b) => b.initiative - a.initiative)
+  save(); renderCombatants()
+}
+
+function rollAllNPCs() {
+  S.combatants.forEach(c => {
+    if (c.type !== 'pc') c.initiative = Math.floor(Math.random()*20) + 1 + (c.mod||0)
+  })
+  sortByInitiative()
+  addLog('🎲 Initiative rolled for all NPCs')
+  toast('Initiative rolled!')
+}
+
+// ═══════════════════════════════════════════════════
+// TURN MANAGEMENT
+// ═══════════════════════════════════════════════════
+function nextTurn() {
+  const alive = S.combatants.filter(c => !c.isDead && !c.isDelaying)
+  if (!alive.length) return
+
+  S.inCombat = true
+  const curIdx = alive.findIndex(c => c.id === S.activeId)
+  const nextIdx = curIdx + 1
+
+  if (nextIdx >= alive.length) {
+    // New round
+    S.round++
+    S.activeId = alive[0].id
+    addLog(`━━━ ROUND ${S.round} ━━━`, true)
+  } else {
+    S.activeId = alive[nextIdx].id
+  }
+
+  S.turnStart = Date.now()
+  const active = S.combatants.find(c => c.id === S.activeId)
+  if (active) addLog(`▶ ${active.name}`)
+
+  save(); renderCombatants(); renderTopBar()
+  // Scroll active into view
+  setTimeout(() => {
+    const el = document.querySelector('.combatant.active')
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' })
+  }, 50)
+}
+
+function resetCombat() {
+  if (!confirm('Reset combat? (Combatants kept, round and active reset)')) return
+  S.round = 1; S.activeId = null; S.inCombat = false; S.log = []; S.turnStart = null
+  S.combatants.forEach(c => { c.isDead = false; c.isDelaying = false; c.conditions = [] })
+  save(); render()
+  toast('Combat reset')
+}
+
+// ═══════════════════════════════════════════════════
+// HP / DAMAGE
+// ═══════════════════════════════════════════════════
+function openDmgModal(id) {
+  const c = S.combatants.find(x=>x.id===id); if(!c) return
+  dmgTargetId = id
+  document.getElementById('dmg-target-name').textContent = `${c.name} — HP: ${c.hp}/${c.maxHp}`
+  document.getElementById('dmg-amount').value = ''
+  document.getElementById('dmg-modal').style.display = 'flex'
+  setTimeout(() => document.getElementById('dmg-amount').focus(), 50)
+}
+
+function closeDmgModal() { document.getElementById('dmg-modal').style.display = 'none'; dmgTargetId = null }
+
+function applyDmg(isHeal) {
+  const c = S.combatants.find(x=>x.id===dmgTargetId); if(!c) return
+  const amt = parseInt(document.getElementById('dmg-amount').value) || 0
+  if (isHeal) {
+    c.hp = Math.min(c.maxHp, c.hp + amt)
+    addLog(`💚 ${c.name} +${amt} HP (${c.hp}/${c.maxHp})`)
+  } else {
+    c.hp = Math.max(0, c.hp - amt)
+    addLog(`🩸 ${c.name} -${amt} HP (${c.hp}/${c.maxHp})`)
+    if (c.hp === 0) { addLog(`💀 ${c.name} is down!`); c.isDead = true }
+  }
+  closeDmgModal(); save(); renderCombatants()
+}
+
+// ═══════════════════════════════════════════════════
+// CONDITIONS
+// ═══════════════════════════════════════════════════
+function toggleCondition(combatantId, condId) {
+  const c = S.combatants.find(x=>x.id===combatantId); if(!c) return
+  const idx = c.conditions.indexOf(condId)
+  if (idx >= 0) c.conditions.splice(idx, 1)
+  else c.conditions.push(condId)
+  save(); renderCombatants()
+}
+
+function openCondMenu(id) {
+  // Toggle condition picker overlay for this combatant
+  const existing = document.getElementById('cond-menu-'+id)
+  if (existing) { existing.remove(); return }
+  const c = S.combatants.find(x=>x.id===id); if(!c) return
+  const div = document.createElement('div')
+  div.id = 'cond-menu-'+id
+  div.style.cssText = 'position:absolute;z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;flex-wrap:wrap;gap:5px;max-width:300px;box-shadow:0 8px 30px rgba(0,0,0,.5);'
+  div.innerHTML = CONDITIONS.map(cond => {
+    const active = c.conditions.includes(cond.id)
+    return `<span class="cond-chip" onclick="toggleCondition('${id}','${cond.id}');this.style.opacity='.5'"
+      style="background:${active?cond.bg:'var(--surface2)'};color:${cond.color};border:1px solid ${cond.color}44;opacity:${active?'1':'.5'};">
+      ${cond.label}</span>`
+  }).join('')
+  const row = document.getElementById('row-'+id)
+  if (row) { row.style.position = 'relative'; row.appendChild(div) }
+  document.addEventListener('click', function close(e) { if(!div.contains(e.target)){div.remove();document.removeEventListener('click',close)} }, {once:false})
+}
+
+// ═══════════════════════════════════════════════════
+// LOG
+// ═══════════════════════════════════════════════════
+function addLog(msg, isRound=false) {
+  S.log.unshift({ msg, isRound, time: new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) })
+  if (S.log.length > 60) S.log = S.log.slice(0,60)
+  renderLog()
+}
+
+function renderLog() {
+  document.getElementById('log-list').innerHTML = S.log.map(e =>
+    `<div class="log-entry ${e.isRound?'round-marker':''}">${e.isRound?e.msg:`<span style="color:var(--border);margin-right:3px;">${e.time}</span>${e.msg}`}</div>`
+  ).join('')
+}
+
+// ═══════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════
+function startTimer() {
+  clearInterval(timerInterval)
+  timerInterval = setInterval(() => {
+    if (!S.turnStart || !S.inCombat) { document.getElementById('turn-timer').textContent = '—'; return }
+    const sec = Math.floor((Date.now() - S.turnStart) / 1000)
+    const m = Math.floor(sec/60), s = sec%60
+    const txt = m > 0 ? `${m}m ${s}s` : `${s}s`
+    const el = document.getElementById('turn-timer')
+    el.textContent = txt
+    el.style.color = sec > 120 ? 'var(--red)' : sec > 60 ? 'var(--orange)' : 'var(--muted)'
+  }, 500)
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function hpColor(hp, max) {
+  const pct = max ? hp/max : 0
+  return pct > .5 ? '#22c55e' : pct > .25 ? '#eab308' : '#ef4444'
+}
+
+function renderTopBar() {
+  document.getElementById('round-num').textContent = S.round
+  const alive = S.combatants.filter(c=>!c.isDead&&!c.isDelaying)
+  const idx = alive.findIndex(c=>c.id===S.activeId)
+  document.getElementById('turn-num').textContent = alive.length ? `${Math.max(0,idx+1)}/${alive.length}` : '—'
+}
+
+function renderCombatants() {
+  const el = document.getElementById('combatant-list')
+  if (!S.combatants.length) {
+    el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--border);text-align:center;padding:40px;">
+      <div style="font-size:3rem;margin-bottom:12px;opacity:.3;">⚔️</div>
+      <div style="font-size:.8rem;color:#1e1e2e;letter-spacing:.1em;margin-bottom:5px;">NO COMBATANTS</div>
+      <div style="font-size:.7rem;color:#161625;">Click "+ Add" or press A</div>
+    </div>`
+    renderTopBar(); return
+  }
+
+  el.innerHTML = S.combatants.map((c, i) => {
+    const isActive = c.id === S.activeId
+    const hpPct = c.maxHp ? Math.max(0, (c.hp/c.maxHp)*100) : 0
+    const hpCol = hpColor(c.hp, c.maxHp)
+    const conds = (c.conditions||[]).map(cid => {
+      const cond = CONDITIONS.find(x=>x.id===cid)
+      return cond ? `<span class="cond-chip" onclick="toggleCondition('${c.id}','${cid}')" style="background:${cond.bg};color:${cond.color};border:1px solid ${cond.color}44;">${cond.label}</span>` : ''
+    }).join('')
+
+    return `<div id="row-${c.id}" class="combatant type-${c.type} ${isActive?'active':''} ${c.isDead?'dead':''} ${c.isDelaying?'delaying':''} slide-in"
+      onclick="selectActive('${c.id}')" style="padding:10px 12px;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:10px;">
+
+        <!-- Initiative -->
+        <div style="width:36px;flex-shrink:0;text-align:center;">
+          <input type="number" value="${c.initiative}"
+            onchange="S.combatants.find(x=>x.id==='${c.id}').initiative=parseInt(this.value)||0;save();renderCombatants()"
+            style="width:100%;text-align:center;font-size:1rem;font-weight:bold;color:${isActive?'var(--orange)':'var(--text)'};background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:2px 0;">
+          <div style="font-size:.55rem;color:var(--muted);">init</div>
+        </div>
+
+        <!-- Type dot -->
+        <div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${{pc:'var(--teal)',enemy:'var(--red)',neutral:'var(--purple)'}[c.type]};"></div>
+
+        <!-- Name + conditions -->
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            ${isActive ? '<span style="font-size:.6rem;color:var(--orange);font-weight:bold;letter-spacing:.08em;background:rgba(249,115,22,.12);padding:1px 5px;border-radius:3px;">ACTIVE</span>' : ''}
+            ${c.isDelaying ? '<span style="font-size:.6rem;color:var(--muted);font-weight:bold;">DELAY</span>' : ''}
+            <input value="${c.name}" onchange="S.combatants.find(x=>x.id==='${c.id}').name=this.value;save()"
+              style="font-size:.85rem;font-weight:${isActive?'bold':'normal'};color:${c.isDead?'var(--muted)':isActive?'var(--orange)':'var(--text)'};background:transparent;border:none;padding:0;width:auto;min-width:80px;max-width:180px;">
+          </div>
+          ${conds ? `<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;">${conds}</div>` : ''}
+          <div class="hp-bar" style="width:120px;margin-top:${conds?'4px':'3px'};">
+            <div class="hp-fill" style="width:${hpPct}%;background:${hpCol};"></div>
+          </div>
+        </div>
+
+        <!-- HP -->
+        <div style="text-align:center;flex-shrink:0;cursor:pointer;" onclick="openDmgModal('${c.id}')">
+          <div style="font-size:.85rem;font-weight:bold;color:${hpCol};">${c.hp}<span style="font-size:.65rem;color:var(--muted);">/${c.maxHp}</span></div>
+          <div style="font-size:.55rem;color:var(--muted);">HP ✎</div>
+        </div>
+
+        <!-- AC -->
+        <div style="text-align:center;flex-shrink:0;width:30px;">
+          <div style="font-size:.82rem;font-weight:bold;">${c.ac}</div>
+          <div style="font-size:.55rem;color:var(--muted);">AC</div>
+        </div>
+
+        <!-- Controls -->
+        <div style="display:flex;gap:3px;flex-shrink:0;">
+          <button onclick="openCondMenu('${c.id}')" class="btn btn-ghost" style="padding:3px 7px;font-size:.65rem;" title="Conditions">±</button>
+          <button onclick="toggleDelay('${c.id}')" class="btn btn-ghost" style="padding:3px 7px;font-size:.65rem;${c.isDelaying?'color:var(--orange);border-color:var(--orange);':''}" title="Delay turn">⏸</button>
+          <button onclick="toggleDead('${c.id}')" class="btn btn-ghost" style="padding:3px 7px;font-size:.65rem;${c.isDead?'color:var(--red);border-color:var(--red);':''}" title="Mark dead">💀</button>
+          <button onclick="removeCombatant('${c.id}')" class="btn btn-danger" style="padding:3px 7px;font-size:.65rem;" title="Remove">✕</button>
+        </div>
+      </div>
+    </div>`
+  }).join('')
+
+  renderTopBar()
+}
+
+function renderCondRef() {
+  document.getElementById('cond-ref').innerHTML = CONDITIONS.map(c =>
+    `<span class="cond-chip" style="background:${c.bg};color:${c.color};border:1px solid ${c.color}44;">${c.label}</span>`
+  ).join('')
+}
+
+function toggleAddPanel() {
+  document.getElementById('add-panel').classList.toggle('open')
+  if (document.getElementById('add-panel').classList.contains('open'))
+    setTimeout(()=>document.getElementById('f-name').focus(),50)
+}
+
+function render() { renderCombatants(); renderLog(); renderCondRef() }
+
+// ═══════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName.toLowerCase()
+  const typing = ['input','textarea','select'].includes(tag)
+  if (e.key === 'Escape') { closeDmgModal(); document.getElementById('add-panel').classList.remove('open'); return }
+  if (typing) return
+  if (e.key === ' ') { e.preventDefault(); nextTurn() }
+  if (e.key === 'a' || e.key === 'A') toggleAddPanel()
+  if (e.key === 'r' || e.key === 'R') rollAllNPCs()
+})
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+load()
+
+// Check for encounter import from Encounter Builder
+;(function checkImport() {
+  try {
+    const raw = localStorage.getItem('sl_initiative_import')
+    if (!raw) return
+    const data = JSON.parse(raw)
+    if (!data || !data.combatants || !data.combatants.length) return
+    // Show import banner
+    const banner = document.createElement('div')
+    banner.id = 'import-banner'
+    banner.style.cssText = 'position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:400;background:#1a1a2e;border:1px solid var(--orange);border-radius:8px;padding:12px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 30px rgba(249,115,22,.2);font-size:.78rem;'
+    banner.innerHTML = `<span>⚔ <strong style="color:var(--orange);">${data.encounter || 'Encounter'}</strong> — ${data.combatants.length} combatants ready to import</span>
+      <button onclick="doImport()" style="background:var(--orange);color:#000;border:none;border-radius:5px;padding:5px 14px;font-family:inherit;font-size:.75rem;font-weight:bold;cursor:pointer;letter-spacing:.06em;">IMPORT</button>
+      <button onclick="document.getElementById('import-banner').remove();localStorage.removeItem('sl_initiative_import')" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:5px 10px;font-family:inherit;font-size:.72rem;cursor:pointer;">Discard</button>`
+    document.body.appendChild(banner)
+    window._pendingImport = data
+  } catch(e) {}
+})()
+
+function doImport() {
+  const data = window._pendingImport
+  if (!data) return
+  localStorage.removeItem('sl_initiative_import')
+  const pcs = S.combatants.filter(c => c.type === 'pc')
+  S.combatants = [...pcs, ...data.combatants]
+  S.activeId = null; S.round = 1; S.inCombat = false; S.log = []
+  save(); render()
+  document.getElementById('import-banner')?.remove()
+  toast(`✓ Imported ${data.combatants.length} combatants`)
+}
+
+render()
+startTimer()
+
+let toastT
+function toast(msg) {
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show')
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400)
+}
+</script>
+</body>
+</html>

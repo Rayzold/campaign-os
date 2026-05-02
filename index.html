@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔ Scarred Lands — DM Suite</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --yellow:#eab308; --red:#ef4444; --bg:#13131f; --surface:#1a1a2e; --border:#252538; --muted:#4a4a6a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { min-height:100%; background:var(--bg); color:#e2e8f0; font-family:'Courier New',monospace; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:100;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); }
+
+  @keyframes flicker { 0%,94%,100%{opacity:1}95%{opacity:.7}97%{opacity:.9}99%{opacity:.5} }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)} }
+  @keyframes glow-in { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .flicker { animation:flicker 8s infinite; }
+
+  .tool-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:28px 24px; cursor:pointer; text-decoration:none; color:inherit;
+    display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px;
+    transition:all .2s ease; position:relative; overflow:hidden;
+    animation: glow-in .4s ease both;
+  }
+  .tool-card::before {
+    content:''; position:absolute; inset:0; opacity:0;
+    transition:opacity .2s ease;
+  }
+  .tool-card:hover { transform:translateY(-4px); border-color:var(--accent); }
+  .tool-card:hover::before { opacity:1; }
+  .tool-card:hover .card-icon { animation:float 2s ease-in-out infinite; }
+
+  .card-icon { font-size:2.2rem; line-height:1; transition:transform .2s; }
+  .card-name { font-size:1rem; font-weight:bold; letter-spacing:.06em; }
+  .card-desc { font-size:.75rem; color:#64748b; line-height:1.5; }
+  .card-status { font-size:.6rem; font-weight:bold; letter-spacing:.1em; text-transform:uppercase;
+    padding:2px 8px; border-radius:10px; align-self:center; }
+  .status-ready   { background:rgba(34,197,94,.12); color:#22c55e; border:1px solid rgba(34,197,94,.3); }
+  .status-soon    { background:rgba(100,116,139,.12); color:#64748b; border:1px solid rgba(100,116,139,.3); }
+
+  .glow-orange { --accent:var(--orange); }
+  .glow-orange:hover { box-shadow:0 8px 40px rgba(249,115,22,.15); }
+  .glow-teal   { --accent:var(--teal); }
+  .glow-teal:hover   { box-shadow:0 8px 40px rgba(20,184,166,.15); }
+  .glow-purple { --accent:var(--purple); }
+  .glow-purple:hover { box-shadow:0 8px 40px rgba(168,85,247,.15); }
+  .glow-blue   { --accent:var(--blue); }
+  .glow-blue:hover   { box-shadow:0 8px 40px rgba(59,130,246,.15); }
+  .glow-yellow { --accent:var(--yellow); }
+  .glow-yellow:hover { box-shadow:0 8px 40px rgba(234,179,8,.15); }
+  .glow-red    { --accent:var(--red); }
+  .glow-red:hover    { box-shadow:0 8px 40px rgba(239,68,68,.15); }
+
+  #particles { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.3; }
+
+  /* Dice Roller */
+  #dice-roller { position:fixed; top:16px; right:16px; z-index:50; }
+  #dice-toggle { background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:8px 14px; cursor:pointer; font-family:'Courier New',monospace; font-size:.75rem;
+    color:#e2e8f0; letter-spacing:.08em; transition:all .15s; display:flex; align-items:center; gap:8px; }
+  #dice-toggle:hover { border-color:var(--orange); color:var(--orange); }
+  #dice-panel { display:none; background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:16px; margin-top:8px; width:260px; }
+  #dice-panel.open { display:block; animation:glow-in .15s ease; }
+  .d-btn { background:var(--surface2,#13131f); border:1px solid var(--border); border-radius:8px;
+    padding:8px 4px; cursor:pointer; font-family:'Courier New',monospace; font-size:.7rem; font-weight:bold;
+    color:var(--muted); letter-spacing:.06em; transition:all .15s; text-align:center; }
+  .d-btn:hover { border-color:var(--orange); color:var(--orange); transform:translateY(-2px); }
+  .d-btn.active { border-color:var(--orange); color:var(--orange); background:rgba(249,115,22,.1); }
+  #dice-result { text-align:center; padding:12px 0 4px; min-height:52px; }
+  @keyframes roll-pop { 0%{transform:scale(.6) rotate(-10deg);opacity:0} 60%{transform:scale(1.15) rotate(2deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
+  .roll-anim { animation:roll-pop .25s ease both; }
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<!-- Dice Roller -->
+<div id="dice-roller">
+  <button id="dice-toggle" onclick="toggleDice()">🎲 <span id="dice-label">Roll Dice</span></button>
+  <div id="dice-panel">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+      <button class="d-btn active" data-sides="4"  onclick="selectDie(this)">d4</button>
+      <button class="d-btn"        data-sides="6"  onclick="selectDie(this)">d6</button>
+      <button class="d-btn"        data-sides="8"  onclick="selectDie(this)">d8</button>
+      <button class="d-btn"        data-sides="10" onclick="selectDie(this)">d10</button>
+      <button class="d-btn"        data-sides="12" onclick="selectDie(this)">d12</button>
+      <button class="d-btn"        data-sides="20" onclick="selectDie(this)">d20</button>
+      <button class="d-btn"        data-sides="100" onclick="selectDie(this)">d100</button>
+      <button class="d-btn"        data-sides="2"  onclick="selectDie(this)">d2</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span style="font-size:.65rem;color:var(--muted);letter-spacing:.08em;">×</span>
+      <div style="display:flex;gap:4px;">
+        <button class="d-btn active" id="cnt1" data-count="1" onclick="selectCount(this)" style="padding:5px 8px;">1</button>
+        <button class="d-btn" id="cnt2" data-count="2" onclick="selectCount(this)" style="padding:5px 8px;">2</button>
+        <button class="d-btn" id="cnt3" data-count="3" onclick="selectCount(this)" style="padding:5px 8px;">3</button>
+        <button class="d-btn" id="cnt4" data-count="4" onclick="selectCount(this)" style="padding:5px 8px;">4</button>
+        <button class="d-btn" id="cnt5" data-count="5" onclick="selectCount(this)" style="padding:5px 8px;">5</button>
+      </div>
+      <span style="font-size:.65rem;color:var(--muted);margin-left:auto;letter-spacing:.06em;" id="dice-label2">1d4</span>
+    </div>
+    <button onclick="rollDice()" style="width:100%;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.35);border-radius:8px;padding:8px;cursor:pointer;font-family:'Courier New',monospace;font-size:.78rem;font-weight:bold;color:var(--orange);letter-spacing:.1em;transition:all .15s;" onmouseover="this.style.background='rgba(249,115,22,.2)'" onmouseout="this.style.background='rgba(249,115,22,.12)'">ROLL</button>
+    <div id="dice-result"></div>
+    <div id="dice-history" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;display:flex;flex-direction:column;gap:3px;max-height:90px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<div style="position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;">
+
+  <!-- Header -->
+  <div style="text-align:center;padding:60px 24px 40px;">
+    <div class="flicker" style="font-size:2.2rem;margin-bottom:12px;">⚡</div>
+    <h1 style="font-size:1.6rem;font-weight:bold;letter-spacing:.15em;margin-bottom:8px;">SCARRED LANDS</h1>
+    <div style="font-size:.8rem;color:var(--muted);letter-spacing:.2em;">DM OPERATIONS SUITE</div>
+    <div style="width:60px;height:1px;background:var(--border);margin:20px auto;"></div>
+    <div style="font-size:.72rem;color:#2a2a3a;letter-spacing:.08em;">POST-APOCALYPTIC FANTASY · HOMEBREW BY MARKOS STEFANOU</div>
+  </div>
+
+  <!-- Tool Grid -->
+  <div style="flex:1;max-width:960px;margin:0 auto;width:100%;padding:0 24px 60px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">
+
+    <a href="scarred-lands-campaign-os.html" class="tool-card glow-orange" style="animation-delay:.05s">
+      <div class="card-icon">🧠</div>
+      <div>
+        <div class="card-name" style="color:var(--orange);">Campaign OS</div>
+        <div class="card-desc">NPC brain, world engine, corruption tracker, faction relationships, and session log. The living heart of your campaign.</div>
+      </div>
+      <div class="card-status status-ready">✓ Ready</div>
+    </a>
+
+    <a href="music.html" class="tool-card glow-teal" style="animation-delay:.1s">
+      <div class="card-icon">🎵</div>
+      <div>
+        <div class="card-name" style="color:var(--teal);">Music & Media</div>
+        <div class="card-desc">Browse local audio by ambience, battle, tension, and more. Video maps with one-click projector presentation mode.</div>
+      </div>
+      <div class="card-status status-ready">✓ Ready</div>
+    </a>
+
+    <a href="initiative.html" class="tool-card glow-purple" style="animation-delay:.15s">
+      <div class="card-icon">⚔️</div>
+      <div>
+        <div class="card-name" style="color:var(--purple);">Initiative Tracker</div>
+        <div class="card-desc">Fast combat order management. HP tracking, conditions, turn timer, and round log for encounters of any size.</div>
+      </div>
+      <div class="card-status status-ready">✓ Ready</div>
+    </a>
+
+    <a href="encounter.html" class="tool-card glow-red" style="animation-delay:.2s">
+      <div class="card-icon">💀</div>
+      <div>
+        <div class="card-name" style="color:var(--red);">Encounter Builder</div>
+        <div class="card-desc">Build and save encounters. Monster stats, terrain effects, and Scarred Lands hazards — nanite storms, reality glitches, and more.</div>
+      </div>
+      <div class="card-status status-ready">✓ Ready</div>
+    </a>
+
+    <a href="tables.html" class="tool-card glow-blue" style="animation-delay:.25s">
+      <div class="card-icon">🎲</div>
+      <div>
+        <div class="card-name" style="color:var(--blue);">Random Tables</div>
+        <div class="card-desc">Campaign-specific generators — events, NPC quirks, loot from Old World ruins, mutation effects, weather, and faction rumors.</div>
+      </div>
+      <div class="card-status status-ready">✓ Ready</div>
+    </a>
+
+    <a href="sessions.html" class="tool-card glow-yellow" style="animation-delay:.3s">
+      <div class="card-icon">📖</div>
+      <div>
+        <div class="card-name" style="color:var(--yellow);">Session Notes</div>
+        <div class="card-desc">Structured session journal with recap, key moments, unresolved threads, and faction pressure tracking per session.</div>
+      </div>
+      <div class="card-status status-ready">✓ Ready</div>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <div style="text-align:center;padding:20px;border-top:1px solid var(--border);font-size:.62rem;color:#1e1e2e;letter-spacing:.08em;">
+    SCARRED LANDS DM SUITE · ALL DATA STORED LOCALLY · NO SERVER REQUIRED
+  </div>
+
+</div>
+
+<script>
+  // Particles
+  const c = document.getElementById('particles')
+  const ctx = c.getContext('2d')
+  const COLS = ['#f97316','#a855f7','#14b8a6','#3b82f6']
+  let W, H, pts = []
+  function resize() { W = c.width = innerWidth; H = c.height = innerHeight }
+  addEventListener('resize', resize); resize()
+  for (let i = 0; i < 50; i++) pts.push({
+    x:Math.random()*W, y:Math.random()*H,
+    vx:(Math.random()-.5)*.25, vy:-.1-Math.random()*.35,
+    r:Math.random()*1.3+.3, a:Math.random()*.35+.08,
+    col:COLS[Math.floor(Math.random()*COLS.length)]
+  });
+  (function frame() {
+    ctx.clearRect(0,0,W,H)
+    for (const p of pts) {
+      p.x+=p.vx; p.y+=p.vy
+      if (p.y<0){p.y=H;p.x=Math.random()*W}
+      if (p.x<0)p.x=W; if (p.x>W)p.x=0
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2)
+      ctx.fillStyle=p.col; ctx.globalAlpha=p.a; ctx.fill()
+    }
+    ctx.globalAlpha=1; requestAnimationFrame(frame)
+  })()
+
+  // Staggered card animation delays already set via style
+
+  // Dice Roller
+  let dSides = 4, dCount = 1, dHistory = []
+  function toggleDice() {
+    const p = document.getElementById('dice-panel')
+    p.classList.toggle('open')
+  }
+  function selectDie(btn) {
+    document.querySelectorAll('.d-btn[data-sides]').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    dSides = parseInt(btn.dataset.sides)
+    updateDiceLabel()
+  }
+  function selectCount(btn) {
+    document.querySelectorAll('.d-btn[data-count]').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    dCount = parseInt(btn.dataset.count)
+    updateDiceLabel()
+  }
+  function updateDiceLabel() {
+    document.getElementById('dice-label2').textContent = `${dCount}d${dSides}`
+  }
+  function rollDice() {
+    const rolls = Array.from({length: dCount}, () => Math.floor(Math.random() * dSides) + 1)
+    const total = rolls.reduce((a, b) => a + b, 0)
+    const isMax = rolls.every(r => r === dSides)
+    const isMin = rolls.every(r => r === 1)
+    const col = isMax ? '#22c55e' : isMin ? '#ef4444' : 'var(--orange)'
+    const label = `${dCount}d${dSides}`
+    const res = document.getElementById('dice-result')
+    res.innerHTML = `<div class="roll-anim">
+      <div style="font-size:2rem;font-weight:bold;color:${col};line-height:1;">${total}</div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:4px;">${label}${dCount > 1 ? ' [' + rolls.join(', ') + ']' : ''}</div>
+    </div>`
+    document.getElementById('dice-label').textContent = `${label} → ${total}`
+    dHistory.unshift({ label, rolls, total })
+    if (dHistory.length > 8) dHistory.pop()
+    document.getElementById('dice-history').innerHTML = dHistory.map((h, i) => `
+      <div style="display:flex;justify-content:space-between;font-size:.62rem;color:${i===0?'var(--muted)':'#2a2a4a'};padding:1px 0;">
+        <span>${h.label}</span>
+        <span>${h.rolls.length > 1 ? '['+h.rolls.join(',')+'] = ' : ''}${h.total}</span>
+      </div>`).join('')
+  }
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input,textarea')) return
+    if (e.key === 'd' || e.key === 'D') { document.getElementById('dice-panel').classList.toggle('open') }
+    if (e.key === 'Enter') { if (document.getElementById('dice-panel').classList.contains('open')) rollDice() }
+  })
+</script>
+</body>
+</html>
