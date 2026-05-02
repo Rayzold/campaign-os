@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚔ Scarred Lands — DM Suite</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="campaign-os.js"></script>
 <style>
   :root { --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --yellow:#eab308; --red:#ef4444; --bg:#13131f; --surface:#1a1a2e; --border:#252538; --muted:#4a4a6a; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -76,6 +77,38 @@
 </style>
 </head>
 <body>
+<nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 0 8px 0;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:100;">
+  <a href="index.html" style="color:var(--orange);font-weight:bold;font-size:1.1rem;margin-left:18px;">DM Suite</a>
+  <a href="initiative.html" style="color:var(--muted);text-decoration:none;">Initiative</a>
+  <a href="encounter.html" style="color:var(--muted);text-decoration:none;">Encounters</a>
+  <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
+  <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
+  <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
+  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
+</nav>
+<main role="main" aria-label="Scarred Lands DM Suite main content">
+<div style="position:fixed;bottom:8px;right:12px;z-index:9999;font-size:.7rem;color:#f97316;background:#1a1a2e;padding:3px 10px;border-radius:8px;opacity:.85;">APP_VERSION: 2026.05.02</div>
+
+<!-- Help Modal -->
+<div id="help-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);color:var(--text);border-radius:12px;padding:32px 28px;max-width:95vw;max-height:90vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.25);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:1.1rem;font-weight:bold;color:var(--orange);">Keyboard Shortcuts</span>
+      <button onclick="document.getElementById('help-modal').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;">&times;</button>
+    </div>
+    <ul style="font-size:.98rem;line-height:1.7;">
+      <li><b>Ctrl+S</b>: Save data (where available)</li>
+      <li><b>Ctrl+N</b>: New item/session/encounter</li>
+      <li><b>Ctrl+E</b>: Export data</li>
+      <li><b>Ctrl+I</b>: Open Initiative Tracker</li>
+      <li><b>Ctrl+T</b>: Open Tables</li>
+      <li><b>Ctrl+M</b>: Open Music</li>
+      <li><b>Esc</b>: Close modals/menus</li>
+    </ul>
+    <div style="margin-top:18px;font-size:.85rem;color:var(--muted);">More shortcuts coming soon. You can close this window with <b>Esc</b> or the &times; button.</div>
+  </div>
+</div>
 <canvas id="particles"></canvas>
 
 <!-- Dice Roller -->
@@ -262,5 +295,6 @@
     if (e.key === 'Enter') { if (document.getElementById('dice-panel').classList.contains('open')) rollDice() }
   })
 </script>
+</main>
 </body>
 </html>
