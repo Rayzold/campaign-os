@@ -5,11 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚔ Scarred Lands — DM Suite</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="campaign-os.js"></script>
+<script type="module" src="main.js"></script>
 <style>
-  :root { --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --yellow:#eab308; --red:#ef4444; --bg:#13131f; --surface:#1a1a2e; --border:#252538; --muted:#4a4a6a; }
+  :root {
+    --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --yellow:#eab308; --red:#ef4444;
+    --bg:#13131f; --surface:#1a1a2e; --surface2:#161625; --border:#252538; --muted:#4a4a6a; --text:#e2e8f0;
+  }
+  [data-theme="light"] {
+    --bg: #f8fafc; --surface: #fff; --surface2: #f1f5f9; --border: #e2e8f0; --muted: #64748b; --text: #22223b;
+  }
+  [data-theme="dark"] {
+    --bg: #13131f; --surface: #1a1a2e; --surface2: #161625; --border: #252538; --muted: #4a4a6a; --text: #e2e8f0;
+  }
   * { box-sizing:border-box; margin:0; padding:0; }
-  html,body { min-height:100%; background:var(--bg); color:#e2e8f0; font-family:'Courier New',monospace; overflow-x:hidden; }
+  html,body { min-height:100%; background:var(--bg); color:var(--text); font-family:'Courier New',monospace; overflow-x:hidden; }
   body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:100;
     background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); }
 
@@ -77,25 +86,28 @@
 </style>
 </head>
 <body>
-<nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 0 8px 0;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:100;">
-  <a href="index.html" style="color:var(--orange);font-weight:bold;font-size:1.1rem;margin-left:18px;">DM Suite</a>
+<nav aria-label="Main navigation" style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 0 8px 0;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:100;">
+  <a href="index.html" aria-current="page" style="color:var(--orange);font-weight:bold;font-size:1.1rem;margin-left:18px;">DM Suite</a>
   <a href="initiative.html" style="color:var(--muted);text-decoration:none;">Initiative</a>
   <a href="encounter.html" style="color:var(--muted);text-decoration:none;">Encounters</a>
   <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
   <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
   <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
-  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
-  <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
+  <button id="theme-toggle" aria-label="Toggle dark/light theme" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <button id="help-btn" aria-haspopup="dialog" aria-controls="help-modal" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
+  <button id="export-btn" aria-label="Export campaign data" style="margin-right:8px;background:var(--teal);color:#fff;border:none;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;">Export Data</button>
+  <button id="import-btn" aria-label="Import campaign data" style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;">Import Data</button>
+  <input type="file" id="import-file" accept="application/json" style="display:none;" />
 </nav>
 <main role="main" aria-label="Scarred Lands DM Suite main content">
 <div style="position:fixed;bottom:8px;right:12px;z-index:9999;font-size:.7rem;color:#f97316;background:#1a1a2e;padding:3px 10px;border-radius:8px;opacity:.85;">APP_VERSION: 2026.05.02</div>
 
 <!-- Help Modal -->
-<div id="help-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+<div id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
   <div style="background:var(--surface);color:var(--text);border-radius:12px;padding:32px 28px;max-width:95vw;max-height:90vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.25);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <span style="font-size:1.1rem;font-weight:bold;color:var(--orange);">Keyboard Shortcuts</span>
-      <button onclick="document.getElementById('help-modal').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;">&times;</button>
+      <span id="help-modal-title" style="font-size:1.1rem;font-weight:bold;color:var(--orange);">Keyboard Shortcuts</span>
+      <button onclick="document.getElementById('help-modal').style.display='none'" aria-label="Close help dialog" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;">&times;</button>
     </div>
     <ul style="font-size:.98rem;line-height:1.7;">
       <li><b>Ctrl+S</b>: Save data (where available)</li>
