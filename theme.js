@@ -22,10 +22,12 @@ export function setupThemeToggle() {
   const themeBtn = document.getElementById('theme-toggle');
   const themeVars = {
     dark: {
-      '--bg': '#13131f', '--surface': '#1a1a2e', '--surface2': '#161625', '--border': '#252538', '--muted': '#4a4a6a', '--text': '#e2e8f0'
+      '--bg': '#13131f', '--surface': '#1a1a2e', '--surface2': '#161625', '--border': '#252538', '--muted': '#4a4a6a', '--text': '#e2e8f0',
+      '--text-subtle': '#2a2a3a'
     },
     light: {
-      '--bg': '#f8fafc', '--surface': '#fff', '--surface2': '#f1f5f9', '--border': '#e2e8f0', '--muted': '#64748b', '--text': '#22223b'
+      '--bg': '#f8fafc', '--surface': '#fff', '--surface2': '#f1f5f9', '--border': '#e2e8f0', '--muted': '#64748b', '--text': '#22223b',
+      '--text-subtle': '#94a3b8'
     }
   };
   function applyThemeVars(mode) {

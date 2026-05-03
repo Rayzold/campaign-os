@@ -5,22 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚔ Scarred Lands — DM Suite</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+(function () {
+  try {
+    var v = localStorage.getItem('theme')
+    var mode = v ? JSON.parse(v) : 'dark'
+    if (mode === 'light' || mode === 'dark')
+      document.documentElement.setAttribute('data-theme', mode)
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark')
+  }
+})()
+</script>
 <script type="module" src="main.js"></script>
 <style>
   :root {
     --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --yellow:#eab308; --red:#ef4444;
     --bg:#13131f; --surface:#1a1a2e; --surface2:#161625; --border:#252538; --muted:#4a4a6a; --text:#e2e8f0;
+    --text-subtle:#2a2a3a;
   }
   html[data-theme="light"] {
-    --bg: #f8fafc; --surface: #fff; --surface2: #f1f5f9; --border: #e2e8f0; --muted: #64748b; --text: #22223b;
+    --bg:#f8fafc; --surface:#fff; --surface2:#f1f5f9; --border:#e2e8f0; --muted:#64748b; --text:#22223b;
+    --text-subtle:#94a3b8;
   }
   html[data-theme="dark"] {
-    --bg: #13131f; --surface: #1a1a2e; --surface2: #161625; --border: #252538; --muted: #4a4a6a; --text: #e2e8f0;
+    --bg:#13131f; --surface:#1a1a2e; --surface2:#161625; --border:#252538; --muted:#4a4a6a; --text:#e2e8f0;
+    --text-subtle:#2a2a3a;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
   html,body { min-height:100%; background:var(--bg); color:var(--text); font-family:'Courier New',monospace; overflow-x:hidden; }
   body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:100;
     background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); }
+  html[data-theme="light"] body::before {
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+  }
 
   @keyframes flicker { 0%,94%,100%{opacity:1}95%{opacity:.7}97%{opacity:.9}99%{opacity:.5} }
   @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)} }
@@ -65,17 +83,18 @@
   .glow-red:hover    { box-shadow:0 8px 40px rgba(239,68,68,.15); }
 
   #particles { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.3; }
+  html[data-theme="light"] #particles { opacity:.18; }
 
   /* Dice Roller */
   #dice-roller { position:fixed; top:16px; right:16px; z-index:50; }
   #dice-toggle { background:var(--surface); border:1px solid var(--border); border-radius:10px;
     padding:8px 14px; cursor:pointer; font-family:'Courier New',monospace; font-size:.75rem;
-    color:#e2e8f0; letter-spacing:.08em; transition:all .15s; display:flex; align-items:center; gap:8px; }
+    color:var(--text); letter-spacing:.08em; transition:all .15s; display:flex; align-items:center; gap:8px; }
   #dice-toggle:hover { border-color:var(--orange); color:var(--orange); }
   #dice-panel { display:none; background:var(--surface); border:1px solid var(--border); border-radius:12px;
     padding:16px; margin-top:8px; width:260px; }
   #dice-panel.open { display:block; animation:glow-in .15s ease; }
-  .d-btn { background:var(--surface2,#13131f); border:1px solid var(--border); border-radius:8px;
+  .d-btn { background:var(--surface2); border:1px solid var(--border); border-radius:8px;
     padding:8px 4px; cursor:pointer; font-family:'Courier New',monospace; font-size:.7rem; font-weight:bold;
     color:var(--muted); letter-spacing:.06em; transition:all .15s; text-align:center; }
   .d-btn:hover { border-color:var(--orange); color:var(--orange); transform:translateY(-2px); }
@@ -93,14 +112,14 @@
   <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
   <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
   <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
-  <button id="theme-toggle" aria-label="Toggle dark/light theme" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <button id="theme-toggle" type="button" aria-label="Toggle dark/light theme" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
   <button id="help-btn" aria-haspopup="dialog" aria-controls="help-modal" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
   <button id="export-btn" aria-label="Export campaign data" style="margin-right:8px;background:var(--teal);color:#fff;border:none;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;">Export Data</button>
   <button id="import-btn" aria-label="Import campaign data" style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;">Import Data</button>
   <input type="file" id="import-file" accept="application/json" style="display:none;" />
 </nav>
 <main role="main" aria-label="Scarred Lands DM Suite main content">
-<div style="position:fixed;bottom:8px;right:12px;z-index:9999;font-size:.7rem;color:#f97316;background:#1a1a2e;padding:3px 10px;border-radius:8px;opacity:.85;">APP_VERSION: 2026.05.02</div>
+<div style="position:fixed;bottom:8px;right:12px;z-index:9999;font-size:.7rem;color:#f97316;background:var(--surface);padding:3px 10px;border-radius:8px;opacity:.85;border:1px solid var(--border);">APP_VERSION: 2026.05.02</div>
 
 <!-- Help Modal -->
 <div id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
@@ -162,7 +181,7 @@
     <h1 style="font-size:1.6rem;font-weight:bold;letter-spacing:.15em;margin-bottom:8px;">SCARRED LANDS</h1>
     <div style="font-size:.8rem;color:var(--muted);letter-spacing:.2em;">DM OPERATIONS SUITE</div>
     <div style="width:60px;height:1px;background:var(--border);margin:20px auto;"></div>
-    <div style="font-size:.72rem;color:#2a2a3a;letter-spacing:.08em;">POST-APOCALYPTIC FANTASY · HOMEBREW BY MARKOS STEFANOU</div>
+    <div style="font-size:.72rem;color:var(--text-subtle);letter-spacing:.08em;">POST-APOCALYPTIC FANTASY · HOMEBREW BY MARKOS STEFANOU</div>
   </div>
 
   <!-- Tool Grid -->
@@ -225,7 +244,7 @@
   </div>
 
   <!-- Footer -->
-  <div style="text-align:center;padding:20px;border-top:1px solid var(--border);font-size:.62rem;color:#1e1e2e;letter-spacing:.08em;">
+  <div style="text-align:center;padding:20px;border-top:1px solid var(--border);font-size:.62rem;color:var(--text-subtle);letter-spacing:.08em;">
     SCARRED LANDS DM SUITE · ALL DATA STORED LOCALLY · NO SERVER REQUIRED
   </div>
 
@@ -256,8 +275,6 @@
     }
     ctx.globalAlpha=1; requestAnimationFrame(frame)
   })()
-
-  // Staggered card animation delays already set via style
 
   // Dice Roller
   let dSides = 4, dCount = 1, dHistory = []
@@ -296,7 +313,7 @@
     dHistory.unshift({ label, rolls, total })
     if (dHistory.length > 8) dHistory.pop()
     document.getElementById('dice-history').innerHTML = dHistory.map((h, i) => `
-      <div style="display:flex;justify-content:space-between;font-size:.62rem;color:${i===0?'var(--muted)':'#2a2a4a'};padding:1px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:.62rem;color:${i===0?'var(--muted)':'var(--text-subtle)'};padding:1px 0;">
         <span>${h.label}</span>
         <span>${h.rolls.length > 1 ? '['+h.rolls.join(',')+'] = ' : ''}${h.total}</span>
       </div>`).join('')
