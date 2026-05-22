@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="campaign-os.js"></script>
 <style>
-  :root{--orange:#f97316;--purple:#a855f7;--teal:#14b8a6;--blue:#3b82f6;--bg:#08080f;--surface:#0f0f1a;--surface2:#161625;--border:#1e1e2e;--muted:#4a4a6a;--text:#e2e8f0;}
+  :root{--orange:#f97316;--purple:#a855f7;--teal:#14b8a6;--blue:#3b82f6;--bg:#06060e;--surface:#13132a;--surface2:#1a1a38;--border:#4a4a78;--muted:#a8b8d0;--text:#f4f6fb;}
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Courier New',monospace;overflow:hidden;}
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;
@@ -34,6 +34,8 @@
   #toast.show{transform:translateY(0);}
   #modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;align-items:center;justify-content:center;}
   #modal-overlay.open{display:flex;}
+  nav { box-shadow: 0 4px 28px rgba(0,0,0,.45); }
+  html[data-theme="light"] nav { box-shadow: 0 2px 16px rgba(15,23,42,.18); }
 </style>
 </head>
 <body>
@@ -48,7 +50,7 @@
   <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
 </nav>
 <main role="main" aria-label="Random Tables main content">
-<div style="position:fixed;bottom:8px;right:12px;z-index:9999;font-size:.7rem;color:#f97316;background:#0f0f1a;padding:3px 10px;border-radius:8px;opacity:.85;">APP_VERSION: 2026.05.02</div>
+<div style="position:fixed;bottom:8px;right:12px;z-index:9999;font-size:.7rem;color:#f97316;background:var(--surface);padding:3px 10px;border-radius:8px;opacity:.85;border:1px solid var(--border);">APP_VERSION: 2026.05.02</div>
 
 <!-- Help Modal -->
 <div id="help-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">

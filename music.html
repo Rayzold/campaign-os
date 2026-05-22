@@ -5,12 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎵 DM Music & Media</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+(function () {
+  try {
+    var v = localStorage.getItem('theme')
+    var mode = v ? JSON.parse(v) : 'dark'
+    if (mode === 'light' || mode === 'dark')
+      document.documentElement.setAttribute('data-theme', mode)
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark')
+  }
+})()
+</script>
+<script type="module" src="main.js"></script>
 <style>
-  :root { --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --bg:#08080f; --surface:#0f0f1a; --surface2:#161625; --border:#1e1e2e; --muted:#4a4a6a; --text:#e2e8f0; }
+  :root { --orange:#f97316; --purple:#a855f7; --teal:#14b8a6; --blue:#3b82f6; --bg:#06060e; --surface:#13132a; --surface2:#1a1a38; --border:#4a4a78; --muted:#a8b8d0; --text:#f4f6fb; --text-subtle:#7c8ca3; }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Courier New',monospace;overflow:hidden;}
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;
     background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);}
+  html[data-theme="light"] body::before{
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);
+    opacity:.55;
+  }
 
   ::-webkit-scrollbar{width:4px;height:4px;}
   ::-webkit-scrollbar-track{background:var(--bg);}
@@ -49,7 +66,7 @@
 
   /* Audio player bar */
   #player-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;
-    background:#09091a;border-top:1px solid var(--border);padding:8px 16px;
+    background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;
     display:none;align-items:center;gap:14px;}
   #player-bar.visible{display:flex;}
 
@@ -75,8 +92,12 @@
     background:var(--surface2);border:1px solid var(--teal);border-radius:6px;
     color:var(--teal);font-size:.75rem;transform:translateY(60px);transition:transform .3s;pointer-events:none;}
   #toast.show{transform:translateY(0);}
+
+  nav { box-shadow: 0 4px 28px rgba(0,0,0,.45); }
+  html[data-theme="light"] nav { box-shadow: 0 2px 16px rgba(15,23,42,.18); }
 </style>
 </head>
+<body>
 <nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 0 8px 0;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:100;">
   <a href="index.html" style="color:var(--orange);font-weight:bold;font-size:1.1rem;margin-left:18px;">DM Suite</a>
   <a href="initiative.html" style="color:var(--muted);text-decoration:none;">Initiative</a>
@@ -84,10 +105,9 @@
   <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
   <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
   <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
-  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
-  <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
+  <button type="button" id="theme-toggle" aria-label="Toggle dark or light theme" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <button type="button" id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
 </nav>
-<body>
 
 <!-- Help Modal -->
 <div id="help-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
@@ -126,7 +146,7 @@
 <div style="position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;">
 
   <!-- TOP BAR -->
-  <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:14px;">
+  <div style="flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:14px;">
     <a href="index.html" style="color:var(--muted);font-size:.75rem;text-decoration:none;letter-spacing:.05em;transition:color .15s;flex-shrink:0;"
       onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--muted)'">← SUITE</a>
     <div style="width:1px;height:24px;background:var(--border);"></div>
@@ -141,7 +161,7 @@
   </div>
 
   <!-- TABS -->
-  <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:0;">
+  <div style="flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:0;">
     <button class="tab-btn active" id="tab-audio" onclick="setTab('audio')">🎵 AUDIO</button>
     <button class="tab-btn" id="tab-video" onclick="setTab('video')">🎬 VIDEO</button>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
@@ -163,9 +183,9 @@
     <div style="flex:1;overflow-y:auto;padding:10px 12px;" id="file-area">
       <div id="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--border);text-align:center;padding:40px;">
         <div style="font-size:3rem;margin-bottom:12px;opacity:.4;">🎵</div>
-        <div style="font-size:.82rem;color:#1e1e2e;letter-spacing:.1em;margin-bottom:6px;">NO FOLDER OPEN</div>
-        <div style="font-size:.7rem;color:#161625;">Click "Open Audio Folder" to browse your music</div>
-        <div style="font-size:.65rem;color:#0f0f1a;margin-top:4px;">Requires Chrome or Edge</div>
+        <div style="font-size:.82rem;color:var(--muted);letter-spacing:.1em;margin-bottom:6px;">NO FOLDER OPEN</div>
+        <div style="font-size:.7rem;color:var(--text-subtle);">Click "Open Audio Folder" to browse your music</div>
+        <div style="font-size:.65rem;color:var(--text-subtle);margin-top:4px;opacity:.85;">Requires Chrome or Edge</div>
       </div>
       <div id="file-list" style="display:flex;flex-direction:column;gap:2px;"></div>
     </div>
@@ -639,8 +659,8 @@ function renderList() {
   if (!hasFolder) {
     emptyEl.style.display = 'flex'; listEl.innerHTML = ''
     emptyEl.innerHTML = `<div style="font-size:2.5rem;margin-bottom:12px;opacity:.3;">${isVideo?'🎬':'🎵'}</div>
-      <div style="font-size:.82rem;color:#1e1e2e;letter-spacing:.1em;margin-bottom:6px;">NO FOLDER OPEN</div>
-      <div style="font-size:.7rem;color:#161625;">Click "Open ${isVideo?'Video':'Audio'} Folder" above</div>`
+      <div style="font-size:.82rem;color:var(--muted);letter-spacing:.1em;margin-bottom:6px;">NO FOLDER OPEN</div>
+      <div style="font-size:.7rem;color:var(--text-subtle);">Click "Open ${isVideo?'Video':'Audio'} Folder" above</div>`
     return
   }
 

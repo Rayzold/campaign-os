@@ -22,12 +22,24 @@ export function setupThemeToggle() {
   const themeBtn = document.getElementById('theme-toggle');
   const themeVars = {
     dark: {
-      '--bg': '#13131f', '--surface': '#1a1a2e', '--surface2': '#161625', '--border': '#252538', '--muted': '#4a4a6a', '--text': '#e2e8f0',
-      '--text-subtle': '#2a2a3a'
+      /* Canvas darkest; surfaces clearly elevated; borders readable */
+      '--bg': '#06060e',
+      '--surface': '#13132a',
+      '--surface2': '#1a1a38',
+      '--border': '#4a4a78',
+      '--muted': '#a8b8d0',
+      '--text': '#f4f6fb',
+      '--text-subtle': '#7c8ca3'
     },
     light: {
-      '--bg': '#f8fafc', '--surface': '#fff', '--surface2': '#f1f5f9', '--border': '#e2e8f0', '--muted': '#64748b', '--text': '#22223b',
-      '--text-subtle': '#94a3b8'
+      /* Low-glare “paper”: no pure white; darker desk + softer panels */
+      '--bg': '#6f7a89',
+      '--surface': '#a8b2c0',
+      '--surface2': '#949fae',
+      '--border': '#4a5462',
+      '--muted': '#1c2533',
+      '--text': '#0b0f14',
+      '--text-subtle': '#323c49'
     }
   };
   function applyThemeVars(mode) {
