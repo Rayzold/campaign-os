@@ -41,7 +41,29 @@
       "Bash(gh pr *)",
       "Bash(git checkout *)",
       "Bash(git pull *)",
-      "Bash(git tag -a v0.0.2 -m ' *)"
+      "Bash(git tag -a v0.0.2 -m ' *)",
+      "Bash(pnpm --filter @mc/mobile typecheck)",
+      "Bash(git restore *)",
+      "Bash(git tag -a v0.0.4 -m ' *)",
+      "Bash(git stash *)",
+      "Bash(git reset *)",
+      "Bash(git tag -a v0.0.6 -m ' *)",
+      "Bash(git tag -a v0.0.7 -m ' *)",
+      "Read(//c/c/Users/marko/Major-Ambience/apps/**)",
+      "Read(//c/c/Users/marko/Major-Ambience/apps/mobile/**)",
+      "Bash(cmd //c dir /b)",
+      "Bash(git ls-tree *)",
+      "Bash(git cherry-pick *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm -r test)",
+      "Bash(git tag *)",
+      "Bash(pnpm run *)",
+      "Bash(lsof -ti:1420)",
+      "Bash(xargs kill -9)",
+      "Bash(gh repo *)",
+      "Bash(git rebase *)",
+      "Bash(grep -vE '^\\\\*|main$')",
+      "Bash(xargs -r git branch -d)"
     ]
   }
 }
