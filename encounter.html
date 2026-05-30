@@ -106,7 +106,27 @@
   <div style="display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;">
     <a href="index.html" class="btn btn-sm" style="--accent:var(--muted);">← Hub</a>
     <div style="font-size:1rem;font-weight:bold;letter-spacing:.12em;color:var(--red);">💀 ENCOUNTER BUILDER</div>
-    <div style="font-size:.65rem;color:var(--muted);letter-spacing:.08em;">SCARRED LANDS · BUILD · SAVE · DEPLOY</div>
+    <div style="width:1px;height:24px;background:var(--border);flex-shrink:0;"></div>
+    <!-- Party Settings -->
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <div style="font-size:.58rem;color:var(--muted);letter-spacing:.1em;">PARTY</div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span style="font-size:.6rem;color:var(--muted);">Size</span>
+        <div style="display:flex;gap:2px;" id="party-size-btns">
+          <button onclick="setPartySetting('size',2)" id="psz2" class="btn btn-sm" style="padding:2px 7px;font-size:.65rem;">2</button>
+          <button onclick="setPartySetting('size',3)" id="psz3" class="btn btn-sm" style="padding:2px 7px;font-size:.65rem;">3</button>
+          <button onclick="setPartySetting('size',4)" id="psz4" class="btn btn-sm" style="padding:2px 7px;font-size:.65rem;">4</button>
+          <button onclick="setPartySetting('size',5)" id="psz5" class="btn btn-sm" style="padding:2px 7px;font-size:.65rem;">5</button>
+          <button onclick="setPartySetting('size',6)" id="psz6" class="btn btn-sm" style="padding:2px 7px;font-size:.65rem;">6</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span style="font-size:.6rem;color:var(--muted);">Level</span>
+        <input id="partyLevelMain" type="number" min="1" max="20"
+          class="inp inp-sm" style="width:44px;text-align:center;"
+          oninput="setPartySetting('level',+this.value)">
+      </div>
+    </div>
     <div style="flex:1;"></div>
     <button class="btn btn-sm" onclick="randomEncounter()" style="--accent:var(--purple);">🎲 Random Encounter</button>
     <button class="btn btn-sm btn-primary" style="--accent:var(--red);" onclick="newEncounter()">+ New Encounter</button>
@@ -829,16 +849,47 @@ function renderEncList() {
   }).join('') || `<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:20px;">No encounters yet</div>`
 }
 
-// ── Party Settings (persisted) ─────────────────────────────────────────────
-// Updated via random encounter panel
-document.getElementById('partyLevel')?.addEventListener('change', function() {
-  localStorage.setItem('sl_party_level', this.value)
+// ── Party Settings ─────────────────────────────────────────────────────────
+function setPartySetting(key, val) {
+  if (key === 'size') {
+    val = Math.min(8, Math.max(1, val))
+    localStorage.setItem('sl_party_size', val)
+    document.querySelectorAll('[id^="psz"]').forEach(b => {
+      const active = parseInt(b.id.replace('psz','')) === val
+      b.style.setProperty('--accent', active ? 'var(--red)' : '')
+      b.style.background = active ? 'rgba(239,68,68,.15)' : ''
+      b.style.borderColor = active ? 'var(--red)' : ''
+      b.style.color = active ? 'var(--red)' : ''
+    })
+  } else {
+    val = Math.min(20, Math.max(1, isNaN(val) ? 1 : val))
+    localStorage.setItem('sl_party_level', val)
+    const el = document.getElementById('partyLevelMain')
+    if (el && document.activeElement !== el) el.value = val
+  }
   updateDiff()
+}
+
+function initPartyUI() {
+  const size = parseInt(localStorage.getItem('sl_party_size') || '4')
+  const level = parseInt(localStorage.getItem('sl_party_level') || '3')
+  setPartySetting('size', size)
+  const el = document.getElementById('partyLevelMain')
+  if (el) el.value = level
+  // keep random panel in sync
+  const rpl = document.getElementById('partyLevel')
+  if (rpl) rpl.value = level
+}
+
+// Legacy listener for random panel level input
+document.getElementById('partyLevel')?.addEventListener('change', function() {
+  setPartySetting('level', +this.value)
 })
 
 // ── Init ───────────────────────────────────────────────────────────────────
 renderEncList()
 renderLibrary()
+initPartyUI()
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
