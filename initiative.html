@@ -308,6 +308,18 @@ function sortByInitiative() {
   save(); renderCombatants()
 }
 
+function rollInit(id) {
+  const c = S.combatants.find(x => x.id === id)
+  if (!c) return
+  const roll = Math.floor(Math.random() * 20) + 1
+  const mod = c.mod || 0
+  c.initiative = roll + mod
+  save(); renderCombatants()
+  const sign = mod >= 0 ? '+' : ''
+  addLog(`🎲 ${c.name}: d20(${roll}) ${sign}${mod} = ${c.initiative}`)
+  toast(`${c.name}: ${roll} ${sign}${mod} = ${c.initiative}`)
+}
+
 function rollAllNPCs() {
   S.combatants.forEach(c => {
     if (c.type !== 'pc') c.initiative = Math.floor(Math.random()*20) + 1 + (c.mod||0)
@@ -482,52 +494,66 @@ function renderCombatants() {
     }).join('')
 
     return `<div id="row-${c.id}" class="combatant type-${c.type} ${isActive?'active':''} ${c.isDead?'dead':''} ${c.isDelaying?'delaying':''} slide-in"
-      onclick="selectActive('${c.id}')" style="padding:10px 12px;cursor:pointer;">
-      <div style="display:flex;align-items:center;gap:10px;">
+      onclick="selectActive('${c.id}')" style="padding:8px 10px;cursor:pointer;">
 
-        <!-- Initiative -->
-        <div style="width:36px;flex-shrink:0;text-align:center;">
+      <!-- TOP ROW: init | dot | name | hp | ac | buttons -->
+      <div style="display:flex;align-items:center;gap:6px;">
+
+        <!-- Init number only -->
+        <div style="flex-shrink:0;text-align:center;width:36px;" onclick="event.stopPropagation()">
           <input type="number" value="${c.initiative}"
             onchange="S.combatants.find(x=>x.id==='${c.id}').initiative=parseInt(this.value)||0;save();renderCombatants()"
-            style="width:100%;text-align:center;font-size:1rem;font-weight:bold;color:${isActive?'var(--orange)':'var(--text)'};background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:2px 0;">
-          <div style="font-size:.55rem;color:var(--muted);">init</div>
+            style="width:100%;text-align:center;font-size:1.05rem;font-weight:bold;color:${isActive?'var(--orange)':'var(--text)'};background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:1px 0;">
+          <div style="font-size:.48rem;color:var(--muted);">INIT</div>
         </div>
 
         <!-- Type dot -->
         <div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${{pc:'var(--teal)',enemy:'var(--red)',neutral:'var(--purple)'}[c.type]};"></div>
 
-        <!-- Name + conditions -->
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            ${isActive ? '<span style="font-size:.6rem;color:var(--orange);font-weight:bold;letter-spacing:.08em;background:rgba(249,115,22,.12);padding:1px 5px;border-radius:3px;">ACTIVE</span>' : ''}
-            ${c.isDelaying ? '<span style="font-size:.6rem;color:var(--muted);font-weight:bold;">DELAY</span>' : ''}
-            <input value="${c.name}" onchange="S.combatants.find(x=>x.id==='${c.id}').name=this.value;save()"
-              style="font-size:.85rem;font-weight:${isActive?'bold':'normal'};color:${c.isDead?'var(--muted)':isActive?'var(--orange)':'var(--text)'};background:transparent;border:none;padding:0;width:auto;min-width:80px;max-width:180px;">
-          </div>
-          ${conds ? `<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;">${conds}</div>` : ''}
-          <div class="hp-bar" style="width:120px;margin-top:${conds?'4px':'3px'};">
-            <div class="hp-fill" style="width:${hpPct}%;background:${hpCol};"></div>
-          </div>
-        </div>
+        <!-- Name (flex:1) -->
+        ${isActive ? '<span style="font-size:.55rem;color:var(--orange);font-weight:bold;background:rgba(249,115,22,.12);padding:1px 4px;border-radius:3px;flex-shrink:0;">▶</span>' : ''}
+        ${c.isDelaying ? '<span style="font-size:.55rem;color:var(--muted);font-weight:bold;flex-shrink:0;">DELAY</span>' : ''}
+        <input value="${c.name}" onchange="S.combatants.find(x=>x.id==='${c.id}').name=this.value;save()" onclick="event.stopPropagation()"
+          style="flex:1 1 0;width:0;min-width:0;font-size:.88rem;font-weight:${isActive?'bold':'normal'};color:${c.isDead?'var(--muted)':isActive?'var(--orange)':'var(--text)'};background:transparent;border:none;padding:0;text-overflow:ellipsis;white-space:nowrap;">
 
-        <!-- HP -->
-        <div style="text-align:center;flex-shrink:0;cursor:pointer;" onclick="openDmgModal('${c.id}')">
-          <div style="font-size:.85rem;font-weight:bold;color:${hpCol};">${c.hp}<span style="font-size:.65rem;color:var(--muted);">/${c.maxHp}</span></div>
-          <div style="font-size:.55rem;color:var(--muted);">HP ✎</div>
+        <!-- HP (click to edit) -->
+        <div style="flex-shrink:0;text-align:right;cursor:pointer;" onclick="event.stopPropagation();openDmgModal('${c.id}')">
+          <div style="font-size:.8rem;font-weight:bold;color:${hpCol};white-space:nowrap;">${c.hp}<span style="font-size:.6rem;color:var(--muted);">/${c.maxHp}</span></div>
+          <div style="font-size:.48rem;color:var(--muted);">HP ✎</div>
         </div>
 
         <!-- AC -->
-        <div style="text-align:center;flex-shrink:0;width:30px;">
-          <div style="font-size:.82rem;font-weight:bold;">${c.ac}</div>
-          <div style="font-size:.55rem;color:var(--muted);">AC</div>
+        <div style="flex-shrink:0;text-align:center;width:28px;">
+          <div style="font-size:.8rem;font-weight:bold;">${c.ac}</div>
+          <div style="font-size:.48rem;color:var(--muted);">AC</div>
         </div>
 
-        <!-- Controls -->
-        <div style="display:flex;gap:3px;flex-shrink:0;">
-          <button onclick="openCondMenu('${c.id}')" class="btn btn-ghost" style="padding:3px 7px;font-size:.65rem;" title="Conditions">±</button>
-          <button onclick="toggleDelay('${c.id}')" class="btn btn-ghost" style="padding:3px 7px;font-size:.65rem;${c.isDelaying?'color:var(--orange);border-color:var(--orange);':''}" title="Delay turn">⏸</button>
-          <button onclick="toggleDead('${c.id}')" class="btn btn-ghost" style="padding:3px 7px;font-size:.65rem;${c.isDead?'color:var(--red);border-color:var(--red);':''}" title="Mark dead">💀</button>
-          <button onclick="removeCombatant('${c.id}')" class="btn btn-danger" style="padding:3px 7px;font-size:.65rem;" title="Remove">✕</button>
+        <!-- Buttons -->
+        <div style="flex-shrink:0;display:flex;gap:2px;" onclick="event.stopPropagation()">
+          <button onclick="openCondMenu('${c.id}')" class="btn btn-ghost" style="padding:2px 5px;font-size:.58rem;" title="Conditions">±</button>
+          <button onclick="toggleDelay('${c.id}')" class="btn btn-ghost" style="padding:2px 5px;font-size:.58rem;${c.isDelaying?'color:var(--orange);border-color:var(--orange);':''}" title="Delay">⏸</button>
+          <button onclick="toggleDead('${c.id}')" class="btn btn-ghost" style="padding:2px 5px;font-size:.58rem;${c.isDead?'color:var(--red);border-color:var(--red);':''}" title="Dead">💀</button>
+          <button onclick="removeCombatant('${c.id}')" class="btn btn-danger" style="padding:2px 5px;font-size:.58rem;" title="Remove">✕</button>
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW: [mod + 🎲] | [hp bar + conditions] -->
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+        <!-- Mod + roll button — aligned under init column -->
+        <div style="flex-shrink:0;display:flex;align-items:center;gap:3px;width:36px;" onclick="event.stopPropagation()">
+          <input type="number" value="${c.mod||0}"
+            onchange="S.combatants.find(x=>x.id==='${c.id}').mod=parseInt(this.value)||0;save()"
+            style="width:24px;text-align:center;font-size:.6rem;color:var(--muted);background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:0;" title="Initiative modifier">
+        </div>
+        <button onclick="rollInit('${c.id}')" title="Roll d20 + modifier"
+          style="flex-shrink:0;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:var(--orange);border-radius:4px;padding:1px 7px;font-size:.62rem;cursor:pointer;line-height:1.4;letter-spacing:.04em;"
+          onmouseover="this.style.background='rgba(249,115,22,.22)'" onmouseout="this.style.background='rgba(249,115,22,.1)'">🎲 Roll</button>
+        <!-- HP bar + conditions -->
+        <div style="flex:1;min-width:0;">
+          <div class="hp-bar" style="width:100%;${conds?'margin-bottom:4px':''}">
+            <div class="hp-fill" style="width:${hpPct}%;background:${hpCol};"></div>
+          </div>
+          ${conds ? `<div style="display:flex;gap:3px;flex-wrap:wrap;">${conds}</div>` : ''}
         </div>
       </div>
     </div>`
