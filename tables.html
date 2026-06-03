@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎲 Random Tables</title>
+<title>ðŸŽ² Random Tables</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="campaign-os.js"></script>
 <style>
@@ -46,7 +46,8 @@
   <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
   <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
   <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
-  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <a href="crafting.html" style="color:var(--muted);text-decoration:none;">Crafting</a>
+  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">ðŸŒ™ Dark</button>
   <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
 </nav>
 <main role="main" aria-label="Random Tables main content">
@@ -78,13 +79,13 @@
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:460px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
       <span style="font-size:.9rem;color:var(--purple);font-weight:bold;">+ NEW TABLE</span>
-      <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;">✕</button>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;">âœ•</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <div><div class="section-label" style="margin-bottom:4px;">TABLE NAME</div>
         <input id="m-name" placeholder="e.g. Tavern Events" style="width:100%;"></div>
       <div><div class="section-label" style="margin-bottom:4px;">ICON (emoji)</div>
-        <input id="m-icon" placeholder="🎲" style="width:80px;"></div>
+        <input id="m-icon" placeholder="ðŸŽ²" style="width:80px;"></div>
       <div><div class="section-label" style="margin-bottom:4px;">CATEGORY</div>
         <input id="m-cat" placeholder="e.g. Scarred Lands, Combat..." style="width:100%;"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
@@ -100,12 +101,12 @@
   <!-- TOP BAR -->
   <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:14px;">
     <a href="index.html" style="color:var(--muted);font-size:.75rem;text-decoration:none;letter-spacing:.05em;transition:color .15s;"
-      onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--muted)'">← SUITE</a>
+      onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--muted)'">â† SUITE</a>
     <div style="width:1px;height:24px;background:var(--border);"></div>
-    <span style="color:var(--purple);font-size:1rem;">🎲</span>
+    <span style="color:var(--purple);font-size:1rem;">ðŸŽ²</span>
     <span style="font-weight:bold;font-size:.82rem;letter-spacing:.08em;">RANDOM TABLES</span>
     <div style="margin-left:auto;display:flex;gap:6px;">
-      <button onclick="rollAll()" class="btn-ghost" style="border-color:rgba(168,85,247,.4);color:var(--purple);">⚡ Roll All Tables</button>
+      <button onclick="rollAll()" class="btn-ghost" style="border-color:rgba(168,85,247,.4);color:var(--purple);">âš¡ Roll All Tables</button>
       <button onclick="clearHistory()" class="btn-ghost">Clear History</button>
       <button onclick="openModal()" style="background:var(--purple);color:#fff;border:none;border-radius:5px;padding:5px 12px;font-family:inherit;font-size:.7rem;cursor:pointer;">+ New Table</button>
     </div>
@@ -128,7 +129,7 @@
             <div id="active-table-name" style="font-size:1.1rem;font-weight:bold;letter-spacing:.06em;"></div>
             <div id="active-table-desc" style="font-size:.7rem;color:var(--muted);margin-top:2px;"></div>
           </div>
-          <button class="btn-roll" onclick="roll()" id="roll-btn">🎲 ROLL</button>
+          <button class="btn-roll" onclick="roll()" id="roll-btn">ðŸŽ² ROLL</button>
         </div>
 
         <!-- Result display -->
@@ -153,7 +154,7 @@
         <div class="section-label">Table Entries</div>
         <div style="display:flex;gap:5px;">
           <span id="entry-count" style="font-size:.6rem;color:var(--muted);"></span>
-          <button onclick="deleteActiveTable()" class="btn-sm" id="del-table-btn" style="display:none;color:rgba(239,68,68,.6);border-color:rgba(239,68,68,.3);">✕ Delete Table</button>
+          <button onclick="deleteActiveTable()" class="btn-sm" id="del-table-btn" style="display:none;color:rgba(239,68,68,.6);border-color:rgba(239,68,68,.3);">âœ• Delete Table</button>
         </div>
       </div>
       <div id="entry-list" style="flex:1;overflow-y:auto;padding:8px;"></div>
@@ -169,34 +170,34 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // BUILT-IN TABLES
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const BUILTIN = [
   {
-    id:'world-events', name:'World Events', icon:'🌍', category:'Scarred Lands', builtin:true,
+    id:'world-events', name:'World Events', icon:'ðŸŒ', category:'Scarred Lands', builtin:true,
     entries:[
-      'A nanite storm sweeps through {region} — everything metal corrodes, living tissue mutates within hours',
+      'A nanite storm sweeps through {region} â€” everything metal corrodes, living tissue mutates within hours',
       'Faction war erupts between two groups over control of a newly discovered Old World ruin',
-      'One of the 108 Wonders activates without warning — reality warps in a 2km radius',
+      'One of the 108 Wonders activates without warning â€” reality warps in a 2km radius',
       'A shadowstorm descends for 3 days, blocking all travel and extinguishing light sources',
       'Mass mutation outbreak in the refugee camps outside the Walled City',
-      'An ancient Guardian construct awakens and begins hunting — it does not distinguish between factions',
-      'Reality glitches spread outward from the Black Zone — physics fails in patches',
+      'An ancient Guardian construct awakens and begins hunting â€” it does not distinguish between factions',
+      'Reality glitches spread outward from the Black Zone â€” physics fails in patches',
       'A Drifter band returns claiming they found something beyond the storms. Half of them are missing',
-      'The Reclaimers announce a major expedition into the Glass Desert — hiring escorts at high rates',
-      'Anti-gravity rain destroys a key bridge between settlements — supply lines collapse',
-      'A faction publicly withdraws from all politics — no explanation is given',
+      'The Reclaimers announce a major expedition into the Glass Desert â€” hiring escorts at high rates',
+      'Anti-gravity rain destroys a key bridge between settlements â€” supply lines collapse',
+      'A faction publicly withdraws from all politics â€” no explanation is given',
       'A new strain of nanite infection is reported. This one has an incubation period of 10 days',
-      'Whispers of a 109th Wonder circulate among the Archivists — the established factions are nervous',
-      'Two factions reach the breaking point — open war within days if nothing changes',
-      'A child born with no nanite corruption is discovered — every faction mobilizes',
+      'Whispers of a 109th Wonder circulate among the Archivists â€” the established factions are nervous',
+      'Two factions reach the breaking point â€” open war within days if nothing changes',
+      'A child born with no nanite corruption is discovered â€” every faction mobilizes',
       'A massive Old World structure surfaces from beneath the Glass Desert after a storm',
-      'Something is jamming all communication devices in a 50km radius — cause unknown',
+      'Something is jamming all communication devices in a 50km radius â€” cause unknown',
     ]
   },
   {
-    id:'npc-quirks', name:'NPC Quirks', icon:'👤', category:'Scarred Lands', builtin:true,
+    id:'npc-quirks', name:'NPC Quirks', icon:'ðŸ‘¤', category:'Scarred Lands', builtin:true,
     entries:[
       'Has a nanite-suppression tattoo that constantly itches and bleeds when near Old World tech',
       'Speaks only in Old World phrases. Communicates perfectly somehow',
@@ -207,22 +208,22 @@ const BUILTIN = [
       'Collects teeth from every creature they kill. Keeps an accurate count',
       'Claims to be the last person to have spoken to the Archivist before she vanished',
       'Has a map tattooed across their entire back. Has never seen it. Does not know what it leads to',
-      'Hums constantly — the exact frequency nanite storms broadcast on',
+      'Hums constantly â€” the exact frequency nanite storms broadcast on',
       'Their shadow moves 2 seconds behind them. They seem unaware of this',
       'Carries a dead Old World communicator. Claims it turns on sometimes. At 3am exactly',
       'Knows the name of every person who has ever died in the region. All of them',
-      'Has two sets of memories — their own, and someone else\'s entirely',
+      'Has two sets of memories â€” their own, and someone else\'s entirely',
       'Blinks at precisely 12-second intervals. Has done so since the last nanite storm they survived',
       'Always knows which direction is north. In the Black Zone. Where compasses fail',
     ]
   },
   {
-    id:'old-world-loot', name:'Old World Loot', icon:'📦', category:'Scarred Lands', builtin:true,
+    id:'old-world-loot', name:'Old World Loot', icon:'ðŸ“¦', category:'Scarred Lands', builtin:true,
     entries:[
       'A sealed canister labeled "Pre-Scarring Atmosphere." Breathable. Incredibly valuable. Probably a fake',
-      'A child\'s toy that hums with low-level nanite energy — harmless, somehow also comforting',
+      'A child\'s toy that hums with low-level nanite energy â€” harmless, somehow also comforting',
       'An Old World data chip. Readable only by an Awakened with the correct mutation',
-      'Medical nanites in a cracked injector — 60% healing, 40% unexpected mutation',
+      'Medical nanites in a cracked injector â€” 60% healing, 40% unexpected mutation',
       'A book in Old World script titled "Containment Protocol 7." 400 pages. Last entry mid-sentence',
       'A working light source powered by technology no living person recognizes',
       'A sealed food ration that smells completely fresh. The expiry date is 90 years ago',
@@ -234,20 +235,20 @@ const BUILTIN = [
       'A photograph of a city that no longer exists. One face has been circled in red ink. One of the NPCs matches',
       'A handwritten journal. The last 40 pages describe events that haven\'t happened yet',
       'A weapon with no moving parts. No one knows how it works. It hums when pointed north',
-      'A glass sphere containing a miniature storm — thumbnail-sized lightning, actual thunder at low volume',
+      'A glass sphere containing a miniature storm â€” thumbnail-sized lightning, actual thunder at low volume',
     ]
   },
   {
-    id:'weather', name:'Storm & Weather', icon:'🌪', category:'Scarred Lands', builtin:true,
+    id:'weather', name:'Storm & Weather', icon:'ðŸŒª', category:'Scarred Lands', builtin:true,
     entries:[
-      'NANITE STORM: Fine blue particles strip metal and corrupt living tissue. Lasts 4–12 hours',
+      'NANITE STORM: Fine blue particles strip metal and corrupt living tissue. Lasts 4â€“12 hours',
       'SHADOWSTORM: Darkness so complete that all light sources extinguish. Things move in it',
       'GLASS RAIN: Shards of fused silica fall at lethal velocity. Cover or die',
       'ANTI-GRAVITY RAIN: Water falls upward. Structural damage to anything above ground level',
       'REALITY GLITCH: A 50m radius exists slightly out of phase with normal space. Don\'t linger',
       'ELEMENTAL CHAOS: Temperature swings 80 degrees in minutes. Ice then fire then ice',
       'TEMPORAL FOG: Time moves at different rates in different pockets of the fog',
-      'NANITE FOG: Low visibility, nanites in the air — corruption accumulates over hours',
+      'NANITE FOG: Low visibility, nanites in the air â€” corruption accumulates over hours',
       'STATIC STORM: Electrical discharge from the sky, drawn to metal and emotion',
       'BLOOD PRESSURE EVENT: Reality "bleeds." Wounds refuse to close for 24 hours',
       'VOID POCKET: A 10m sphere where the laws of physics follow different rules',
@@ -257,50 +258,50 @@ const BUILTIN = [
     ]
   },
   {
-    id:'rumors', name:'Faction Rumors', icon:'👁', category:'Scarred Lands', builtin:true,
+    id:'rumors', name:'Faction Rumors', icon:'ðŸ‘', category:'Scarred Lands', builtin:true,
     entries:[
-      'The Guardians have a secret that would collapse their legitimacy overnight — someone is about to expose it',
-      'The Reclaimers have already activated one of the 108 Wonders — secretly, six months ago',
+      'The Guardians have a secret that would collapse their legitimacy overnight â€” someone is about to expose it',
+      'The Reclaimers have already activated one of the 108 Wonders â€” secretly, six months ago',
       'The Drifters have found a route through the Black Zone. They\'re not sharing it with anyone',
-      'An Awakened faction leader has crossed the threshold — they are no longer human in any meaningful way',
+      'An Awakened faction leader has crossed the threshold â€” they are no longer human in any meaningful way',
       'The Savages are not what they appear. Their "savagery" is deliberate camouflage',
       'Someone is assassinating Neutral scholars. Three archivists dead this month. No witnesses',
       'A new faction is forming in the Glass Desert. Origin unknown. Motives entirely unclear',
       'The Walled City\'s food supply is compromised. Leadership knows. They are hiding it',
       'The 7th Wonder is not where anyone thinks it is. It never was',
       'Someone is purchasing nanite-suppression technology at extraordinary prices. All of it',
-      'A Guardian commander has been meeting secretly with Savage leaders — for two years',
+      'A Guardian commander has been meeting secretly with Savage leaders â€” for two years',
       'The Reclaimers\'s expedition into the Glass Desert did not go missing. They found something and stayed',
       'There are survivors living inside the Black Zone. Have been for years. They\'re changed',
       'The corruption spreading through the refugee camps is not natural. Someone is accelerating it',
     ]
   },
   {
-    id:'encounter-hooks', name:'Encounter Hooks', icon:'⚔️', category:'Scarred Lands', builtin:true,
+    id:'encounter-hooks', name:'Encounter Hooks', icon:'âš”ï¸', category:'Scarred Lands', builtin:true,
     entries:[
       'The party finds a body. Cause of death was not any weapon, storm, or known creature',
       'A child approaches the party with a message addressed to one of them by full name',
-      'An NPC the party believed dead appears — slightly different from how they remember',
+      'An NPC the party believed dead appears â€” slightly different from how they remember',
       'A Guardian patrol asks the party to help track a "missing" Reclaimer expedition',
       'Something has been following the party for 3 days. Today it finally makes itself known',
-      'A Drifter offers a map to the next Wonder — the price is information, not currency',
+      'A Drifter offers a map to the next Wonder â€” the price is information, not currency',
       'The party discovers a sealed survivor cache from before The Scarring. Intact. Occupied',
       'A faction war is about to break out and the party is directly between the two sides',
-      'An Awakened individual collapses near the party — their mutations are catastrophically unstable',
+      'An Awakened individual collapses near the party â€” their mutations are catastrophically unstable',
       'Something from the Black Zone has crossed into the Outer Lands. It is not aggressive. Yet',
       'A building that was empty yesterday is now full of Old World furniture. Occupied, apparently',
       'Every NPC in a settlement has the same dream last night. The party was in it',
-      'A faction representative offers triple rate — but refuses to say what the job actually is',
+      'A faction representative offers triple rate â€” but refuses to say what the job actually is',
       'A storm is coming. Not on the schedule. Not any known type. No one has a word for it',
     ]
   },
   {
-    id:'locations', name:'Location Details', icon:'🏚', category:'Scarred Lands', builtin:true,
+    id:'locations', name:'Location Details', icon:'ðŸš', category:'Scarred Lands', builtin:true,
     entries:[
       'The ruins smell of ozone and old blood. Walls are fused glass and melted metal, still warm',
       'A perfect circle of dead vegetation surrounds the structure. Nothing grows within 20 meters',
       'The floor is covered in blue dust that floats at knee height. It has not settled in decades',
-      'Every reflective surface shows a different image — not the room you are standing in',
+      'Every reflective surface shows a different image â€” not the room you are standing in',
       'Sound stops completely 10 meters from the entrance. You can hear your own heartbeat',
       'Temperature drops 20 degrees suddenly. The nanite detector screams, then goes silent',
       'The same phrase written in Old World script covers every wall. 400 repetitions',
@@ -310,30 +311,30 @@ const BUILTIN = [
       'Three sets of footprints lead in. None lead out. They stop in the middle of a room',
       'The walls are covered in photographs of the same person at different ages. Always afraid',
       'A table is set for a meal that is still warm. No one is here. There are six chairs',
-      'The nanite concentration here is extraordinarily high — and arranged in a deliberate pattern',
+      'The nanite concentration here is extraordinarily high â€” and arranged in a deliberate pattern',
     ]
   },
   {
-    id:'mutations', name:'Mutation Effects', icon:'💉', category:'Scarred Lands', builtin:true,
+    id:'mutations', name:'Mutation Effects', icon:'ðŸ’‰', category:'Scarred Lands', builtin:true,
     entries:[
-      'MINOR — Eyes shift color to match the character\'s current emotional state involuntarily',
-      'MINOR — Hair grows and falls out in cycles of hours instead of months',
-      'MINOR — Skin becomes partially translucent around wounds as they heal',
-      'MODERATE — Nanite veins appear: visible blue lines under skin that pulse with heartbeat',
-      'MODERATE — Voice gains a second, lower harmonic that does not match their voice',
-      'MODERATE — Character occasionally and involuntarily reads surface emotions of anyone they touch',
-      'SEVERE — One hand begins to phase through solid objects involuntarily when emotional',
-      'SEVERE — Character occasionally exists 3 seconds in the future — disorienting for all involved',
-      'SEVERE — A nanite swarm has taken residence — extends from body under extreme stress',
-      'SEVERE — Character\'s shadow moves independently, 4 seconds behind',
-      'CRITICAL — Time around the character moves at 0.9x speed. Everyone else seems slightly faster',
-      'CRITICAL — Character\'s emotions now physically manifest as local weather within 10 meters',
-      'CRITICAL — Character loses the ability to feel pain. Gains the ability to feel everything else twice as strongly',
-      'TERMINAL — The nanites have begun rewriting. Character is becoming something that used to be human',
+      'MINOR â€” Eyes shift color to match the character\'s current emotional state involuntarily',
+      'MINOR â€” Hair grows and falls out in cycles of hours instead of months',
+      'MINOR â€” Skin becomes partially translucent around wounds as they heal',
+      'MODERATE â€” Nanite veins appear: visible blue lines under skin that pulse with heartbeat',
+      'MODERATE â€” Voice gains a second, lower harmonic that does not match their voice',
+      'MODERATE â€” Character occasionally and involuntarily reads surface emotions of anyone they touch',
+      'SEVERE â€” One hand begins to phase through solid objects involuntarily when emotional',
+      'SEVERE â€” Character occasionally exists 3 seconds in the future â€” disorienting for all involved',
+      'SEVERE â€” A nanite swarm has taken residence â€” extends from body under extreme stress',
+      'SEVERE â€” Character\'s shadow moves independently, 4 seconds behind',
+      'CRITICAL â€” Time around the character moves at 0.9x speed. Everyone else seems slightly faster',
+      'CRITICAL â€” Character\'s emotions now physically manifest as local weather within 10 meters',
+      'CRITICAL â€” Character loses the ability to feel pain. Gains the ability to feel everything else twice as strongly',
+      'TERMINAL â€” The nanites have begun rewriting. Character is becoming something that used to be human',
     ]
   },
   {
-    id:'names', name:'Scarred Lands Names', icon:'📛', category:'Generators', builtin:true,
+    id:'names', name:'Scarred Lands Names', icon:'ðŸ“›', category:'Generators', builtin:true,
     entries:[
       'Vara Ashborn', 'Kael Stormwalker', 'Sorra the Broken', 'Drix Ironveil', 'Maren Voss',
       'Thorn Nanite-Kissed', 'Nyx of the Ruins', 'Vess Glassborn', 'Ruin-that-Walks',
@@ -346,9 +347,9 @@ const BUILTIN = [
   },
 ]
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // STATE
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const KEY = 'sl-tables'
 let S = {
   tables: [],        // all tables (builtin + custom)
@@ -386,9 +387,9 @@ function load() {
 
 function activeTable() { return S.tables.find(t => t.id === S.activeId) }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ACTIONS
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function roll(tableId) {
   const t = tableId ? S.tables.find(x=>x.id===tableId) : activeTable()
   if (!t || !t.entries.length) return null
@@ -439,8 +440,8 @@ function selectTable(id) {
   // Clear result
   document.getElementById('result-box').innerHTML = `<span style="font-size:.92rem;color:#94a3b8;">Click Roll to draw from this table...</span>`
   const t = activeTable()
-  document.getElementById('active-table-name').innerHTML = `${t?.icon||'🎲'} ${t?.name||''}`
-  document.getElementById('active-table-desc').textContent = `${t?.entries?.length||0} entries · ${t?.category||''}`
+  document.getElementById('active-table-name').innerHTML = `${t?.icon||'ðŸŽ²'} ${t?.name||''}`
+  document.getElementById('active-table-desc').textContent = `${t?.entries?.length||0} entries Â· ${t?.category||''}`
 }
 
 function addEntry() {
@@ -453,7 +454,7 @@ function addEntry() {
   t._customEntries.push(val)
   document.getElementById('new-entry').value = ''
   save(); renderEntries()
-  document.getElementById('active-table-desc').textContent = `${t.entries.length} entries · ${t.category||''}`
+  document.getElementById('active-table-desc').textContent = `${t.entries.length} entries Â· ${t.category||''}`
   toast('Entry added')
 }
 
@@ -468,7 +469,7 @@ function removeEntry(idx) {
 function createTable() {
   const name = document.getElementById('m-name').value.trim()
   if (!name) { toast('Name required'); return }
-  const icon = document.getElementById('m-icon').value.trim() || '🎲'
+  const icon = document.getElementById('m-icon').value.trim() || 'ðŸŽ²'
   const cat  = document.getElementById('m-cat').value.trim() || 'Custom'
   const id   = 'custom-' + Date.now()
   S.tables.push({ id, name, icon, category: cat, builtin: false, entries: [], _customEntries: [] })
@@ -488,9 +489,9 @@ function deleteActiveTable() {
 function openModal()  { document.getElementById('m-name').value='';document.getElementById('m-icon').value='';document.getElementById('m-cat').value=''; document.getElementById('modal-overlay').classList.add('open') }
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open') }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // RENDER
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderTableList() {
   const categories = [...new Set(S.tables.map(t => t.category))]
   document.getElementById('table-list').innerHTML = categories.map(cat => `
@@ -516,7 +517,7 @@ function renderEntries() {
       <div style="flex:1;font-size:.72rem;color:${t.color||'var(--text)'};line-height:1.4;cursor:pointer;"
         onclick="document.getElementById('result-box').innerHTML='<span class=result-pop style=font-size:.92rem;line-height:1.6;color:${t.color||'var(--text)'};>${e.replace(/'/g,'&#39;').replace(/</g,'&lt;')}</span>'">${e}</div>
       <button onclick="removeEntry(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;flex-shrink:0;opacity:.4;transition:opacity .1s;"
-        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.4'">✕</button>
+        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.4'">âœ•</button>
     </div>`).join('')
 }
 
@@ -534,25 +535,25 @@ function renderHistory() {
       </div>
       <div style="flex:1;font-size:.75rem;line-height:1.4;color:var(--text);">${h.result}</div>
       <button onclick="S.history.splice(${i},1);save();renderHistory()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.7rem;flex-shrink:0;opacity:.3;transition:opacity .1s;"
-        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.3'">✕</button>
+        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.3'">âœ•</button>
     </div>`
   }).join('')
 }
 
 function render() { renderTableList(); renderEntries(); renderHistory() }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // KEYBOARD
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 document.addEventListener('keydown', e => {
   if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return
   if (e.key === 'r' || e.key === 'R' || e.key === ' ') { e.preventDefault(); roll() }
   if (e.key === 'Escape') closeModal()
 })
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // INIT
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 load()
 render()
 selectTable(S.activeId)

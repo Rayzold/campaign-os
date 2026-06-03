@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎵 DM Music & Media</title>
+<title>ðŸŽµ DM Music & Media</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 (function () {
@@ -105,7 +105,8 @@
   <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
   <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
   <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
-  <button type="button" id="theme-toggle" aria-label="Toggle dark or light theme" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <a href="crafting.html" style="color:var(--muted);text-decoration:none;">Crafting</a>
+  <button type="button" id="theme-toggle" aria-label="Toggle dark or light theme" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">ðŸŒ™ Dark</button>
   <button type="button" id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
 </nav>
 
@@ -131,39 +132,39 @@
 
 <div id="toast"></div>
 
-<!-- ═══ VIDEO MODAL ═══ -->
+<!-- â•â•â• VIDEO MODAL â•â•â• -->
 <div id="video-modal" onclick="closeVideoModal(event)">
   <div style="display:flex;gap:8px;z-index:1;">
-    <button onclick="closeVideoModal()" class="btn-ghost">✕ Close</button>
-    <button id="btn-present" class="btn-present">🖥 Present (New Window)</button>
-    <button id="btn-fullscreen" class="btn-ghost">⛶ Fullscreen</button>
+    <button onclick="closeVideoModal()" class="btn-ghost">âœ• Close</button>
+    <button id="btn-present" class="btn-present">ðŸ–¥ Present (New Window)</button>
+    <button id="btn-fullscreen" class="btn-ghost">â›¶ Fullscreen</button>
   </div>
   <video id="modal-video" controls loop style="background:#000;"></video>
   <div id="modal-video-name" style="font-size:.75rem;color:var(--muted);"></div>
 </div>
 
-<!-- ═══ MAIN LAYOUT ═══ -->
+<!-- â•â•â• MAIN LAYOUT â•â•â• -->
 <div style="position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;">
 
   <!-- TOP BAR -->
   <div style="flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:14px;">
     <a href="index.html" style="color:var(--muted);font-size:.75rem;text-decoration:none;letter-spacing:.05em;transition:color .15s;flex-shrink:0;"
-      onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--muted)'">← SUITE</a>
+      onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--muted)'">â† SUITE</a>
     <div style="width:1px;height:24px;background:var(--border);"></div>
     <div style="display:flex;align-items:center;gap:8px;">
-      <span style="color:var(--teal);font-size:1rem;">🎵</span>
+      <span style="color:var(--teal);font-size:1rem;">ðŸŽµ</span>
       <span style="font-weight:bold;font-size:.82rem;letter-spacing:.08em;">MUSIC & MEDIA</span>
     </div>
     <div style="margin-left:auto;display:flex;align-items:center;gap:5px;">
-      <button id="open-audio-btn" class="btn-primary" onclick="openAudioFolder()">📁 Open Audio Folder</button>
-      <button id="open-video-btn" class="btn-ghost" onclick="openVideoFolder()">📁 Open Video Folder</button>
+      <button id="open-audio-btn" class="btn-primary" onclick="openAudioFolder()">ðŸ“ Open Audio Folder</button>
+      <button id="open-video-btn" class="btn-ghost" onclick="openVideoFolder()">ðŸ“ Open Video Folder</button>
     </div>
   </div>
 
   <!-- TABS -->
   <div style="flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:0;">
-    <button class="tab-btn active" id="tab-audio" onclick="setTab('audio')">🎵 AUDIO</button>
-    <button class="tab-btn" id="tab-video" onclick="setTab('video')">🎬 VIDEO</button>
+    <button class="tab-btn active" id="tab-audio" onclick="setTab('audio')">ðŸŽµ AUDIO</button>
+    <button class="tab-btn" id="tab-video" onclick="setTab('video')">ðŸŽ¬ VIDEO</button>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
       <input type="text" id="search" placeholder="search files..." oninput="onSearch(this.value)"
         style="width:180px;font-size:.75rem;">
@@ -182,7 +183,7 @@
     <!-- FILE LIST -->
     <div style="flex:1;overflow-y:auto;padding:10px 12px;" id="file-area">
       <div id="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--border);text-align:center;padding:40px;">
-        <div style="font-size:3rem;margin-bottom:12px;opacity:.4;">🎵</div>
+        <div style="font-size:3rem;margin-bottom:12px;opacity:.4;">ðŸŽµ</div>
         <div style="font-size:.82rem;color:var(--muted);letter-spacing:.1em;margin-bottom:6px;">NO FOLDER OPEN</div>
         <div style="font-size:.7rem;color:var(--text-subtle);">Click "Open Audio Folder" to browse your music</div>
         <div style="font-size:.65rem;color:var(--text-subtle);margin-top:4px;opacity:.85;">Requires Chrome or Edge</div>
@@ -193,7 +194,7 @@
   </div>
 </div>
 
-<!-- ═══ AUDIO PLAYER BAR ═══ -->
+<!-- â•â•â• AUDIO PLAYER BAR â•â•â• -->
 <div id="player-bar">
   <!-- Track info -->
   <div style="min-width:0;flex-shrink:0;max-width:220px;">
@@ -203,9 +204,9 @@
 
   <!-- Controls -->
   <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-    <button class="ctrl-btn" onclick="prevTrack()" title="Previous">⏮</button>
-    <button class="ctrl-btn" id="play-btn" onclick="togglePlay()" style="font-size:1.3rem;">▶</button>
-    <button class="ctrl-btn" onclick="nextTrack()" title="Next">⏭</button>
+    <button class="ctrl-btn" onclick="prevTrack()" title="Previous">â®</button>
+    <button class="ctrl-btn" id="play-btn" onclick="togglePlay()" style="font-size:1.3rem;">â–¶</button>
+    <button class="ctrl-btn" onclick="nextTrack()" title="Next">â­</button>
   </div>
 
   <!-- Progress -->
@@ -221,11 +222,11 @@
 
   <!-- Volume + Loop -->
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-    <span style="font-size:.8rem;">🔊</span>
+    <span style="font-size:.8rem;">ðŸ”Š</span>
     <input type="range" id="vol" min="0" max="1" step="0.02" value="0.8" oninput="setVolume(this.value)"
       style="width:70px;accent-color:var(--teal);cursor:pointer;">
-    <button id="loop-btn" class="btn-ghost" onclick="toggleLoop()" style="font-size:.65rem;padding:3px 7px;">🔁 Loop</button>
-    <button class="btn-ghost" onclick="stopAudio()" style="font-size:.65rem;padding:3px 7px;color:rgba(239,68,68,.6);border-color:rgba(239,68,68,.3);">■ Stop</button>
+    <button id="loop-btn" class="btn-ghost" onclick="toggleLoop()" style="font-size:.65rem;padding:3px 7px;">ðŸ” Loop</button>
+    <button class="btn-ghost" onclick="stopAudio()" style="font-size:.65rem;padding:3px 7px;color:rgba(239,68,68,.6);border-color:rgba(239,68,68,.3);">â–  Stop</button>
   </div>
 </div>
 
@@ -233,50 +234,50 @@
 <audio id="audio" onended="onTrackEnd()" ontimeupdate="updateProgress()" onloadedmetadata="onMeta()"></audio>
 
 <script>
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // CONSTANTS
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const AUDIO_EXTS = ['mp3','wav','ogg','flac','m4a','aac','opus','wma','aiff']
 const VIDEO_EXTS = ['mp4','webm','mkv','mov','avi','m4v','ogv','wmv']
 const STORAGE_KEY = 'sl-music-tags'
 
 const AUDIO_CATS = [
-  { id:'ambience',    label:'🌿 Ambience',     color:'#22c55e'  },
-  { id:'battle',      label:'⚔️ Battle',        color:'#ef4444'  },
-  { id:'exploration', label:'🗺️ Exploration',   color:'#14b8a6'  },
-  { id:'tension',     label:'😰 Tension',       color:'#f97316'  },
-  { id:'epic',        label:'🎺 Epic',           color:'#a855f7'  },
-  { id:'town',        label:'🏙️ Town / Tavern', color:'#eab308'  },
-  { id:'dark',        label:'💀 Dark / Horror', color:'#94a3b8'  },
-  { id:'other',       label:'🎵 Other',          color:'#64748b'  },
-  { id:'uncategorized', label:'❓ Unsorted',    color:'#2a2a3a'  },
+  { id:'ambience',    label:'ðŸŒ¿ Ambience',     color:'#22c55e'  },
+  { id:'battle',      label:'âš”ï¸ Battle',        color:'#ef4444'  },
+  { id:'exploration', label:'ðŸ—ºï¸ Exploration',   color:'#14b8a6'  },
+  { id:'tension',     label:'ðŸ˜° Tension',       color:'#f97316'  },
+  { id:'epic',        label:'ðŸŽº Epic',           color:'#a855f7'  },
+  { id:'town',        label:'ðŸ™ï¸ Town / Tavern', color:'#eab308'  },
+  { id:'dark',        label:'ðŸ’€ Dark / Horror', color:'#94a3b8'  },
+  { id:'other',       label:'ðŸŽµ Other',          color:'#64748b'  },
+  { id:'uncategorized', label:'â“ Unsorted',    color:'#2a2a3a'  },
 ]
 
 const VIDEO_CATS = [
-  { id:'temple-amb',       label:'🏛 Temple — Ambience',      color:'#c084fc', group:'Temple'     },
-  { id:'temple-battle',    label:'🏛 Temple — Battle',         color:'#ef4444', group:'Temple'     },
-  { id:'city-amb',         label:'🏙 City / Town — Ambience', color:'#eab308', group:'City'       },
-  { id:'city-battle',      label:'🏙 City / Town — Battle',   color:'#ef4444', group:'City'       },
-  { id:'wilderness-amb',   label:'🌲 Wilderness — Ambience',  color:'#22c55e', group:'Wilderness' },
-  { id:'wilderness-battle',label:'🌲 Wilderness — Battle',    color:'#ef4444', group:'Wilderness' },
-  { id:'dungeon-amb',      label:'🏚 Dungeon — Ambience',     color:'#a855f7', group:'Dungeon'    },
-  { id:'dungeon-battle',   label:'🏚 Dungeon — Battle',       color:'#ef4444', group:'Dungeon'    },
-  { id:'overworld-amb',    label:'🌍 Overworld — Ambience',   color:'#14b8a6', group:'Overworld'  },
-  { id:'overworld-battle', label:'🌍 Overworld — Battle',     color:'#ef4444', group:'Overworld'  },
-  { id:'cave-amb',         label:'🕳 Cave — Ambience',        color:'#a8a29e', group:'Cave'       },
-  { id:'cave-battle',      label:'🕳 Cave — Battle',          color:'#ef4444', group:'Cave'       },
-  { id:'ruins-amb',        label:'🏗 Ruins — Ambience',       color:'#78716c', group:'Ruins'      },
-  { id:'ruins-battle',     label:'🏗 Ruins — Battle',         color:'#ef4444', group:'Ruins'      },
-  { id:'ship-amb',         label:'⛵ Ship / Sea — Ambience',  color:'#3b82f6', group:'Ship'       },
-  { id:'ship-battle',      label:'⛵ Ship / Sea — Battle',    color:'#ef4444', group:'Ship'       },
-  { id:'cinematic',        label:'🎬 Cinematic',               color:'#60a5fa', group:null         },
-  { id:'other',            label:'📽 Other',                   color:'#64748b', group:null         },
-  { id:'uncategorized',    label:'❓ Unsorted',               color:'#2a2a3a', group:null         },
+  { id:'temple-amb',       label:'ðŸ› Temple â€” Ambience',      color:'#c084fc', group:'Temple'     },
+  { id:'temple-battle',    label:'ðŸ› Temple â€” Battle',         color:'#ef4444', group:'Temple'     },
+  { id:'city-amb',         label:'ðŸ™ City / Town â€” Ambience', color:'#eab308', group:'City'       },
+  { id:'city-battle',      label:'ðŸ™ City / Town â€” Battle',   color:'#ef4444', group:'City'       },
+  { id:'wilderness-amb',   label:'ðŸŒ² Wilderness â€” Ambience',  color:'#22c55e', group:'Wilderness' },
+  { id:'wilderness-battle',label:'ðŸŒ² Wilderness â€” Battle',    color:'#ef4444', group:'Wilderness' },
+  { id:'dungeon-amb',      label:'ðŸš Dungeon â€” Ambience',     color:'#a855f7', group:'Dungeon'    },
+  { id:'dungeon-battle',   label:'ðŸš Dungeon â€” Battle',       color:'#ef4444', group:'Dungeon'    },
+  { id:'overworld-amb',    label:'ðŸŒ Overworld â€” Ambience',   color:'#14b8a6', group:'Overworld'  },
+  { id:'overworld-battle', label:'ðŸŒ Overworld â€” Battle',     color:'#ef4444', group:'Overworld'  },
+  { id:'cave-amb',         label:'ðŸ•³ Cave â€” Ambience',        color:'#a8a29e', group:'Cave'       },
+  { id:'cave-battle',      label:'ðŸ•³ Cave â€” Battle',          color:'#ef4444', group:'Cave'       },
+  { id:'ruins-amb',        label:'ðŸ— Ruins â€” Ambience',       color:'#78716c', group:'Ruins'      },
+  { id:'ruins-battle',     label:'ðŸ— Ruins â€” Battle',         color:'#ef4444', group:'Ruins'      },
+  { id:'ship-amb',         label:'â›µ Ship / Sea â€” Ambience',  color:'#3b82f6', group:'Ship'       },
+  { id:'ship-battle',      label:'â›µ Ship / Sea â€” Battle',    color:'#ef4444', group:'Ship'       },
+  { id:'cinematic',        label:'ðŸŽ¬ Cinematic',               color:'#60a5fa', group:null         },
+  { id:'other',            label:'ðŸ“½ Other',                   color:'#64748b', group:null         },
+  { id:'uncategorized',    label:'â“ Unsorted',               color:'#2a2a3a', group:null         },
 ]
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // STATE
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const S = {
   tab: 'audio',
   audioFiles: [],
@@ -291,9 +292,9 @@ const S = {
   looping: false,
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PERSISTENCE
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function saveTags() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S.tags)) } catch(e){} }
 function loadTags() { try { const r = localStorage.getItem(STORAGE_KEY); if(r) S.tags = JSON.parse(r) } catch(e){} }
 
@@ -305,9 +306,9 @@ function setTag(name, cat) {
   saveTags()
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // FILE SYSTEM
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function openAudioFolder() {
   if (!window.showDirectoryPicker) { toast('Requires Chrome or Edge browser'); return }
   try {
@@ -315,17 +316,17 @@ async function openAudioFolder() {
     S.audioHandle = handle
     S.audioFiles = []
     const btn = document.getElementById('open-audio-btn')
-    btn.textContent = '⏳ Scanning...'
+    btn.textContent = 'â³ Scanning...'
     btn.disabled = true
     await scanDir(handle, S.audioFiles, AUDIO_EXTS)
     // Apply saved tags
     for (const f of S.audioFiles) f.category = getTag(f.name)
-    btn.textContent = `📁 ${handle.name} (${S.audioFiles.length})`
+    btn.textContent = `ðŸ“ ${handle.name} (${S.audioFiles.length})`
     btn.disabled = false
     toast(`Found ${S.audioFiles.length} audio files`)
     render()
   } catch(e) {
-    document.getElementById('open-audio-btn').textContent = '📁 Open Audio Folder'
+    document.getElementById('open-audio-btn').textContent = 'ðŸ“ Open Audio Folder'
     document.getElementById('open-audio-btn').disabled = false
     if (e.name !== 'AbortError') toast('Could not open folder')
   }
@@ -338,16 +339,16 @@ async function openVideoFolder() {
     S.videoHandle = handle
     S.videoFiles = []
     const btn = document.getElementById('open-video-btn')
-    btn.textContent = '⏳ Scanning...'
+    btn.textContent = 'â³ Scanning...'
     btn.disabled = true
     await scanDir(handle, S.videoFiles, VIDEO_EXTS)
     for (const f of S.videoFiles) f.category = getTag(f.name, true)
-    btn.textContent = `📁 ${handle.name} (${S.videoFiles.length})`
+    btn.textContent = `ðŸ“ ${handle.name} (${S.videoFiles.length})`
     btn.disabled = false
     toast(`Found ${S.videoFiles.length} video files`)
     render()
   } catch(e) {
-    document.getElementById('open-video-btn').textContent = '📁 Open Video Folder'
+    document.getElementById('open-video-btn').textContent = 'ðŸ“ Open Video Folder'
     document.getElementById('open-video-btn').disabled = false
     if (e.name !== 'AbortError') toast('Could not open folder')
   }
@@ -373,9 +374,9 @@ async function getURL(fileEntry) {
   return fileEntry.url
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // FILTERS
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function setTab(t) {
   S.tab = t; S.activeCat = 'all'; S.search = ''
   document.getElementById('search').value = ''
@@ -407,9 +408,9 @@ function filtered() {
   })
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // AUDIO PLAYER
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const audio = document.getElementById('audio')
 
 async function playFile(fileEntry, idx) {
@@ -418,7 +419,7 @@ async function playFile(fileEntry, idx) {
   audio.src = url
   audio.volume = parseFloat(document.getElementById('vol').value)
   audio.play()
-  document.getElementById('play-btn').textContent = '⏸'
+  document.getElementById('play-btn').textContent = 'â¸'
   document.getElementById('player-bar').classList.add('visible')
   document.getElementById('track-name').textContent = fileEntry.name.replace(/\.[^.]+$/, '')
   const cats = AUDIO_CATS
@@ -428,8 +429,8 @@ async function playFile(fileEntry, idx) {
 }
 
 function togglePlay() {
-  if (audio.paused) { audio.play(); document.getElementById('play-btn').textContent = '⏸' }
-  else { audio.pause(); document.getElementById('play-btn').textContent = '▶' }
+  if (audio.paused) { audio.play(); document.getElementById('play-btn').textContent = 'â¸' }
+  else { audio.pause(); document.getElementById('play-btn').textContent = 'â–¶' }
 }
 
 function stopAudio() {
@@ -491,9 +492,9 @@ function fmtTime(s) {
   return `${m}:${sec.toString().padStart(2,'0')}`
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // VIDEO PLAYER
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let currentVideoEntry = null
 
 async function openVideo(fileEntry) {
@@ -512,7 +513,7 @@ async function downloadVideo(fileEntry) {
   a.href = url
   a.download = fileEntry.name
   a.click()
-  toast('File saved to Downloads — open it with any player')
+  toast('File saved to Downloads â€” open it with any player')
 }
 
 function showPath(fileEntry) {
@@ -567,18 +568,18 @@ document.getElementById('btn-fullscreen').onclick = () => {
   else if (vid.webkitRequestFullscreen) vid.webkitRequestFullscreen()
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // CATEGORY ASSIGNMENT
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function assignCat(fileEntry, catId) {
   fileEntry.category = catId
   setTag(fileEntry.name, catId)
   render()
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // RENDER
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function catColor(catId, isVideo) {
   const list = isVideo ? VIDEO_CATS : AUDIO_CATS
   return (list.find(c => c.id === catId) || {}).color || '#4a4a6a'
@@ -621,7 +622,7 @@ function renderSidebar() {
         const isAmb = c.id.endsWith('-amb')
         html += `<button class="cat-btn ${S.activeCat===c.id?'active':''}" onclick="setCat('${c.id}')"
           style="color:${S.activeCat===c.id?c.color:''};padding-left:18px;">
-          <span style="font-size:.68rem;">${isAmb ? '🔊 Ambience' : '⚔ Battle'}</span>
+          <span style="font-size:.68rem;">${isAmb ? 'ðŸ”Š Ambience' : 'âš” Battle'}</span>
           <span style="font-size:.6rem;color:var(--muted);">${counts[c.id]||0}</span>
         </button>`
       }
@@ -658,7 +659,7 @@ function renderList() {
   const hasFolder = isVideo ? S.videoFiles.length > 0 : S.audioFiles.length > 0
   if (!hasFolder) {
     emptyEl.style.display = 'flex'; listEl.innerHTML = ''
-    emptyEl.innerHTML = `<div style="font-size:2.5rem;margin-bottom:12px;opacity:.3;">${isVideo?'🎬':'🎵'}</div>
+    emptyEl.innerHTML = `<div style="font-size:2.5rem;margin-bottom:12px;opacity:.3;">${isVideo?'ðŸŽ¬':'ðŸŽµ'}</div>
       <div style="font-size:.82rem;color:var(--muted);letter-spacing:.1em;margin-bottom:6px;">NO FOLDER OPEN</div>
       <div style="font-size:.7rem;color:var(--text-subtle);">Click "Open ${isVideo?'Video':'Audio'} Folder" above</div>`
     return
@@ -685,14 +686,14 @@ function renderList() {
 
     if (isVideo) {
       return `<div class="file-row" style="border-color:transparent;align-items:flex-start;gap:10px;padding:10px;">
-        <span style="font-size:1rem;flex-shrink:0;margin-top:2px;">🎬</span>
+        <span style="font-size:1rem;flex-shrink:0;margin-top:2px;">ðŸŽ¬</span>
         <div style="flex:1;min-width:0;">
           <div style="font-size:.8rem;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${f.path}">${f.name.replace(/\.[^.]+$/,'')}</div>
           ${subfolder ? `<div style="font-size:.6rem;color:var(--muted);margin-top:1px;">${subfolder}</div>` : ''}
           <div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;">
-            <button onclick="openVideo(S.videoFiles.find(x=>x.name==='${esc(f.name)}'))" class="btn-present" style="font-size:.68rem;padding:4px 10px;flex-shrink:0;">▶ Play</button>
-            <button onclick="downloadVideo(S.videoFiles.find(x=>x.name==='${esc(f.name)}'))" class="btn-ghost" style="font-size:.68rem;padding:4px 10px;flex-shrink:0;" title="Download so you can open with any program">⎋ Open With…</button>
-            <button onclick="showPath(S.videoFiles.find(x=>x.name==='${esc(f.name)}'))" class="btn-ghost" style="font-size:.68rem;padding:4px 10px;flex-shrink:0;">📂 Folder</button>
+            <button onclick="openVideo(S.videoFiles.find(x=>x.name==='${esc(f.name)}'))" class="btn-present" style="font-size:.68rem;padding:4px 10px;flex-shrink:0;">â–¶ Play</button>
+            <button onclick="downloadVideo(S.videoFiles.find(x=>x.name==='${esc(f.name)}'))" class="btn-ghost" style="font-size:.68rem;padding:4px 10px;flex-shrink:0;" title="Download so you can open with any program">âŽ‹ Open Withâ€¦</button>
+            <button onclick="showPath(S.videoFiles.find(x=>x.name==='${esc(f.name)}'))" class="btn-ghost" style="font-size:.68rem;padding:4px 10px;flex-shrink:0;">ðŸ“‚ Folder</button>
           </div>
         </div>
         <select onchange="assignCat(S.videoFiles.find(x=>x.name==='${esc(f.name)}'), this.value)"
@@ -705,7 +706,7 @@ function renderList() {
 
     return `<div class="file-row ${isPlaying?'playing':''}"
       onclick="playFile(S.audioFiles.find(x=>x.name==='${esc(f.name)}'), ${S.audioFiles.indexOf(f)})">
-      <span style="font-size:.85rem;flex-shrink:0;">${isPlaying ? '🔊' : '♪'}</span>
+      <span style="font-size:.85rem;flex-shrink:0;">${isPlaying ? 'ðŸ”Š' : 'â™ª'}</span>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.78rem;font-weight:${isPlaying?'bold':'normal'};color:${isPlaying?'var(--teal)':'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name.replace(/\.[^.]+$/,'')}</div>
         ${subfolder ? `<div style="font-size:.6rem;color:var(--muted);">${subfolder}</div>` : ''}
@@ -726,9 +727,9 @@ function assignCatAudio(sel, name, catId) {
 
 function esc(s) { return String(s||'').replace(/'/g,"\\'") }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TOAST
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let toastT
 function toast(msg) {
   const el = document.getElementById('toast')
@@ -736,9 +737,9 @@ function toast(msg) {
   clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2800)
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // INIT
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 loadTags()
 setTab('audio')
 

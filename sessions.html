@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📖 Session Notes</title>
+<title>ðŸ“– Session Notes</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="campaign-os.js"></script>
 <style>
@@ -57,7 +57,8 @@
   <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
   <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
   <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
-  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <a href="crafting.html" style="color:var(--muted);text-decoration:none;">Crafting</a>
+  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">ðŸŒ™ Dark</button>
   <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
 </nav>
 <main role="main" aria-label="Session Notes main content">
@@ -89,12 +90,12 @@
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:640px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column;gap:12px;">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:.9rem;color:var(--yellow);font-weight:bold;">EXPORT SESSION</span>
-      <button onclick="closeExport()" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;">✕</button>
+      <button onclick="closeExport()" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;">âœ•</button>
     </div>
     <textarea id="export-text" readonly style="flex:1;min-height:400px;font-size:.75rem;line-height:1.6;background:var(--surface2);border-color:var(--border);resize:none;"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button onclick="copyExport()" class="btn-ghost">📋 Copy</button>
-      <button onclick="downloadExport()" class="btn-primary">↓ Download .txt</button>
+      <button onclick="copyExport()" class="btn-ghost">ðŸ“‹ Copy</button>
+      <button onclick="downloadExport()" class="btn-primary">â†“ Download .txt</button>
     </div>
   </div>
 </div>
@@ -104,13 +105,13 @@
   <!-- TOP BAR -->
   <div style="flex-shrink:0;background:#09091a;border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:14px;">
     <a href="index.html" style="color:var(--muted);font-size:.75rem;text-decoration:none;letter-spacing:.05em;transition:color .15s;"
-      onmouseover="this.style.color='var(--yellow)'" onmouseout="this.style.color='var(--muted)'">← SUITE</a>
+      onmouseover="this.style.color='var(--yellow)'" onmouseout="this.style.color='var(--muted)'">â† SUITE</a>
     <div style="width:1px;height:24px;background:var(--border);"></div>
-    <span style="color:var(--yellow);font-size:1rem;">📖</span>
+    <span style="color:var(--yellow);font-size:1rem;">ðŸ“–</span>
     <span style="font-weight:bold;font-size:.82rem;letter-spacing:.08em;">SESSION NOTES</span>
     <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
       <span id="session-count" style="font-size:.65rem;color:var(--muted);"></span>
-      <button onclick="exportAll()" class="btn-ghost">↑ Export All</button>
+      <button onclick="exportAll()" class="btn-ghost">â†‘ Export All</button>
       <button onclick="newSession()" class="btn-primary">+ New Session</button>
     </div>
   </div>
@@ -134,9 +135,9 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // STATE & PERSISTENCE
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const KEY = 'sl-sessions'
 let S = { sessions: [], activeId: null, activeTab: 'overview' }
 
@@ -152,9 +153,9 @@ function getSession(id) { return S.sessions.find(s => s.id === id) }
 
 function activeSession() { return getSession(S.activeId) }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // SESSION ACTIONS
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function newSession() {
   const num = S.sessions.length ? Math.max(...S.sessions.map(s=>s.number||0)) + 1 : 1
   const session = {
@@ -216,27 +217,27 @@ function editBullet(id, field, idx, val) {
 
 function setTab(tab) { S.activeTab = tab; renderEditor() }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PRESSURE COLOR
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function pColor(p) { return p<40?'#22c55e':p<65?'#eab308':p<85?'#f97316':'#ef4444' }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // EXPORT
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function sessionToText(s) {
   const lines = []
-  lines.push(`${'═'.repeat(60)}`)
+  lines.push(`${'â•'.repeat(60)}`)
   lines.push(`SESSION ${s.number}: ${s.title}`)
   lines.push(`Date: ${s.date}  |  Status: ${s.status.toUpperCase()}`)
-  lines.push(`Pressure: ${s.pressureStart}% → ${s.pressureEnd}%`)
-  lines.push(`${'─'.repeat(60)}`)
+  lines.push(`Pressure: ${s.pressureStart}% â†’ ${s.pressureEnd}%`)
+  lines.push(`${'â”€'.repeat(60)}`)
   if (s.recap) { lines.push('RECAP'); lines.push(s.recap); lines.push('') }
-  if (s.keyMoments?.length)     { lines.push('KEY MOMENTS'); s.keyMoments.forEach(m=>lines.push(`  • ${m}`)); lines.push('') }
-  if (s.npcsEncountered?.length){ lines.push('NPCS ENCOUNTERED'); s.npcsEncountered.forEach(n=>lines.push(`  • ${n}`)); lines.push('') }
-  if (s.unresolvedThreads?.length){ lines.push('UNRESOLVED THREADS'); s.unresolvedThreads.forEach(t=>lines.push(`  • ${t}`)); lines.push('') }
-  if (s.factionMoves?.length)   { lines.push('FACTION MOVES'); s.factionMoves.forEach(f=>lines.push(`  • ${f}`)); lines.push('') }
-  if (s.playerDecisions?.length){ lines.push('PLAYER DECISIONS'); s.playerDecisions.forEach(d=>lines.push(`  • ${d}`)); lines.push('') }
+  if (s.keyMoments?.length)     { lines.push('KEY MOMENTS'); s.keyMoments.forEach(m=>lines.push(`  â€¢ ${m}`)); lines.push('') }
+  if (s.npcsEncountered?.length){ lines.push('NPCS ENCOUNTERED'); s.npcsEncountered.forEach(n=>lines.push(`  â€¢ ${n}`)); lines.push('') }
+  if (s.unresolvedThreads?.length){ lines.push('UNRESOLVED THREADS'); s.unresolvedThreads.forEach(t=>lines.push(`  â€¢ ${t}`)); lines.push('') }
+  if (s.factionMoves?.length)   { lines.push('FACTION MOVES'); s.factionMoves.forEach(f=>lines.push(`  â€¢ ${f}`)); lines.push('') }
+  if (s.playerDecisions?.length){ lines.push('PLAYER DECISIONS'); s.playerDecisions.forEach(d=>lines.push(`  â€¢ ${d}`)); lines.push('') }
   if (s.cliffhanger)            { lines.push('CLIFFHANGER / END'); lines.push(s.cliffhanger); lines.push('') }
   if (s.gmNotes)                { lines.push('GM NOTES'); lines.push(s.gmNotes); lines.push('') }
   return lines.join('\n')
@@ -269,9 +270,9 @@ function downloadExport() {
   toast('Downloaded')
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // BULLET LIST HELPER
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function bulletSection(s, field, label, placeholder, color='var(--yellow)') {
   const items = s[field] || []
   return `
@@ -280,13 +281,13 @@ function bulletSection(s, field, label, placeholder, color='var(--yellow)') {
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:8px;">
       ${items.map((item,i) => `
         <div class="bullet-item">
-          <span style="color:${color};font-size:.8rem;margin-top:2px;flex-shrink:0;">▸</span>
+          <span style="color:${color};font-size:.8rem;margin-top:2px;flex-shrink:0;">â–¸</span>
           <input value="${esc(item)}"
             onchange="editBullet('${s.id}','${field}',${i},this.value)"
             style="flex:1;background:transparent;border:none;border-bottom:1px solid transparent;border-radius:0;padding:1px 2px;font-size:.78rem;color:var(--text);"
             onfocus="this.style.borderBottomColor='var(--yellow)'" onblur="this.style.borderBottomColor='transparent'">
           <button onclick="removeBullet('${s.id}','${field}',${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;opacity:.4;transition:opacity .1s;flex-shrink:0;"
-            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.4'">✕</button>
+            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.4'">âœ•</button>
         </div>`).join('')}
       <div style="display:flex;gap:6px;margin-top:${items.length?'8px':'0'};">
         <span style="color:${color};font-size:.8rem;margin-top:6px;flex-shrink:0;">+</span>
@@ -302,9 +303,9 @@ function bulletSection(s, field, label, placeholder, color='var(--yellow)') {
   </div>`
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // RENDER: SESSION LIST
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderSessionList() {
   const q = document.getElementById('session-search')?.value.toLowerCase() || ''
   const filtered = S.sessions.filter(s =>
@@ -317,14 +318,14 @@ function renderSessionList() {
       <button class="session-btn ${s.id===S.activeId?'active':''}" onclick="selectSession('${s.id}')">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
           <span style="font-size:.72rem;font-weight:bold;color:${s.id===S.activeId?'var(--yellow)':'var(--text)'};">
-            S${s.number} — ${s.title}
+            S${s.number} â€” ${s.title}
           </span>
           <span class="status-badge s-${s.status.replace(' ','')}">
-            ${s.status==='complete'?'✓':s.status==='inprogress'?'●':'○'}
+            ${s.status==='complete'?'âœ“':s.status==='inprogress'?'â—':'â—‹'}
           </span>
         </div>
         <div style="font-size:.6rem;color:var(--muted);">${s.date}</div>
-        ${s.recap ? `<div style="font-size:.62rem;color:#4a4a6a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.recap.slice(0,55)}${s.recap.length>55?'…':''}</div>` : ''}
+        ${s.recap ? `<div style="font-size:.62rem;color:#4a4a6a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.recap.slice(0,55)}${s.recap.length>55?'â€¦':''}</div>` : ''}
       </button>`).join('')
     : `<div style="font-size:.72rem;color:#2a2a3a;padding:10px;text-align:center;">No sessions found</div>`
 }
@@ -334,16 +335,16 @@ function selectSession(id) {
   save(); renderSessionList(); renderEditor()
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // RENDER: EDITOR
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderEditor() {
   const el = document.getElementById('editor-area')
   const s = activeSession()
 
   if (!s) {
     el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--border);text-align:center;padding:40px;">
-      <div style="font-size:3rem;margin-bottom:12px;opacity:.3;">📖</div>
+      <div style="font-size:3rem;margin-bottom:12px;opacity:.3;">ðŸ“–</div>
       <div style="font-size:.82rem;color:#1e1e2e;letter-spacing:.1em;margin-bottom:6px;">NO SESSION SELECTED</div>
       <div style="font-size:.7rem;color:#161625;">Click "+ New Session" to start logging</div>
     </div>`
@@ -375,14 +376,14 @@ function renderEditor() {
         </div>
         <div style="display:flex;gap:5px;flex-shrink:0;align-items:flex-start;">
           <select onchange="updateField('${s.id}','status',this.value)" style="font-size:.7rem;padding:3px 5px;">
-            <option value="draft" ${s.status==='draft'?'selected':''}>○ Draft</option>
-            <option value="inprogress" ${s.status==='inprogress'?'selected':''}>● In Progress</option>
-            <option value="complete" ${s.status==='complete'?'selected':''}>✓ Complete</option>
+            <option value="draft" ${s.status==='draft'?'selected':''}>â—‹ Draft</option>
+            <option value="inprogress" ${s.status==='inprogress'?'selected':''}>â— In Progress</option>
+            <option value="complete" ${s.status==='complete'?'selected':''}>âœ“ Complete</option>
           </select>
           <input type="date" value="${s.date}" onchange="updateField('${s.id}','date',this.value)"
             style="font-size:.7rem;padding:3px 5px;">
-          <button onclick="exportSession('${s.id}')" class="btn-ghost" style="font-size:.68rem;padding:3px 8px;">↑ Export</button>
-          <button onclick="deleteSession('${s.id}')" class="btn-danger" style="font-size:.68rem;padding:3px 8px;">✕</button>
+          <button onclick="exportSession('${s.id}')" class="btn-ghost" style="font-size:.68rem;padding:3px 8px;">â†‘ Export</button>
+          <button onclick="deleteSession('${s.id}')" class="btn-danger" style="font-size:.68rem;padding:3px 8px;">âœ•</button>
         </div>
       </div>
 
@@ -430,22 +431,22 @@ function renderOverview(s) {
   return `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
     <div style="grid-column:1/-1;" class="field-group">
-      <div class="section-label">📋 RECAP (1–2 sentences)</div>
+      <div class="section-label">ðŸ“‹ RECAP (1â€“2 sentences)</div>
       <textarea rows="3" style="width:100%;font-size:.8rem;line-height:1.5;"
         onchange="updateField('${s.id}','recap',this.value)"
         placeholder="What happened this session in plain terms...">${esc(s.recap||'')}</textarea>
     </div>
 
     <div>
-      ${bulletSection(s,'keyMoments','⭐ KEY MOMENTS','Add a moment... (Enter to save)','var(--yellow)')}
+      ${bulletSection(s,'keyMoments','â­ KEY MOMENTS','Add a moment... (Enter to save)','var(--yellow)')}
     </div>
 
     <div>
-      ${bulletSection(s,'playerDecisions','🎯 PLAYER DECISIONS','Notable choice the players made...','var(--teal)')}
+      ${bulletSection(s,'playerDecisions','ðŸŽ¯ PLAYER DECISIONS','Notable choice the players made...','var(--teal)')}
     </div>
 
     <div style="grid-column:1/-1;" class="field-group">
-      <div class="section-label">🔚 CLIFFHANGER / SESSION END</div>
+      <div class="section-label">ðŸ”š CLIFFHANGER / SESSION END</div>
       <textarea rows="2" style="width:100%;font-size:.8rem;line-height:1.5;"
         onchange="updateField('${s.id}','cliffhanger',this.value)"
         placeholder="How did the session end? What's the hook for next time?">${esc(s.cliffhanger||'')}</textarea>
@@ -457,10 +458,10 @@ function renderNPCsTab(s) {
   return `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
     <div>
-      ${bulletSection(s,'npcsEncountered','👤 NPCS ENCOUNTERED','NPC name + one line on what they did...','var(--orange)')}
+      ${bulletSection(s,'npcsEncountered','ðŸ‘¤ NPCS ENCOUNTERED','NPC name + one line on what they did...','var(--orange)')}
     </div>
     <div>
-      ${bulletSection(s,'factionMoves','⚔️ FACTION MOVES','What did a faction do this session?','var(--purple)')}
+      ${bulletSection(s,'factionMoves','âš”ï¸ FACTION MOVES','What did a faction do this session?','var(--purple)')}
     </div>
   </div>`
 }
@@ -468,9 +469,9 @@ function renderNPCsTab(s) {
 function renderThreadsTab(s) {
   return `
   <div>
-    ${bulletSection(s,'unresolvedThreads','🧵 UNRESOLVED THREADS','A thread left open, a mystery unsolved...','#ef4444')}
+    ${bulletSection(s,'unresolvedThreads','ðŸ§µ UNRESOLVED THREADS','A thread left open, a mystery unsolved...','#ef4444')}
     <div style="margin-top:6px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;">
-      <div class="section-label" style="margin-bottom:6px;">QUICK REFERENCE — ALL OPEN THREADS ACROSS ALL SESSIONS</div>
+      <div class="section-label" style="margin-bottom:6px;">QUICK REFERENCE â€” ALL OPEN THREADS ACROSS ALL SESSIONS</div>
       <div style="display:flex;flex-direction:column;gap:3px;max-height:220px;overflow-y:auto;">
         ${S.sessions.flatMap(sess =>
           (sess.unresolvedThreads||[]).map(t => `
@@ -487,7 +488,7 @@ function renderThreadsTab(s) {
 function renderGMTab(s) {
   return `
   <div class="field-group">
-    <div class="section-label">🔒 GM PRIVATE NOTES</div>
+    <div class="section-label">ðŸ”’ GM PRIVATE NOTES</div>
     <textarea rows="12" style="width:100%;font-size:.8rem;line-height:1.6;"
       onchange="updateField('${s.id}','gmNotes',this.value)"
       placeholder="Private notes, plans for next session, secrets to reveal, mistakes to not repeat...">${esc(s.gmNotes||'')}</textarea>
@@ -509,9 +510,9 @@ function renderGMTab(s) {
   </div>`
 }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // UTILITIES
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
 
 let toastT
@@ -523,16 +524,16 @@ function toast(msg) {
 
 function render() { renderSessionList(); renderEditor() }
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // KEYBOARD
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') closeExport()
 })
 
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // INIT
-// ═══════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 load()
 if (!S.activeId && S.sessions.length) S.activeId = S.sessions[0].id
 render()

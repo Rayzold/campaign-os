@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔ Encounter Builder — Scarred Lands</title>
+<title>âš” Encounter Builder â€” Scarred Lands</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="campaign-os.js"></script>
 <style>
@@ -75,7 +75,8 @@
   <a href="sessions.html" style="color:var(--muted);text-decoration:none;">Sessions</a>
   <a href="tables.html" style="color:var(--muted);text-decoration:none;">Tables</a>
   <a href="music.html" style="color:var(--muted);text-decoration:none;">Music</a>
-  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">🌙 Dark</button>
+  <a href="crafting.html" style="color:var(--muted);text-decoration:none;">Crafting</a>
+  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.9rem;margin-right:10px;">ðŸŒ™ Dark</button>
   <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.9rem;">Help & Shortcuts</button>
 </nav>
 <main role="main" aria-label="Encounter Builder main content">
@@ -104,8 +105,8 @@
 
   <!-- Header -->
   <div style="display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;">
-    <a href="index.html" class="btn btn-sm" style="--accent:var(--muted);">← Hub</a>
-    <div style="font-size:1rem;font-weight:bold;letter-spacing:.12em;color:var(--red);">💀 ENCOUNTER BUILDER</div>
+    <a href="index.html" class="btn btn-sm" style="--accent:var(--muted);">â† Hub</a>
+    <div style="font-size:1rem;font-weight:bold;letter-spacing:.12em;color:var(--red);">ðŸ’€ ENCOUNTER BUILDER</div>
     <div style="width:1px;height:24px;background:var(--border);flex-shrink:0;"></div>
     <!-- Party Settings -->
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
@@ -128,7 +129,7 @@
       </div>
     </div>
     <div style="flex:1;"></div>
-    <button class="btn btn-sm" onclick="randomEncounter()" style="--accent:var(--purple);">🎲 Random Encounter</button>
+    <button class="btn btn-sm" onclick="randomEncounter()" style="--accent:var(--purple);">ðŸŽ² Random Encounter</button>
     <button class="btn btn-sm btn-primary" style="--accent:var(--red);" onclick="newEncounter()">+ New Encounter</button>
   </div>
 
@@ -139,7 +140,7 @@
     <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;">
       <div style="padding:12px;border-bottom:1px solid var(--border);flex-shrink:0;">
         <div class="section-hdr" style="margin:0 0 8px;">SAVED ENCOUNTERS</div>
-        <input class="inp inp-sm" id="encSearch" placeholder="Search encounters…" oninput="renderEncList()">
+        <input class="inp inp-sm" id="encSearch" placeholder="Search encountersâ€¦" oninput="renderEncList()">
       </div>
       <div id="encList" style="flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;"></div>
     </div>
@@ -147,16 +148,16 @@
     <!-- Center: Active Encounter Editor -->
     <div style="display:flex;flex-direction:column;overflow:hidden;">
       <div id="editorEmpty" style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:var(--muted);">
-        <div style="font-size:3rem;">💀</div>
+        <div style="font-size:3rem;">ðŸ’€</div>
         <div style="font-size:.8rem;letter-spacing:.1em;">SELECT OR CREATE AN ENCOUNTER</div>
         <button class="btn btn-primary" style="--accent:var(--red);" onclick="newEncounter()">+ New Encounter</button>
       </div>
       <div id="editor" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
         <!-- Editor Header -->
         <div style="padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:12px;">
-          <input class="inp" id="encName" placeholder="Encounter name…" style="max-width:300px;" oninput="autoSave()">
+          <input class="inp" id="encName" placeholder="Encounter nameâ€¦" style="max-width:300px;" oninput="autoSave()">
           <select class="inp" id="encBiome" style="max-width:160px;" onchange="autoSave()">
-            <option value="">— Biome —</option>
+            <option value="">â€” Biome â€”</option>
             <option>Nanite Wastes</option>
             <option>Glass Desert</option>
             <option>Ruined City</option>
@@ -169,8 +170,8 @@
           </select>
           <div style="flex:1;"></div>
           <div id="diffDisplay" style="font-size:.85rem;font-weight:bold;letter-spacing:.08em;"></div>
-          <button class="btn btn-sm btn-primary" style="--accent:var(--red);" onclick="sendToInitiative()">⚔ Send to Initiative</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteEncounter()">🗑</button>
+          <button class="btn btn-sm btn-primary" style="--accent:var(--red);" onclick="sendToInitiative()">âš” Send to Initiative</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteEncounter()">ðŸ—‘</button>
         </div>
 
         <!-- Combatant List -->
@@ -195,7 +196,7 @@
           <!-- Notes -->
           <div style="margin-top:20px;">
             <div class="section-hdr">ENCOUNTER NOTES</div>
-            <textarea class="inp" id="encNotes" rows="3" placeholder="Setup, tactics, environment description…" oninput="autoSave()" style="resize:vertical;line-height:1.5;"></textarea>
+            <textarea class="inp" id="encNotes" rows="3" placeholder="Setup, tactics, environment descriptionâ€¦" oninput="autoSave()" style="resize:vertical;line-height:1.5;"></textarea>
           </div>
         </div>
       </div>
@@ -205,7 +206,7 @@
     <div style="border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;">
       <div style="padding:12px;border-bottom:1px solid var(--border);flex-shrink:0;">
         <div class="section-hdr" style="margin:0 0 8px;">CREATURE LIBRARY</div>
-        <input class="inp inp-sm" id="libSearch" placeholder="Search creatures…" oninput="renderLibrary()">
+        <input class="inp inp-sm" id="libSearch" placeholder="Search creaturesâ€¦" oninput="renderLibrary()">
         <div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;" id="typeTabs">
           <button class="tab-btn active" data-type="all" onclick="filterType(this)">All</button>
           <button class="tab-btn" data-type="beast" onclick="filterType(this)">Beast</button>
@@ -228,9 +229,9 @@
   <div class="modal" style="max-width:640px;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
       <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;flex:1;">ADD CREATURE</div>
-      <button class="btn btn-sm" onclick="document.getElementById('creaturePickerOverlay').style.display='none'">✕ Close</button>
+      <button class="btn btn-sm" onclick="document.getElementById('creaturePickerOverlay').style.display='none'">âœ• Close</button>
     </div>
-    <input class="inp" id="pickSearch" placeholder="Search library…" oninput="renderPickList()" style="margin-bottom:12px;">
+    <input class="inp" id="pickSearch" placeholder="Search libraryâ€¦" oninput="renderPickList()" style="margin-bottom:12px;">
     <div id="pickList" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;"></div>
   </div>
 </div>
@@ -239,7 +240,7 @@
   <div class="modal">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
       <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;flex:1;">ADD HAZARD</div>
-      <button class="btn btn-sm" onclick="document.getElementById('hazardPickerOverlay').style.display='none'">✕ Close</button>
+      <button class="btn btn-sm" onclick="document.getElementById('hazardPickerOverlay').style.display='none'">âœ• Close</button>
     </div>
     <div id="hazardPickList" style="display:flex;flex-direction:column;gap:6px;"></div>
   </div>
@@ -263,7 +264,7 @@
       <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">INIT MOD</div><input class="inp" id="cc_mod" type="number" placeholder="+2"></div>
       <div><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">SPEED</div><input class="inp" id="cc_speed" placeholder="30 ft"></div>
     </div>
-    <div style="margin-bottom:10px;"><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">DESCRIPTION / TRAITS</div><textarea class="inp" id="cc_desc" rows="3" placeholder="Special abilities, lore, tactics…" style="resize:vertical;line-height:1.5;"></textarea></div>
+    <div style="margin-bottom:10px;"><div style="font-size:.65rem;color:var(--muted);margin-bottom:4px;">DESCRIPTION / TRAITS</div><textarea class="inp" id="cc_desc" rows="3" placeholder="Special abilities, lore, tacticsâ€¦" style="resize:vertical;line-height:1.5;"></textarea></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button class="btn" onclick="document.getElementById('customCreatureOverlay').style.display='none'">Cancel</button>
       <button class="btn btn-primary" style="--accent:var(--red);" onclick="saveCustomCreature()">Save to Library</button>
@@ -273,7 +274,7 @@
 
 <div id="randomOverlay" class="overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal" style="max-width:480px;">
-    <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;margin-bottom:16px;">🎲 RANDOM ENCOUNTER</div>
+    <div style="font-size:.85rem;font-weight:bold;letter-spacing:.1em;margin-bottom:16px;">ðŸŽ² RANDOM ENCOUNTER</div>
     <div style="margin-bottom:12px;">
       <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;">PARTY SIZE</div>
       <div style="display:flex;gap:6px;">
@@ -300,7 +301,7 @@
     </div>
     <div id="randomResult" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;min-height:80px;font-size:.75rem;line-height:1.7;"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
-      <button class="btn" onclick="genRandom()">🎲 Reroll</button>
+      <button class="btn" onclick="genRandom()">ðŸŽ² Reroll</button>
       <button class="btn btn-primary" style="--accent:var(--red);" onclick="useRandomEncounter()">Use This Encounter</button>
       <button class="btn" onclick="document.getElementById('randomOverlay').style.display='none'">Cancel</button>
     </div>
@@ -308,7 +309,7 @@
 </div>
 
 <script>
-// ── Data ──────────────────────────────────────────────────────────────────
+// â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TYPE_COLORS = { beast:'#f97316', construct:'#14b8a6', humanoid:'#3b82f6', aberration:'#a855f7' }
 
 const CREATURE_LIBRARY = [
@@ -341,10 +342,10 @@ const CREATURE_LIBRARY = [
 
 const HAZARDS = [
   { id:'nanite-storm', name:'Nanite Storm', color:'var(--teal)', desc:'3d6 rounds. DC 14 CON each round or take 1d6 corrode dmg. Metal equipment degrades.' },
-  { id:'reality-glitch', name:'Reality Glitch', color:'var(--purple)', desc:'Area warps space. Random teleport (1d6×5 ft) when entering. Spells have 20% misfire chance.' },
+  { id:'reality-glitch', name:'Reality Glitch', color:'var(--purple)', desc:'Area warps space. Random teleport (1d6Ã—5 ft) when entering. Spells have 20% misfire chance.' },
   { id:'glass-rain', name:'Glass Rain', color:'var(--blue)', desc:'Difficult terrain. 1d4 piercing dmg per round of movement. Stealth checks at disadvantage.' },
   { id:'nanite-fog', name:'Nanite Fog', color:'var(--teal)', desc:'Heavy obscurement. Objects corrode over time. Electronics malfunction on failed DC 12 save.' },
-  { id:'void-rift', name:'Void Rift', color:'var(--purple)', desc:'20-ft radius. Gravity warps — pulled 10 ft toward rift each turn (STR DC 13 resists).' },
+  { id:'void-rift', name:'Void Rift', color:'var(--purple)', desc:'20-ft radius. Gravity warps â€” pulled 10 ft toward rift each turn (STR DC 13 resists).' },
   { id:'corrupting-aura', name:'Corrupting Aura', color:'var(--orange)', desc:'Corruption zone emanating from a creature/object. DC 15 WIS each round or gain 1 corruption.' },
   { id:'unstable-ground', name:'Unstable Ground', color:'var(--yellow)', desc:'Sinkhole zones. DC 12 DEX or fall through (2d6 bludgeoning + prone + restrained).' },
   { id:'emp-pulse', name:'EMP Pulse', color:'var(--blue)', desc:'All electronic/construct items disabled for 1d4 rounds. Constructs stunned on failed save.' },
@@ -352,7 +353,7 @@ const HAZARDS = [
   { id:'toxic-spore', name:'Toxic Spore Cloud', color:'var(--green)', desc:'DC 13 CON or poisoned for 1 hour. On fail by 5+, also blinded for 1d4 rounds.' },
 ]
 
-// ── XP thresholds per level ──
+// â”€â”€ XP thresholds per level â”€â”€
 const XP_THRESHOLDS = {
   1:  [25,50,75,100],
   2:  [50,100,150,200],
@@ -376,7 +377,7 @@ const XP_THRESHOLDS = {
   20: [2800,5700,8500,12700],
 }
 
-// ── State ────────────────────────────────────────────────────────────────
+// â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let encounters = JSON.parse(localStorage.getItem('sl_encounters') || '[]')
 let customCreatures = JSON.parse(localStorage.getItem('sl_custom_creatures') || '[]')
 let activeEncId = null
@@ -393,7 +394,7 @@ function save() {
   localStorage.setItem('sl_custom_creatures', JSON.stringify(customCreatures))
 }
 
-// ── Encounter CRUD ────────────────────────────────────────────────────────
+// â”€â”€ Encounter CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function newEncounter() {
   const enc = {
     id: Date.now().toString(),
@@ -450,7 +451,7 @@ function autoSave() {
   renderEncList()
 }
 
-// ── Combatants ────────────────────────────────────────────────────────────
+// â”€â”€ Combatants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function addCombatant(creatureId, count = 1) {
   const enc = getEnc()
   if (!enc) return
@@ -492,7 +493,7 @@ function renderCombatants() {
   const enc = getEnc()
   const container = document.getElementById('combatantSlots')
   if (!enc || !enc.combatants.length) {
-    container.innerHTML = `<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:20px;">No combatants yet — add from the library →</div>`
+    container.innerHTML = `<div style="color:var(--muted);font-size:.75rem;text-align:center;padding:20px;">No combatants yet â€” add from the library â†’</div>`
     document.getElementById('xpTotal').textContent = '0'
     return
   }
@@ -511,15 +512,15 @@ function renderCombatants() {
             <span class="cr-badge">CR ${c.cr}</span>
             <span class="type-badge" style="background:${col}22;color:${col};border:1px solid ${col}44;">${c.type}</span>
           </div>
-          <div style="font-size:.65rem;color:var(--muted);">HP ${c.hp} · AC ${c.ac} · Speed ${c.speed || '30 ft'} · Init +${c.mod || 0} · ${c.xp} XP each</div>
+          <div style="font-size:.65rem;color:var(--muted);">HP ${c.hp} Â· AC ${c.ac} Â· Speed ${c.speed || '30 ft'} Â· Init +${c.mod || 0} Â· ${c.xp} XP each</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button class="btn btn-sm" onclick="updateCount('${c.id}',-1)" style="padding:2px 8px;">−</button>
+          <button class="btn btn-sm" onclick="updateCount('${c.id}',-1)" style="padding:2px 8px;">âˆ’</button>
           <span style="font-size:.85rem;font-weight:bold;min-width:20px;text-align:center;">${slot.count}</span>
           <button class="btn btn-sm" onclick="updateCount('${c.id}',1)" style="padding:2px 8px;">+</button>
         </div>
         <div style="font-size:.72rem;color:var(--yellow);min-width:60px;text-align:right;">${xp.toLocaleString()} XP</div>
-        <button class="btn btn-sm btn-danger" onclick="removeCombatant('${c.id}')" style="padding:2px 8px;">✕</button>
+        <button class="btn btn-sm btn-danger" onclick="removeCombatant('${c.id}')" style="padding:2px 8px;">âœ•</button>
       </div>
       ${c.desc ? `<div style="font-size:.65rem;color:#64748b;margin-top:6px;line-height:1.5;">${c.desc}</div>` : ''}
     </div>`
@@ -527,7 +528,7 @@ function renderCombatants() {
   document.getElementById('xpTotal').textContent = totalXP.toLocaleString()
 }
 
-// ── Hazards ───────────────────────────────────────────────────────────────
+// â”€â”€ Hazards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function addHazard(hazardId) {
   const enc = getEnc()
   if (!enc) return
@@ -557,12 +558,12 @@ function renderHazards() {
     if (!h) return ''
     return `<div class="hazard-chip" style="border-color:${h.color}44;background:${h.color}11;color:${h.color};" title="${h.desc}">
       ${h.name}
-      <button onclick="removeHazard('${h.id}')" style="background:none;border:none;cursor:pointer;color:inherit;font-size:.7rem;padding:0;opacity:.6;">✕</button>
+      <button onclick="removeHazard('${h.id}')" style="background:none;border:none;cursor:pointer;color:inherit;font-size:.7rem;padding:0;opacity:.6;">âœ•</button>
     </div>`
   }).join('')
 }
 
-// ── Difficulty ────────────────────────────────────────────────────────────
+// â”€â”€ Difficulty â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateDiff() {
   const enc = getEnc()
   const display = document.getElementById('diffDisplay')
@@ -585,7 +586,7 @@ function updateDiff() {
   else mult = 4
   const adjXP = Math.round(totalXP * mult)
 
-  // Compare against party thresholds (default party 4 × level 3)
+  // Compare against party thresholds (default party 4 Ã— level 3)
   const partyLevel = parseInt(localStorage.getItem('sl_party_level') || '3')
   const partySize = parseInt(localStorage.getItem('sl_party_size') || '4')
   const thresh = XP_THRESHOLDS[Math.min(20, Math.max(1, partyLevel))] || XP_THRESHOLDS[3]
@@ -602,7 +603,7 @@ function updateDiff() {
   display.innerHTML = `<span class="${cls}">${label}</span> <span style="font-size:.65rem;color:var(--muted);">(${adjXP.toLocaleString()} adj. XP)</span>`
 }
 
-// ── Library ───────────────────────────────────────────────────────────────
+// â”€â”€ Library â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function filterType(btn) {
   document.querySelectorAll('#typeTabs .tab-btn').forEach(b => b.classList.remove('active'))
   btn.classList.add('active')
@@ -625,7 +626,7 @@ function renderLibrary() {
         <span style="font-size:.78rem;font-weight:bold;color:${col};flex:1;">${c.name}</span>
         <span class="cr-badge">CR ${c.cr}</span>
       </div>
-      <div style="font-size:.62rem;color:var(--muted);">HP ${c.hp} · AC ${c.ac} · ${c.xp} XP</div>
+      <div style="font-size:.62rem;color:var(--muted);">HP ${c.hp} Â· AC ${c.ac} Â· ${c.xp} XP</div>
       ${c.isCustom ? `<span style="font-size:.55rem;color:var(--yellow);">CUSTOM</span>` : ''}
     </div>`
   }).join('') || `<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:20px;">No creatures found</div>`
@@ -636,7 +637,7 @@ function addCombatantFromLib(id) {
   addCombatant(id)
 }
 
-// ── Pickers ───────────────────────────────────────────────────────────────
+// â”€â”€ Pickers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openCreaturePicker() {
   renderPickList()
   document.getElementById('creaturePickerOverlay').style.display = 'flex'
@@ -652,7 +653,7 @@ function renderPickList() {
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="flex:1;">
           <div style="font-size:.78rem;font-weight:bold;color:${col};">${c.name} <span class="cr-badge" style="margin-left:6px;">CR ${c.cr}</span></div>
-          <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">HP ${c.hp} · AC ${c.ac} · ${c.xp} XP · ${c.type}</div>
+          <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">HP ${c.hp} Â· AC ${c.ac} Â· ${c.xp} XP Â· ${c.type}</div>
         </div>
         <button class="btn btn-sm btn-primary" style="--accent:var(--red);">Add</button>
       </div>
@@ -673,7 +674,7 @@ function openHazardPicker() {
   document.getElementById('hazardPickerOverlay').style.display = 'flex'
 }
 
-// ── Custom Creature ───────────────────────────────────────────────────────
+// â”€â”€ Custom Creature â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openCustomCreature() {
   ['cc_name','cc_cr','cc_hp','cc_ac','cc_mod','cc_speed','cc_desc','cc_xp'].forEach(id => {
     document.getElementById(id).value = ''
@@ -703,7 +704,7 @@ function saveCustomCreature() {
   document.getElementById('customCreatureOverlay').style.display = 'none'
 }
 
-// ── Send to Initiative ────────────────────────────────────────────────────
+// â”€â”€ Send to Initiative â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function sendToInitiative() {
   const enc = getEnc()
   if (!enc || !enc.combatants.length) { alert('No combatants to send!'); return }
@@ -737,7 +738,7 @@ function sendToInitiative() {
   }
 }
 
-// ── Random Encounter ──────────────────────────────────────────────────────
+// â”€â”€ Random Encounter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function randomEncounter() {
   document.getElementById('randomOverlay').style.display = 'flex'
   genRandom()
@@ -802,18 +803,18 @@ function genRandom() {
     ${chosen.map(c => {
       const col = TYPE_COLORS[c.type] || '#e2e8f0'
       return `<div style="display:flex;gap:8px;margin-bottom:4px;">
-        <span style="color:${col};font-weight:bold;">${c.count}×</span>
+        <span style="color:${col};font-weight:bold;">${c.count}Ã—</span>
         <span style="color:${col};">${c.name}</span>
         <span class="cr-badge" style="margin:auto 0;">CR ${c.cr}</span>
         <span style="color:var(--muted);font-size:.65rem;margin:auto 0;">${c.xp * c.count} XP</span>
       </div>`
     }).join('')}
     ${hazard ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
-      <span class="tag" style="background:${hazard.color}22;color:${hazard.color};border:1px solid ${hazard.color}44;">⚠ ${hazard.name}</span>
-      <span style="font-size:.62rem;color:var(--muted);margin-left:8px;">${hazard.desc.slice(0,60)}…</span>
+      <span class="tag" style="background:${hazard.color}22;color:${hazard.color};border:1px solid ${hazard.color}44;">âš  ${hazard.name}</span>
+      <span style="font-size:.62rem;color:var(--muted);margin-left:8px;">${hazard.desc.slice(0,60)}â€¦</span>
     </div>` : ''}
     <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);">
-      Raw XP: ${totalXP.toLocaleString()} · Adjusted: ~${Math.round(totalXP * 2).toLocaleString()} XP
+      Raw XP: ${totalXP.toLocaleString()} Â· Adjusted: ~${Math.round(totalXP * 2).toLocaleString()} XP
     </div>`
 }
 
@@ -821,7 +822,7 @@ function useRandomEncounter() {
   if (!pendingRandom) return
   newEncounter()
   const enc = getEnc()
-  enc.name = `Random – ${new Date().toLocaleDateString()}`
+  enc.name = `Random â€“ ${new Date().toLocaleDateString()}`
   if (pendingRandom.hazard) enc.hazards = [pendingRandom.hazard.id]
   pendingRandom.chosen.forEach(c => {
     enc.combatants.push({ creatureId: c.id, count: c.count })
@@ -834,7 +835,7 @@ function useRandomEncounter() {
   document.getElementById('randomOverlay').style.display = 'none'
 }
 
-// ── Encounter List ────────────────────────────────────────────────────────
+// â”€â”€ Encounter List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderEncList() {
   const q = document.getElementById('encSearch').value.toLowerCase()
   const list = document.getElementById('encList')
@@ -844,12 +845,12 @@ function renderEncList() {
     const count = enc.combatants.reduce((s, c) => s + c.count, 0)
     return `<div onclick="openEncounter('${enc.id}')" style="cursor:pointer;border-radius:8px;padding:10px 12px;border:1px solid ${active ? 'var(--red)' : 'var(--border)'};background:${active ? 'rgba(239,68,68,.07)' : 'var(--surface2)'};transition:all .15s;" class="${active ? '' : 'creature-card'}">
       <div style="font-size:.75rem;font-weight:bold;color:${active ? 'var(--red)' : '#e2e8f0'};">${enc.name}</div>
-      <div style="font-size:.62rem;color:var(--muted);margin-top:3px;">${enc.biome || 'No biome'} · ${count} combatant${count !== 1 ? 's' : ''}</div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:3px;">${enc.biome || 'No biome'} Â· ${count} combatant${count !== 1 ? 's' : ''}</div>
     </div>`
   }).join('') || `<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:20px;">No encounters yet</div>`
 }
 
-// ── Party Settings ─────────────────────────────────────────────────────────
+// â”€â”€ Party Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setPartySetting(key, val) {
   if (key === 'size') {
     val = Math.min(8, Math.max(1, val))
@@ -886,7 +887,7 @@ document.getElementById('partyLevel')?.addEventListener('change', function() {
   setPartySetting('level', +this.value)
 })
 
-// ── Init ───────────────────────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 renderEncList()
 renderLibrary()
 initPartyUI()

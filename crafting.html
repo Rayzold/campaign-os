@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚒ Crafting Tracker</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="campaign-os.js"></script>
+<style>
+  :root{--orange:#f97316;--purple:#a855f7;--teal:#14b8a6;--blue:#3b82f6;--yellow:#eab308;--red:#ef4444;--green:#22c55e;
+    --bg:#06060e;--surface:#13132a;--surface2:#1a1a38;--border:#4a4a78;--muted:#a8b8d0;--text:#f4f6fb;--text-subtle:#7c8ca3;}
+  html[data-theme="light"]{--bg:#6f7a89;--surface:#a8b2c0;--surface2:#949fae;--border:#4a5462;--muted:#1c2533;--text:#0b0f14;--text-subtle:#323c49;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Courier New',monospace;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);}
+  ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px;}
+  input,select,textarea{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:5px;
+    padding:6px 10px;font-family:inherit;font-size:.85rem;outline:none;transition:border-color .15s;width:100%;}
+  input:focus,select:focus,textarea:focus{border-color:var(--orange);}
+  input[type="number"]{-moz-appearance:textfield;} input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;}
+  .btn{border:none;border-radius:5px;padding:6px 14px;font-family:inherit;font-size:.75rem;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+  .btn-primary{background:var(--orange);color:#000;font-weight:bold;}
+  .btn-primary:hover{background:#fb923c;box-shadow:0 0 16px rgba(249,115,22,.45);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+  .btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
+  .btn-danger{background:transparent;border:1px solid rgba(239,68,68,.3);color:rgba(239,68,68,.6);}
+  .btn-danger:hover{border-color:var(--red);color:var(--red);}
+  .btn-sm{padding:4px 10px;font-size:.7rem;}
+  .btn-teal{background:transparent;border:1px solid var(--teal);color:var(--teal);}
+  .btn-teal:hover{background:rgba(20,184,166,.12);}
+
+  .section-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:bold;}
+
+  /* Cards */
+  .craft-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;
+    transition:border-color .2s,box-shadow .2s;position:relative;overflow:hidden;}
+  .craft-card:hover{border-color:rgba(249,115,22,.35);}
+  .craft-card.active-card{border-left:3px solid var(--orange);}
+  .craft-card.queued-card{border-left:3px solid var(--purple);opacity:.85;}
+  .craft-card.complete-card{border-left:3px solid var(--green);opacity:.7;}
+
+  /* Progress */
+  .progress-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden;margin:8px 0 4px;}
+  .progress-fill{height:100%;border-radius:4px;transition:width .6s ease;
+    background:linear-gradient(90deg,var(--orange),#fb923c);}
+  .progress-fill.almost{background:linear-gradient(90deg,var(--green),#4ade80);}
+  .progress-fill.queued{background:var(--purple);}
+
+  /* Resource chips */
+  .res-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:.65rem;font-weight:bold;
+    border:1px solid;white-space:nowrap;}
+  .res-gold  {color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08);}
+  .res-mana  {color:#a78bfa;border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.08);}
+  .res-matl  {color:#86efac;border-color:rgba(134,239,172,.35);background:rgba(134,239,172,.08);}
+  .res-food  {color:#fb923c;border-color:rgba(251,146,60,.35);background:rgba(251,146,60,.08);}
+  .res-time  {color:#94a3b8;border-color:rgba(148,163,184,.3);background:rgba(148,163,184,.06);}
+
+  /* Modal */
+  .modal-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.8);
+    align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 26px;
+    width:min(520px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,.6);}
+
+  /* Label */
+  .field-label{font-size:.7rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;display:block;}
+
+  /* Cost row */
+  .cost-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+  /* Days badge */
+  .days-badge{font-size:.7rem;color:var(--muted);}
+  .days-badge.urgent{color:var(--red);}
+  .days-badge.soon{color:var(--yellow);}
+  .days-badge.good{color:var(--green);}
+
+  /* Toast */
+  #toast{position:fixed;bottom:1rem;right:1rem;z-index:9999;padding:.45rem 1rem;background:var(--surface2);
+    border:1px solid var(--orange);border-radius:6px;color:var(--orange);font-size:.75rem;
+    transform:translateY(60px);transition:transform .3s;pointer-events:none;}
+  #toast.show{transform:translateY(0);}
+
+  /* Drag handle */
+  .drag-handle{cursor:grab;color:var(--muted);font-size:.9rem;user-select:none;padding:0 4px;}
+  .drag-handle:active{cursor:grabbing;}
+
+  @keyframes slide-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .slide-in{animation:slide-in .2s ease both;}
+
+  nav{box-shadow:0 4px 28px rgba(0,0,0,.45);}
+  html[data-theme="light"] nav{box-shadow:0 2px 16px rgba(15,23,42,.18);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 0 8px 0;
+  display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:100;">
+  <a href="index.html" style="color:var(--orange);font-weight:bold;font-size:1.1rem;margin-left:18px;">DM Suite</a>
+  <a href="initiative.html" style="color:var(--muted);text-decoration:none;font-size:.9rem;">Initiative</a>
+  <a href="encounter.html" style="color:var(--muted);text-decoration:none;font-size:.9rem;">Encounters</a>
+  <a href="sessions.html" style="color:var(--muted);text-decoration:none;font-size:.9rem;">Sessions</a>
+  <a href="tables.html" style="color:var(--muted);text-decoration:none;font-size:.9rem;">Tables</a>
+  <a href="music.html" style="color:var(--muted);text-decoration:none;font-size:.9rem;">Music</a>
+  <a href="crafting.html" style="color:var(--orange);text-decoration:none;font-size:.9rem;font-weight:bold;">Crafting</a>
+  <button id="theme-toggle" style="margin-left:auto;background:var(--surface);color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:5px 14px;cursor:pointer;font-size:.85rem;margin-right:10px;">🌙</button>
+  <button id="help-btn" style="margin-right:18px;background:var(--orange);color:#000;border:none;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:.85rem;font-weight:bold;">Help</button>
+</nav>
+
+<!-- Help Modal -->
+<div id="help-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);color:var(--text);border-radius:12px;padding:28px 24px;max-width:480px;width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.4);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <span style="font-size:1rem;font-weight:bold;color:var(--orange);">⚒ Crafting Tracker — Help</span>
+      <button onclick="closeHelp()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;">&times;</button>
+    </div>
+    <ul style="font-size:.85rem;line-height:2;color:var(--muted);">
+      <li><b style="color:var(--text);">Add Item</b> — add an item with name, resource costs, and duration</li>
+      <li><b style="color:var(--text);">Advance Day</b> — tick one day of progress on an item</li>
+      <li><b style="color:var(--text);">Global Advance</b> — advance ALL active items by one day</li>
+      <li><b style="color:var(--text);">Queue</b> — items waiting to start; drag to reorder</li>
+      <li><b style="color:var(--text);">Start Next</b> — move the first queued item to active</li>
+      <li><b style="color:var(--text);">Complete</b> — mark an item done and archive it</li>
+      <li><b style="color:var(--orange);">N</b> — open Add Item form &nbsp;|&nbsp; <b style="color:var(--orange);">Esc</b> — close modal</li>
+    </ul>
+    <div style="margin-top:14px;font-size:.75rem;color:var(--text-subtle);">All data is saved to localStorage automatically.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ADD / EDIT ITEM MODAL -->
+<div id="item-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <span id="modal-title" style="font-size:1rem;font-weight:bold;color:var(--orange);">⚒ New Crafting Item</span>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;">&times;</button>
+    </div>
+
+    <div style="display:grid;gap:14px;">
+      <!-- Name -->
+      <div>
+        <label class="field-label">Item Name</label>
+        <input id="f-name" type="text" placeholder="e.g. Enchanted Longsword +2" autocomplete="off">
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="field-label">Description (optional)</label>
+        <input id="f-desc" type="text" placeholder="Brief notes about this item…" autocomplete="off">
+      </div>
+
+      <!-- Duration -->
+      <div class="cost-row">
+        <div>
+          <label class="field-label">Total Days to Craft</label>
+          <input id="f-days-total" type="number" min="1" placeholder="14">
+        </div>
+        <div>
+          <label class="field-label">Days Already Done</label>
+          <input id="f-days-done" type="number" min="0" placeholder="0">
+        </div>
+      </div>
+
+      <!-- Resource costs (daily) -->
+      <div>
+        <label class="field-label" style="margin-bottom:8px;">Daily Resource Costs</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label style="font-size:.65rem;color:#fbbf24;display:block;margin-bottom:3px;">💰 Gold / day</label>
+            <input id="f-gold" type="number" min="0" placeholder="0">
+          </div>
+          <div>
+            <label style="font-size:.65rem;color:#a78bfa;display:block;margin-bottom:3px;">✨ Mana / day</label>
+            <input id="f-mana" type="number" min="0" placeholder="0">
+          </div>
+          <div>
+            <label style="font-size:.65rem;color:#86efac;display:block;margin-bottom:3px;">🪵 Materials / day</label>
+            <input id="f-matl" type="number" min="0" placeholder="0">
+          </div>
+          <div>
+            <label style="font-size:.65rem;color:#fb923c;display:block;margin-bottom:3px;">🍖 Food / day</label>
+            <input id="f-food" type="number" min="0" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue toggle -->
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input id="f-queue" type="checkbox" style="width:auto;accent-color:var(--purple);">
+        <label for="f-queue" style="font-size:.8rem;color:var(--muted);cursor:pointer;">Add to queue (not active yet)</label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveItem()">⚒ Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main style="max-width:900px;margin:0 auto;padding:28px 18px;">
+
+  <!-- Header row -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;">
+    <div>
+      <h1 style="font-size:1.4rem;font-weight:bold;color:var(--orange);">⚒ Crafting Tracker</h1>
+      <p style="font-size:.75rem;color:var(--muted);margin-top:3px;">Track item crafting progress, costs, and queue.</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="advanceAllActive()" title="Advance all active items by 1 day">⏩ Advance All</button>
+      <button class="btn btn-primary" onclick="openModal()">+ Add Item</button>
+    </div>
+  </div>
+
+  <!-- Summary bar -->
+  <div id="summary-bar" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    padding:10px 14px;margin-bottom:22px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+    <span class="section-label">Daily total cost:</span>
+    <span id="sum-gold"  class="res-chip res-gold"  style="display:none;">💰 <span></span></span>
+    <span id="sum-mana"  class="res-chip res-mana"  style="display:none;">✨ <span></span></span>
+    <span id="sum-matl"  class="res-chip res-matl"  style="display:none;">🪵 <span></span></span>
+    <span id="sum-food"  class="res-chip res-food"  style="display:none;">🍖 <span></span></span>
+  </div>
+
+  <!-- ═══ ACTIVE ═══ -->
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="section-label">🔨 Active Crafting</span>
+        <span id="active-count" style="font-size:.65rem;background:rgba(249,115,22,.15);color:var(--orange);
+          border:1px solid rgba(249,115,22,.3);border-radius:10px;padding:1px 7px;">0</span>
+      </div>
+    </div>
+    <div id="active-list">
+      <!-- filled by JS -->
+    </div>
+    <div id="active-empty" style="display:none;text-align:center;padding:32px 16px;
+      border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:.8rem;">
+      No active crafting items. Add one above or start an item from the queue.
+    </div>
+  </div>
+
+  <!-- ═══ QUEUE ═══ -->
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="section-label">⏳ Crafting Queue</span>
+        <span id="queue-count" style="font-size:.65rem;background:rgba(168,85,247,.15);color:var(--purple);
+          border:1px solid rgba(168,85,247,.3);border-radius:10px;padding:1px 7px;">0</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="startNextQueued()" id="start-next-btn" style="display:none;">
+        ▶ Start Next
+      </button>
+    </div>
+    <div id="queue-list">
+      <!-- filled by JS -->
+    </div>
+    <div id="queue-empty" style="display:none;text-align:center;padding:24px 16px;
+      border:1px dashed rgba(168,85,247,.3);border-radius:10px;color:var(--muted);font-size:.8rem;">
+      Queue is empty. Items added to the queue will appear here.
+    </div>
+  </div>
+
+  <!-- ═══ COMPLETED ═══ -->
+  <div id="completed-section" style="margin-top:32px;display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <span class="section-label" style="color:var(--green);">✅ Completed</span>
+      <button class="btn btn-ghost btn-sm" onclick="clearCompleted()" style="color:var(--red);border-color:rgba(239,68,68,.3);">Clear All</button>
+    </div>
+    <div id="completed-list"></div>
+  </div>
+
+</main>
+
+<div style="position:fixed;bottom:8px;right:12px;z-index:9999;font-size:.65rem;color:var(--orange);
+  background:var(--surface);padding:3px 10px;border-radius:8px;opacity:.7;border:1px solid var(--border);">
+  Crafting v1.0
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────
+const STORE_KEY = 'sl_crafting';
+let state = { items: [] };
+let editId = null;
+
+function load() {
+  try { const d = localStorage.getItem(STORE_KEY); if (d) state = JSON.parse(d); } catch(e) {}
+  if (!Array.isArray(state.items)) state.items = [];
+}
+function save() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ─── Toast ────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ─── Modal ────────────────────────────────────────────────────────
+function openModal(id) {
+  editId = id || null;
+  const modal = document.getElementById('item-modal');
+  document.getElementById('modal-title').textContent = id ? '✏️ Edit Item' : '⚒ New Crafting Item';
+  // Clear form
+  ['f-name','f-desc','f-days-total','f-days-done','f-gold','f-mana','f-matl','f-food'].forEach(k => {
+    document.getElementById(k).value = '';
+  });
+  document.getElementById('f-queue').checked = false;
+
+  if (id) {
+    const it = state.items.find(x => x.id === id);
+    if (it) {
+      document.getElementById('f-name').value = it.name;
+      document.getElementById('f-desc').value = it.desc || '';
+      document.getElementById('f-days-total').value = it.daysTotal;
+      document.getElementById('f-days-done').value = it.daysDone;
+      document.getElementById('f-gold').value = it.costs.gold || '';
+      document.getElementById('f-mana').value = it.costs.mana || '';
+      document.getElementById('f-matl').value = it.costs.matl || '';
+      document.getElementById('f-food').value = it.costs.food || '';
+      document.getElementById('f-queue').checked = it.status === 'queued';
+    }
+  }
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 60);
+}
+function closeModal() {
+  document.getElementById('item-modal').classList.remove('open');
+  editId = null;
+}
+function saveItem() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('⚠ Item name required'); return; }
+  const daysTotal = Math.max(1, parseInt(document.getElementById('f-days-total').value) || 1);
+  const daysDone  = Math.min(daysTotal, Math.max(0, parseInt(document.getElementById('f-days-done').value) || 0));
+  const isQueued  = document.getElementById('f-queue').checked;
+
+  const item = {
+    id:       editId || uid(),
+    name,
+    desc:     document.getElementById('f-desc').value.trim(),
+    daysTotal,
+    daysDone,
+    status:   daysDone >= daysTotal ? 'complete' : isQueued ? 'queued' : 'active',
+    costs: {
+      gold: parseFloat(document.getElementById('f-gold').value) || 0,
+      mana: parseFloat(document.getElementById('f-mana').value) || 0,
+      matl: parseFloat(document.getElementById('f-matl').value) || 0,
+      food: parseFloat(document.getElementById('f-food').value) || 0,
+    },
+    addedAt: editId ? (state.items.find(x=>x.id===editId)?.addedAt || Date.now()) : Date.now(),
+  };
+
+  if (editId) {
+    const idx = state.items.findIndex(x => x.id === editId);
+    if (idx !== -1) state.items[idx] = item;
+  } else {
+    // Insert active at top of active block, queued at end
+    if (item.status === 'queued') {
+      state.items.push(item);
+    } else {
+      const firstQueued = state.items.findIndex(x => x.status === 'queued');
+      if (firstQueued === -1) state.items.push(item);
+      else state.items.splice(firstQueued, 0, item);
+    }
+  }
+
+  save(); closeModal(); render();
+  toast(editId ? `✏️ Updated "${name}"` : `⚒ Added "${name}" to ${item.status === 'queued' ? 'queue' : 'active crafting'}`);
+}
+
+// ─── Actions ──────────────────────────────────────────────────────
+function advanceDay(id) {
+  const it = state.items.find(x => x.id === id);
+  if (!it || it.status !== 'active') return;
+  it.daysDone = Math.min(it.daysTotal, it.daysDone + 1);
+  if (it.daysDone >= it.daysTotal) {
+    it.status = 'complete';
+    toast(`✅ "${it.name}" is complete!`);
+  } else {
+    toast(`📅 Day advanced — ${it.daysTotal - it.daysDone} day(s) left for "${it.name}"`);
+  }
+  save(); render();
+}
+
+function advanceAllActive() {
+  const active = state.items.filter(x => x.status === 'active');
+  if (!active.length) { toast('No active items to advance'); return; }
+  let completed = 0;
+  active.forEach(it => {
+    it.daysDone = Math.min(it.daysTotal, it.daysDone + 1);
+    if (it.daysDone >= it.daysTotal) { it.status = 'complete'; completed++; }
+  });
+  save(); render();
+  toast(`⏩ Advanced ${active.length} item(s)${completed ? ` — ${completed} complete!` : ''}`);
+}
+
+function startNextQueued() {
+  const queuedIdx = state.items.findIndex(x => x.status === 'queued');
+  if (queuedIdx === -1) return;
+  state.items[queuedIdx].status = 'active';
+  // Move to after last active item
+  const item = state.items.splice(queuedIdx, 1)[0];
+  const firstQueued = state.items.findIndex(x => x.status === 'queued');
+  if (firstQueued === -1) state.items.push(item);
+  else state.items.splice(firstQueued, 0, item);
+  save(); render();
+  toast(`▶ "${item.name}" started!`);
+}
+
+function removeItem(id) {
+  const it = state.items.find(x => x.id === id);
+  if (!confirm(`Remove "${it?.name}"?`)) return;
+  state.items = state.items.filter(x => x.id !== id);
+  save(); render(); toast('🗑 Item removed');
+}
+
+function completeItem(id) {
+  const it = state.items.find(x => x.id === id);
+  if (!it) return;
+  it.status = 'complete'; it.daysDone = it.daysTotal;
+  save(); render(); toast(`✅ "${it.name}" marked complete!`);
+}
+
+function reactivateItem(id) {
+  const it = state.items.find(x => x.id === id);
+  if (!it) return;
+  it.status = 'active'; it.daysDone = Math.min(it.daysDone, it.daysTotal - 1);
+  save(); render(); toast(`🔨 "${it.name}" reactivated`);
+}
+
+function queueItem(id) {
+  const it = state.items.find(x => x.id === id);
+  if (!it) return;
+  it.status = 'queued';
+  // Move to end
+  state.items = state.items.filter(x => x.id !== id);
+  state.items.push(it);
+  save(); render(); toast(`⏳ "${it.name}" moved to queue`);
+}
+
+function clearCompleted() {
+  if (!confirm('Remove all completed items?')) return;
+  state.items = state.items.filter(x => x.status !== 'complete');
+  save(); render(); toast('✅ Completed items cleared');
+}
+
+// Queue reorder via up/down
+function moveQueued(id, dir) {
+  const queued = state.items.filter(x => x.status === 'queued');
+  const idx = queued.findIndex(x => x.id === id);
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= queued.length) return;
+  // Swap in full array
+  const a = state.items.findIndex(x => x.id === queued[idx].id);
+  const b = state.items.findIndex(x => x.id === queued[newIdx].id);
+  [state.items[a], state.items[b]] = [state.items[b], state.items[a]];
+  save(); render();
+}
+
+// ─── Rendering ────────────────────────────────────────────────────
+function fmtNum(n) { return n % 1 === 0 ? n.toLocaleString() : n.toFixed(1); }
+
+function costChips(costs, scale=1) {
+  const chips = [];
+  if (costs.gold) chips.push(`<span class="res-chip res-gold">💰 ${fmtNum(costs.gold*scale)}</span>`);
+  if (costs.mana) chips.push(`<span class="res-chip res-mana">✨ ${fmtNum(costs.mana*scale)}</span>`);
+  if (costs.matl) chips.push(`<span class="res-chip res-matl">🪵 ${fmtNum(costs.matl*scale)}</span>`);
+  if (costs.food) chips.push(`<span class="res-chip res-food">🍖 ${fmtNum(costs.food*scale)}</span>`);
+  return chips.length ? chips.join(' ') : '<span style="color:var(--muted);font-size:.65rem;">No resource cost</span>';
+}
+
+function daysBadge(daysLeft) {
+  const cls = daysLeft <= 1 ? 'urgent' : daysLeft <= 3 ? 'soon' : 'good';
+  const label = daysLeft === 0 ? 'Due today' : daysLeft === 1 ? '1 day left' : `${daysLeft} days left`;
+  return `<span class="days-badge ${cls}">${label}</span>`;
+}
+
+function renderActiveCard(it) {
+  const pct = it.daysTotal > 0 ? (it.daysDone / it.daysTotal) * 100 : 0;
+  const daysLeft = it.daysTotal - it.daysDone;
+  const almostDone = pct >= 75;
+  const totalCost = { gold: it.costs.gold * it.daysTotal, mana: it.costs.mana * it.daysTotal, matl: it.costs.matl * it.daysTotal, food: it.costs.food * it.daysTotal };
+
+  return `
+  <div class="craft-card active-card slide-in" id="item-${it.id}" style="margin-bottom:10px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-weight:bold;font-size:.95rem;color:var(--text);">${escHtml(it.name)}</span>
+          ${daysBadge(daysLeft)}
+        </div>
+        ${it.desc ? `<div style="font-size:.7rem;color:var(--muted);margin-top:2px;">${escHtml(it.desc)}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" onclick="openModal('${it.id}')" title="Edit">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="queueItem('${it.id}')" title="Move to queue">⏳</button>
+        <button class="btn btn-ghost btn-sm" onclick="completeItem('${it.id}')" title="Mark complete">✅</button>
+        <button class="btn btn-danger btn-sm" onclick="removeItem('${it.id}')" title="Remove">✕</button>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-track">
+      <div class="progress-fill ${almostDone?'almost':''}" style="width:${pct.toFixed(1)}%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:.65rem;color:var(--muted);">Day ${it.daysDone} / ${it.daysTotal} &nbsp;(${pct.toFixed(0)}%)</span>
+      <button class="btn btn-teal btn-sm" onclick="advanceDay('${it.id}')">+1 Day</button>
+    </div>
+
+    <!-- Costs -->
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <span style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;min-width:56px;">Per day:</span>
+        ${costChips(it.costs)}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <span style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;min-width:56px;">Total:</span>
+        ${costChips(totalCost)}
+        <span class="res-chip res-time">⏱ ${it.daysTotal}d</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderQueueCard(it, idx, total) {
+  const totalCost = { gold: it.costs.gold * it.daysTotal, mana: it.costs.mana * it.daysTotal, matl: it.costs.matl * it.daysTotal, food: it.costs.food * it.daysTotal };
+  return `
+  <div class="craft-card queued-card slide-in" id="item-${it.id}" style="margin-bottom:10px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <span class="drag-handle" title="Reorder">⠿</span>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <button class="btn btn-ghost" style="padding:1px 6px;font-size:.6rem;line-height:1;" onclick="moveQueued('${it.id}',-1)" ${idx===0?'disabled':''}>▲</button>
+          <button class="btn btn-ghost" style="padding:1px 6px;font-size:.6rem;line-height:1;" onclick="moveQueued('${it.id}',1)" ${idx===total-1?'disabled':''}>▼</button>
+        </div>
+        <span style="font-size:.65rem;color:var(--purple);font-weight:bold;">#${idx+1}</span>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:bold;font-size:.9rem;color:var(--text);">${escHtml(it.name)}</div>
+        ${it.desc ? `<div style="font-size:.7rem;color:var(--muted);margin-top:2px;">${escHtml(it.desc)}</div>` : ''}
+        <div style="margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          ${costChips(it.costs)}
+          <span class="res-chip res-time">⏱ ${it.daysTotal}d total</span>
+        </div>
+        <div style="margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;min-width:56px;">Total cost:</span>
+          ${costChips(totalCost)}
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" onclick="openModal('${it.id}')" title="Edit">✏️</button>
+        <button class="btn btn-teal btn-sm" onclick="(()=>{const i=state.items.find(x=>x.id==='${it.id}');i.status='active';save();render();toast('▶ \\'${escHtml(it.name).replace(/'/g,"\\'")}\\' started!');})()" title="Start now">▶ Start</button>
+        <button class="btn btn-danger btn-sm" onclick="removeItem('${it.id}')" title="Remove">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCompletedCard(it) {
+  return `
+  <div class="craft-card complete-card" id="item-${it.id}" style="margin-bottom:8px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div style="flex:1;min-width:0;">
+        <span style="font-weight:bold;font-size:.85rem;color:var(--green);">✅ ${escHtml(it.name)}</span>
+        ${it.desc ? `<span style="font-size:.7rem;color:var(--muted);margin-left:8px;">${escHtml(it.desc)}</span>` : ''}
+        <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;">
+          ${costChips({ gold: it.costs.gold*it.daysTotal, mana: it.costs.mana*it.daysTotal, matl: it.costs.matl*it.daysTotal, food: it.costs.food*it.daysTotal })}
+          <span class="res-chip res-time">⏱ ${it.daysTotal}d</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" onclick="reactivateItem('${it.id}')" title="Reactivate">↩ Redo</button>
+        <button class="btn btn-danger btn-sm" onclick="removeItem('${it.id}')">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const active   = state.items.filter(x => x.status === 'active');
+  const queued   = state.items.filter(x => x.status === 'queued');
+  const complete = state.items.filter(x => x.status === 'complete');
+
+  // Active
+  document.getElementById('active-count').textContent = active.length;
+  const aList = document.getElementById('active-list');
+  const aEmpty = document.getElementById('active-empty');
+  if (active.length) {
+    aList.innerHTML = active.map(renderActiveCard).join('');
+    aEmpty.style.display = 'none';
+  } else {
+    aList.innerHTML = '';
+    aEmpty.style.display = 'block';
+  }
+
+  // Queue
+  document.getElementById('queue-count').textContent = queued.length;
+  const qList = document.getElementById('queue-list');
+  const qEmpty = document.getElementById('queue-empty');
+  const startBtn = document.getElementById('start-next-btn');
+  if (queued.length) {
+    qList.innerHTML = queued.map((it,i) => renderQueueCard(it,i,queued.length)).join('');
+    qEmpty.style.display = 'none';
+    startBtn.style.display = '';
+  } else {
+    qList.innerHTML = '';
+    qEmpty.style.display = 'block';
+    startBtn.style.display = 'none';
+  }
+
+  // Completed
+  const compSection = document.getElementById('completed-section');
+  const compList = document.getElementById('completed-list');
+  if (complete.length) {
+    compSection.style.display = '';
+    compList.innerHTML = complete.map(renderCompletedCard).join('');
+  } else {
+    compSection.style.display = 'none';
+    compList.innerHTML = '';
+  }
+
+  // Summary bar (active costs only)
+  updateSummary(active);
+}
+
+function updateSummary(active) {
+  const bar = document.getElementById('summary-bar');
+  const totals = { gold:0, mana:0, matl:0, food:0 };
+  active.forEach(it => {
+    totals.gold += it.costs.gold;
+    totals.mana += it.costs.mana;
+    totals.matl += it.costs.matl;
+    totals.food += it.costs.food;
+  });
+  const hasCost = Object.values(totals).some(v => v > 0);
+  bar.style.display = hasCost ? 'flex' : 'none';
+  ['gold','mana','matl','food'].forEach(k => {
+    const el = document.getElementById('sum-'+k);
+    if (totals[k] > 0) {
+      el.style.display = '';
+      el.querySelector('span').textContent = fmtNum(totals[k]) + '/day';
+    } else {
+      el.style.display = 'none';
+    }
+  });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Help / close ─────────────────────────────────────────────────
+function closeHelp() {
+  document.getElementById('help-modal').style.display = 'none';
+}
+document.getElementById('help-btn').addEventListener('click', () => {
+  document.getElementById('help-modal').style.display = 'flex';
+});
+
+// ─── Keyboard ─────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeHelp(); }
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (e.key.toLowerCase() === 'n') { e.preventDefault(); openModal(); }
+});
+
+// ─── Init ─────────────────────────────────────────────────────────
+load();
+render();
+</script>
+</body>
+</html>
